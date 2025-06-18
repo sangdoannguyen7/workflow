@@ -1708,6 +1708,8 @@ const WorkflowBuilderPage: React.FC = () => {
               borderRadius: borderRadiusLG,
               overflow: "hidden",
               boxShadow: boxShadowSecondary,
+              position: "relative",
+              minHeight: "500px",
             }}
           >
             <ReactFlow
