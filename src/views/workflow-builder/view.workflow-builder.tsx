@@ -427,15 +427,15 @@ const WorkflowBuilderPage: React.FC = () => {
     [setEdges, isPlaying, isValidConnection]
   );
 
-  // SỬA LẠI HÀM DROP HOÀN TOÀN
+  // SỬA LẠI HÀM DROP HOÀN TOÀN - Không dùng reactFlowInstance.project
   const onDrop = useCallback(
     (event: DragEvent<HTMLDivElement>) => {
       event.preventDefault();
       console.log("Drop event triggered");
 
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-      if (!reactFlowBounds || !reactFlowInstance) {
-        console.log("Missing bounds or instance");
+      if (!reactFlowBounds) {
+        console.log("Missing bounds");
         return;
       }
 
@@ -451,21 +451,19 @@ const WorkflowBuilderPage: React.FC = () => {
         const { template, nodeType } = JSON.parse(data);
         console.log("Parsed template:", template);
 
-        // Convert screen coordinates to flow coordinates
-        const position = reactFlowInstance.project({
-          x: event.clientX - reactFlowBounds.left,
-          y: event.clientY - reactFlowBounds.top,
-        });
+        // Tính toán vị trí trực tiếp mà không cần reactFlowInstance.project
+        const dropX = event.clientX - reactFlowBounds.left;
+        const dropY = event.clientY - reactFlowBounds.top;
 
-        console.log("Drop position:", position);
+        console.log("Drop position:", { x: dropX, y: dropY });
 
         const newNodeId = `node_${nodeCounter}`;
         const newNode: Node = {
           id: newNodeId,
           type: "workflowNode",
           position: {
-            x: position.x - 125, // Center the node
-            y: position.y - 50,
+            x: Math.max(0, dropX - 125), // Center the node, tránh âm
+            y: Math.max(0, dropY - 50),
           },
           data: {
             label: template.templateName,
@@ -490,11 +488,11 @@ const WorkflowBuilderPage: React.FC = () => {
         setIsDragging(false);
       } catch (error) {
         console.error("Error parsing drop data:", error);
-        message.error("Không thể thêm node");
+        message.error("Không thể thêu node");
         setIsDragging(false);
       }
     },
-    [nodeCounter, setNodes, reactFlowInstance]
+    [nodeCounter, setNodes]
   );
 
   // SỬA LẠI HÀM DRAG OVER
