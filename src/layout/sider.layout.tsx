@@ -10,23 +10,15 @@ import logo from "../images/logo.png";
 // const permission = ["DASHBOARD_ADMIN", "BOOKING_ADMIN", "HOTEL_ADMIN"]
 
 const SiderLayout = () => {
+  const location = useLocation();
   const collapseStore = useSelector((state: IState) => state.getCollapsed);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // const [permissions, setPermissions] = useState([] as any);
 
-  // useEffect(() => {
-  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //   const per = [] as any;
-  //   menuData.admin.map((data) => {
-  //     permission.map((me) => {
-  //       if(data.permission === me) {
-  //         per.push(data);
-  //       }
-  //     })
-  //   })
-  //   setPermissions(per);
-  //   console.log('render');
-  // }, [])
+  // Get current selected key based on pathname
+  const getSelectedKey = () => {
+    const currentPath = location.pathname;
+    const menuItem = menuData.find((item) => item.path === currentPath);
+    return menuItem ? [menuItem.key] : ["DASHBOARD"];
+  };
 
   const {
     token: { colorBgContainer },
