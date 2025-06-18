@@ -730,10 +730,10 @@ const DashboardPage = () => {
             }
             style={{
               borderRadius: borderRadiusLG,
-              height: 350,
+              height: 320,
               boxShadow: boxShadowSecondary,
             }}
-            bodyStyle={{ padding: "8px", overflow: "hidden" }}
+            bodyStyle={{ padding: "12px", overflow: "auto", maxHeight: 280 }}
           >
             <List
               size="small"
