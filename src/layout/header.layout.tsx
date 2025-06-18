@@ -53,9 +53,9 @@ const HeaderLayout = () => {
   const [settingsDrawerVisible, setSettingsDrawerVisible] = useState(false);
   const [notificationDrawerVisible, setNotificationDrawerVisible] =
     useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const [userProfile, setUserProfile] = useState(null);
-  const [systemSettings, setSystemSettings] = useState(null);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [systemSettings, setSystemSettings] = useState<any>(null);
   const [profileForm] = Form.useForm();
   const [settingsForm] = Form.useForm();
 
