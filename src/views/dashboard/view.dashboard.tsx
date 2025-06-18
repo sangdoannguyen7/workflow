@@ -392,7 +392,7 @@ const DashboardPage = () => {
                 onChange={setSelectedWorkflow}
                 style={{ width: "100%" }}
                 options={[
-                  { value: "all", label: "Tất cả workflow" },
+                  { value: "all", label: "Tất c��� workflow" },
                   { value: "user-reg", label: "User Registration" },
                   { value: "payment", label: "Payment Processing" },
                   { value: "email", label: "Email Campaign" },
@@ -916,7 +916,7 @@ const DashboardPage = () => {
               height: 280,
               boxShadow: boxShadowSecondary,
             }}
-            bodyStyle={{ padding: "8px", overflow: "hidden" }}
+            bodyStyle={{ padding: "16px", overflow: "auto", maxHeight: 240 }}
           >
             <Timeline
               mode="left"
