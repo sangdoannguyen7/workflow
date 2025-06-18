@@ -1,83 +1,100 @@
-import axiosCustom, { IDataRequest, IDataResponse } from "../axiosCustom";
 import {
   IAgent,
   IAgentResponse,
   IAgentSearchParams,
 } from "../../interface/agent.interface";
 import { IAgentApi } from "./api.agent.interface";
+import {
+  getMockAgents,
+  getMockAgentById,
+  getMockAgentByCode,
+  mockAgents,
+} from "../../mock/agent.mock";
 
 class AgentApi implements IAgentApi {
-  private readonly baseUrl = "/api/agents";
+  private nextId = Math.max(...mockAgents.map((a) => a.agentId || 0)) + 1;
 
   async getAgents(params?: IAgentSearchParams): Promise<IAgentResponse> {
-    const request: IDataRequest = {
-      method: "GET",
-      uri: this.baseUrl,
-      params: params || null,
-      data: null,
-    };
-    const response: IDataResponse<IAgent> = await axiosCustom(request);
-    return {
-      content: response.data,
-      totalElements: response.total,
-      totalPages: response.totalPage,
-      size: response.pageSize,
-      number: response.page,
-    };
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(getMockAgents(params));
+      }, 300); // Simulate API delay
+    });
   }
 
   async getAgentById(id: number): Promise<IAgent> {
-    const request: IDataRequest = {
-      method: "GET",
-      uri: `${this.baseUrl}/${id}`,
-      params: null,
-      data: null,
-    };
-    const response: IDataResponse<IAgent> = await axiosCustom(request);
-    return response.value;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const agent = getMockAgentById(id);
+        if (agent) {
+          resolve(agent);
+        } else {
+          reject(new Error("Agent not found"));
+        }
+      }, 200);
+    });
   }
 
   async createAgent(agent: Omit<IAgent, "agentId">): Promise<IAgent> {
-    const request: IDataRequest = {
-      method: "POST",
-      uri: this.baseUrl,
-      params: null,
-      data: agent,
-    };
-    const response: IDataResponse<IAgent> = await axiosCustom(request);
-    return response.value;
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const newAgent: IAgent = {
+          ...agent,
+          agentId: this.nextId++,
+          search:
+            `${agent.agentCode} ${agent.agentName} ${agent.statusName}`.toLowerCase(),
+        };
+        mockAgents.push(newAgent);
+        resolve(newAgent);
+      }, 500);
+    });
   }
 
   async updateAgent(id: number, agent: IAgent): Promise<IAgent> {
-    const request: IDataRequest = {
-      method: "PUT",
-      uri: `${this.baseUrl}/${id}`,
-      params: null,
-      data: agent,
-    };
-    const response: IDataResponse<IAgent> = await axiosCustom(request);
-    return response.value;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const index = mockAgents.findIndex((a) => a.agentId === id);
+        if (index !== -1) {
+          const updatedAgent = {
+            ...agent,
+            agentId: id,
+            search:
+              `${agent.agentCode} ${agent.agentName} ${agent.statusName}`.toLowerCase(),
+          };
+          mockAgents[index] = updatedAgent;
+          resolve(updatedAgent);
+        } else {
+          reject(new Error("Agent not found"));
+        }
+      }, 500);
+    });
   }
 
   async deleteAgent(id: number): Promise<void> {
-    const request: IDataRequest = {
-      method: "DELETE",
-      uri: `${this.baseUrl}/${id}`,
-      params: null,
-      data: null,
-    };
-    await axiosCustom(request);
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const index = mockAgents.findIndex((a) => a.agentId === id);
+        if (index !== -1) {
+          mockAgents.splice(index, 1);
+          resolve();
+        } else {
+          reject(new Error("Agent not found"));
+        }
+      }, 300);
+    });
   }
 
   async getAgentByCode(code: string): Promise<IAgent> {
-    const request: IDataRequest = {
-      method: "GET",
-      uri: `${this.baseUrl}/code/${code}`,
-      params: null,
-      data: null,
-    };
-    const response: IDataResponse<IAgent> = await axiosCustom(request);
-    return response.value;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const agent = getMockAgentByCode(code);
+        if (agent) {
+          resolve(agent);
+        } else {
+          reject(new Error("Agent not found"));
+        }
+      }, 200);
+    });
   }
 }
 

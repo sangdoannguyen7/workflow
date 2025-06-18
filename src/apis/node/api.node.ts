@@ -1,105 +1,118 @@
-import axiosCustom, { IDataRequest, IDataResponse } from "../axiosCustom";
 import {
   INode,
   INodeResponse,
   INodeSearchParams,
 } from "../../interface/node.interface";
 import { INodeApi } from "./api.node.interface";
+import {
+  getMockNodes,
+  getMockNodeById,
+  getMockNodeByCode,
+  getMockNodesByWorkflow,
+  getMockNodesByTemplate,
+  mockNodes,
+} from "../../mock/node.mock";
 
 class NodeApi implements INodeApi {
-  private readonly baseUrl = "/api/nodes";
+  private nextId = Math.max(...mockNodes.map((n) => n.nodeId || 0)) + 1;
 
   async getNodes(params?: INodeSearchParams): Promise<INodeResponse> {
-    const request: IDataRequest = {
-      method: "GET",
-      uri: this.baseUrl,
-      params: params || null,
-      data: null,
-    };
-    const response: IDataResponse<INode> = await axiosCustom(request);
-    return {
-      content: response.data,
-      totalElements: response.total,
-      totalPages: response.totalPage,
-      size: response.pageSize,
-      number: response.page,
-    };
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(getMockNodes(params));
+      }, 300);
+    });
   }
 
   async getNodeById(id: number): Promise<INode> {
-    const request: IDataRequest = {
-      method: "GET",
-      uri: `${this.baseUrl}/${id}`,
-      params: null,
-      data: null,
-    };
-    const response: IDataResponse<INode> = await axiosCustom(request);
-    return response.value;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const node = getMockNodeById(id);
+        if (node) {
+          resolve(node);
+        } else {
+          reject(new Error("Node not found"));
+        }
+      }, 200);
+    });
   }
 
   async createNode(node: Omit<INode, "nodeId">): Promise<INode> {
-    const request: IDataRequest = {
-      method: "POST",
-      uri: this.baseUrl,
-      params: null,
-      data: node,
-    };
-    const response: IDataResponse<INode> = await axiosCustom(request);
-    return response.value;
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const newNode: INode = {
+          ...node,
+          nodeId: this.nextId++,
+          search:
+            `${node.nodeCode} ${node.nodeName} ${node.templateType} ${node.statusName}`.toLowerCase(),
+        };
+        mockNodes.push(newNode);
+        resolve(newNode);
+      }, 500);
+    });
   }
 
   async updateNode(id: number, node: INode): Promise<INode> {
-    const request: IDataRequest = {
-      method: "PUT",
-      uri: `${this.baseUrl}/${id}`,
-      params: null,
-      data: node,
-    };
-    const response: IDataResponse<INode> = await axiosCustom(request);
-    return response.value;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const index = mockNodes.findIndex((n) => n.nodeId === id);
+        if (index !== -1) {
+          const updatedNode = {
+            ...node,
+            nodeId: id,
+            search:
+              `${node.nodeCode} ${node.nodeName} ${node.templateType} ${node.statusName}`.toLowerCase(),
+          };
+          mockNodes[index] = updatedNode;
+          resolve(updatedNode);
+        } else {
+          reject(new Error("Node not found"));
+        }
+      }, 500);
+    });
   }
 
   async deleteNode(id: number): Promise<void> {
-    const request: IDataRequest = {
-      method: "DELETE",
-      uri: `${this.baseUrl}/${id}`,
-      params: null,
-      data: null,
-    };
-    await axiosCustom(request);
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const index = mockNodes.findIndex((n) => n.nodeId === id);
+        if (index !== -1) {
+          mockNodes.splice(index, 1);
+          resolve();
+        } else {
+          reject(new Error("Node not found"));
+        }
+      }, 300);
+    });
   }
 
   async getNodeByCode(code: string): Promise<INode> {
-    const request: IDataRequest = {
-      method: "GET",
-      uri: `${this.baseUrl}/code/${code}`,
-      params: null,
-      data: null,
-    };
-    const response: IDataResponse<INode> = await axiosCustom(request);
-    return response.value;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const node = getMockNodeByCode(code);
+        if (node) {
+          resolve(node);
+        } else {
+          reject(new Error("Node not found"));
+        }
+      }, 200);
+    });
   }
 
   async getNodesByWorkflow(workflowCode: string): Promise<INode[]> {
-    const request: IDataRequest = {
-      method: "GET",
-      uri: `${this.baseUrl}/workflow/${workflowCode}`,
-      params: null,
-      data: null,
-    };
-    const response: IDataResponse<INode> = await axiosCustom(request);
-    return response.data;
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(getMockNodesByWorkflow(workflowCode));
+      }, 200);
+    });
   }
 
   async getNodesByTemplate(templateCode: string): Promise<INode[]> {
-    const request: IDataRequest = {
-      method: "GET",
-      uri: `${this.baseUrl}/template/${templateCode}`,
-      params: null,
-      data: null,
-    };
-    const response: IDataResponse<INode> = await axiosCustom(request);
-    return response.data;
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(getMockNodesByTemplate(templateCode));
+      }, 200);
+    });
   }
 }
 
