@@ -388,14 +388,16 @@ const WorkflowPage: React.FC = () => {
           style={{
             background: "rgba(255, 255, 255, 0.95)",
             backdropFilter: "blur(12px)",
-            padding: "6px 8px",
-            borderRadius: "8px",
+            padding: "4px 6px",
+            borderRadius: "6px",
             border: "1px solid rgba(25, 118, 210, 0.1)",
             boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
             display: "flex",
             justifyContent: "center",
+            alignItems: "center",
             position: "relative",
             zIndex: 10,
+            minHeight: "32px",
           }}
         >
           <Space size="small" wrap>
@@ -866,7 +868,7 @@ const WorkflowPage: React.FC = () => {
                 </Col>
                 <Col span={12}>
                   <Statistic
-                    title="T�� lệ lỗi"
+                    title="Tỷ lệ lỗi"
                     value={testResults.performance.errorRate.toFixed(2)}
                     suffix="%"
                     valueStyle={{ color: colorError }}
