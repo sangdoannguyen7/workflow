@@ -392,6 +392,55 @@
   }
 }
 
+/* Lively animations for agent groups */
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+/* Agent group hover effects */
+.agent-group:hover .agent-icon {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+  transform: scale(1.05) !important;
+}
+
+/* Enhanced handle styles for different types */
+.react-flow__handle.handle-input {
+  background: radial-gradient(circle, #fff 30%, #4caf50 100%) !important;
+}
+
+.react-flow__handle.handle-output {
+  background: radial-gradient(circle, #fff 30%, #2196f3 100%) !important;
+}
+
 /* Draggable template styles */
 .draggable-template {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;

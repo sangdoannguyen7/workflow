@@ -196,51 +196,90 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
       onDragEnd={onDragEnd}
       style={{
         border: `2px solid ${config?.borderColor || "#d9d9d9"}`,
-        borderRadius: "12px",
-        padding: "14px",
-        marginBottom: "8px",
+        borderRadius: "14px",
+        padding: "12px",
+        marginBottom: "6px",
         cursor: isDragging ? "grabbing" : "grab",
-        backgroundColor: config?.bgColor || "#fafafa",
-        transition: "all 0.3s ease",
+        background: `linear-gradient(135deg, ${config?.bgColor || "#fafafa"}, ${
+          config?.color || "#f0f0f0"
+        }08)`,
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         userSelect: "none",
         position: "relative",
         overflow: "hidden",
-        opacity: isDragging ? 0.5 : 1,
-        transform: isDragging ? "scale(0.95)" : "scale(1)",
+        opacity: isDragging ? 0.6 : 1,
+        transform: isDragging ? "scale(0.95) rotate(2deg)" : "scale(1)",
         boxShadow: isDragging
-          ? `0 8px 24px ${config?.color || "#ccc"}60`
-          : "0 2px 8px rgba(0,0,0,0.1)",
+          ? `0 12px 32px ${config?.color || "#ccc"}50`
+          : `0 2px 8px rgba(0,0,0,0.08), 0 1px 2px ${
+              config?.color || "#ccc"
+            }20`,
       }}
       onMouseEnter={(e) => {
         if (!isDragging) {
-          e.currentTarget.style.transform = "translateY(-2px) scale(1.02)";
+          e.currentTarget.style.transform = "translateY(-3px) scale(1.02)";
           e.currentTarget.style.boxShadow = `0 8px 24px ${
             config?.color || "#ccc"
-          }40`;
+          }40, 0 4px 12px rgba(0,0,0,0.1)`;
+          e.currentTarget.style.borderColor = config?.color || "#ccc";
         }
       }}
       onMouseLeave={(e) => {
         if (!isDragging) {
           e.currentTarget.style.transform = "translateY(0) scale(1)";
-          e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
+          e.currentTarget.style.boxShadow = `0 2px 8px rgba(0,0,0,0.08), 0 1px 2px ${
+            config?.color || "#ccc"
+          }20`;
+          e.currentTarget.style.borderColor = config?.borderColor || "#d9d9d9";
         }
       }}
     >
-      {/* Type indicator */}
+      {/* Enhanced Type indicator with connection info */}
       <div
         style={{
           position: "absolute",
-          top: 8,
-          right: 8,
-          background: config?.color,
+          top: 6,
+          right: 6,
+          background: `linear-gradient(135deg, ${config?.color}, ${config?.color}dd)`,
           color: "white",
-          borderRadius: "8px",
-          padding: "2px 6px",
-          fontSize: "10px",
+          borderRadius: "10px",
+          padding: "4px 8px",
+          fontSize: "9px",
           fontWeight: "bold",
+          boxShadow: `0 2px 8px ${config?.color}40`,
+          border: "1px solid rgba(255,255,255,0.2)",
         }}
       >
-        {template.templateType?.toUpperCase()}
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <span>{template.templateType?.toUpperCase()}</span>
+          <div style={{ display: "flex", gap: "2px" }}>
+            {/* Input/Output indicators */}
+            {(config?.category === "INTERMEDIATE" ||
+              config?.category === "EXIT") && (
+              <div
+                style={{
+                  width: "4px",
+                  height: "4px",
+                  borderRadius: "50%",
+                  background: "#4CAF50",
+                  title: "Has Input",
+                }}
+              />
+            )}
+            {(config?.category === "TRIGGER" ||
+              config?.category === "INTERMEDIATE") && (
+              <div
+                style={{
+                  width: "4px",
+                  height: "4px",
+                  borderRadius: "50%",
+                  background: "#2196F3",
+                  title: "Has Output",
+                }}
+              />
+            )}
+          </div>
+        </div>
       </div>
 
       <div
@@ -1944,7 +1983,7 @@ const WorkflowBuilderPage: React.FC = () => {
                     >
                       <strong>Bắt đầu xây dựng workflow của bạn:</strong>
                       <br />
-                      📝 <strong>1.</strong> Kéo template từ sidebar bên trái
+                      📝 <strong>1.</strong> Kéo template t��� sidebar bên trái
                       vào canvas
                       <br />
                       🔗 <strong>2.</strong> Kết nối các node bằng cách kéo từ
@@ -1961,7 +2000,7 @@ const WorkflowBuilderPage: React.FC = () => {
                       }}
                     >
                       <Text style={{ fontSize: "14px", color: colorPrimary }}>
-                        💡 <strong>Mẹo:</strong> Trigger → Intermediate ��� Exit
+                        💡 <strong>Mẹo:</strong> Trigger → Intermediate → Exit
                         là flow chuẩn
                       </Text>
                     </div>
