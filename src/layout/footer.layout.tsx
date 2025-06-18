@@ -129,7 +129,7 @@ const FooterComponent = () => {
                     display: "block",
                   }}
                 >
-                  WorkFlow Pro
+                  WorkflowUI
                 </Text>
                 <Text style={{ fontSize: 12, color: colorTextSecondary }}>
                   Advanced Management
