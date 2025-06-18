@@ -6,9 +6,8 @@ import {
   ITemplateRequest,
   ITemplateValueResponse,
 } from "../../interface/template.interface";
-import { ITemplateApi } from "./api.template.interface";
 
-class TemplateApi implements ITemplateApi {
+class TemplateApi {
   private readonly baseUrl = "/v1/property/templates";
 
   async getTemplates(
@@ -17,13 +16,7 @@ class TemplateApi implements ITemplateApi {
     const request: IDataRequest = {
       method: "GET",
       uri: this.baseUrl,
-      params: {
-        agentCode: params?.agentCode || "",
-        search: params?.search || "",
-        sorter: params?.sorter || "",
-        current: params?.current || 1,
-        pageSize: params?.pageSize || 20,
-      },
+      params: params || {},
       data: null,
     };
 
@@ -34,7 +27,29 @@ class TemplateApi implements ITemplateApi {
   }
 
   async getTemplateById(id: number): Promise<ITemplate> {
-    throw new Error("API does not support getById, use getByCode instead");
+    const request: IDataRequest = {
+      method: "GET",
+      uri: `${this.baseUrl}/${id}`,
+      params: null,
+      data: null,
+    };
+    const response: IDataResponse<ITemplateValueResponse> = await axiosCustom(
+      request
+    );
+    return response.value.data;
+  }
+
+  async getTemplateByCode(code: string): Promise<ITemplate> {
+    const request: IDataRequest = {
+      method: "GET",
+      uri: `${this.baseUrl}/${code}`,
+      params: null,
+      data: null,
+    };
+    const response: IDataResponse<ITemplateValueResponse> = await axiosCustom(
+      request
+    );
+    return response.value.data;
   }
 
   async createTemplate(templateRequest: ITemplateRequest): Promise<ITemplate> {
@@ -55,7 +70,7 @@ class TemplateApi implements ITemplateApi {
     templateRequest: ITemplateRequest
   ): Promise<ITemplate> {
     const request: IDataRequest = {
-      method: "PATCH",
+      method: "PUT",
       uri: `${this.baseUrl}/${templateCode}`,
       params: null,
       data: templateRequest,
@@ -66,42 +81,29 @@ class TemplateApi implements ITemplateApi {
     return response.value.data;
   }
 
-  async deleteTemplate(id: number): Promise<void> {
-    throw new Error(
-      "API does not support delete by ID, use deleteByCode instead"
-    );
-  }
-
-  async getTemplateByCode(code: string): Promise<ITemplate> {
+  async deleteTemplate(templateCode: string): Promise<void> {
     const request: IDataRequest = {
-      method: "GET",
-      uri: `${this.baseUrl}/${code}`,
+      method: "DELETE",
+      uri: `${this.baseUrl}/${templateCode}`,
       params: null,
       data: null,
     };
-    const response: IDataResponse<ITemplateValueResponse> = await axiosCustom(
-      request
-    );
-    return response.value.data;
+    await axiosCustom(request);
   }
 
   async getTemplatesByAgent(agentCode: string): Promise<ITemplate[]> {
-    const response = await this.getTemplates({ agentCode, pageSize: 1000 });
-    return response.data;
-  }
-
-  async initializeTemplates(initializationCode: string): Promise<ITemplate[]> {
     const request: IDataRequest = {
       method: "GET",
-      uri: `${this.baseUrl}/initialize`,
-      params: { initializationCode },
+      uri: this.baseUrl,
+      params: { agentCode, size: 1000 },
       data: null,
     };
-    const response: IDataResponse<{ data: ITemplate[] }> = await axiosCustom(
+    const response: IDataResponse<ITemplateResponse> = await axiosCustom(
       request
     );
-    return response.value.data;
+    return response.value.content;
   }
 }
 
-export default new TemplateApi();
+const templateApi = new TemplateApi();
+export default templateApi;
