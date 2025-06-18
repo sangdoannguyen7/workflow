@@ -343,7 +343,7 @@ export class MockAPI {
     return mockData;
   }
 
-  static async getWorkflows(params: any = {}) {
+  static async getWorkflows(params: any = {}): Promise<any> {
     const filteredData = mockWorkflows.filter((workflow) => {
       if (params.search) {
         return (
@@ -358,17 +358,13 @@ export class MockAPI {
       return true;
     });
 
-    return this.request(
-      "/workflows",
-      { method: "GET", params },
-      {
-        success: true,
-        data: filteredData,
-        total: filteredData.length,
-        current: params.current || 1,
-        pageSize: params.pageSize || 20,
-      }
-    );
+    return this.request("/workflows", { method: "GET", params }, {
+      success: true,
+      data: filteredData,
+      total: filteredData.length,
+      current: params.current || 1,
+      pageSize: params.pageSize || 20,
+    } as any);
   }
 
   static async getTemplates(params: any = {}) {
