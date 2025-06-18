@@ -74,22 +74,22 @@ function App() {
       },
       components: {
         Layout: {
-          headerBg: isDark ? "#001529" : "#ffffff",
-          siderBg: isDark ? "#001529" : "#ffffff",
-          bodyBg: isDark ? "#000000" : "#f0f2f5",
+          headerBg: isDark ? "#1E1E1E" : "#FFFFFF",
+          siderBg: isDark ? "#1E1E1E" : "#FFFFFF",
+          bodyBg: isDark ? "#121212" : "#FFFFFF",
         },
         Menu: {
           itemBg: "transparent",
           itemSelectedBg: isDark
-            ? "rgba(255, 255, 255, 0.08)"
-            : `${theme.primaryColor || "#1890ff"}10`,
+            ? "rgba(144, 202, 249, 0.15)"
+            : "rgba(25, 118, 210, 0.1)",
           itemHoverBg: isDark
-            ? "rgba(255, 255, 255, 0.04)"
-            : `${theme.primaryColor || "#1890ff"}05`,
-          itemSelectedColor: theme.primaryColor || "#1890ff",
+            ? "rgba(144, 202, 249, 0.08)"
+            : "rgba(25, 118, 210, 0.05)",
+          itemSelectedColor: isDark ? "#90CAF9" : "#1976D2",
         },
         Card: {
-          headerBg: isDark ? "#1f1f1f" : "#fafafa",
+          headerBg: isDark ? "#2C2C2C" : "#F5F5F5",
           paddingLG: theme.compactMode ? 16 : 24,
         },
         Button: {
@@ -105,32 +105,32 @@ function App() {
           controlHeight: theme.compactMode ? 28 : 32,
         },
         Table: {
-          headerBg: isDark ? "#1f1f1f" : "#fafafa",
-          headerSortActiveBg: isDark ? "#262626" : "#f0f0f0",
-          headerSortHoverBg: isDark ? "#262626" : "#f5f5f5",
+          headerBg: isDark ? "#2C2C2C" : "#F5F5F5",
+          headerSortActiveBg: isDark ? "#333333" : "#E0E0E0",
+          headerSortHoverBg: isDark ? "#333333" : "#DADADA",
           rowHoverBg: isDark
             ? "rgba(255, 255, 255, 0.04)"
             : "rgba(0, 0, 0, 0.02)",
         },
         Tabs: {
-          itemHoverColor: theme.primaryColor || "#1890ff",
-          itemSelectedColor: theme.primaryColor || "#1890ff",
-          inkBarColor: theme.primaryColor || "#1890ff",
+          itemHoverColor: isDark ? "#90CAF9" : "#1976D2",
+          itemSelectedColor: isDark ? "#90CAF9" : "#1976D2",
+          inkBarColor: isDark ? "#90CAF9" : "#1976D2",
         },
         Switch: {
-          colorPrimary: theme.primaryColor || "#1890ff",
-          colorPrimaryHover: theme.primaryColor || "#1890ff",
+          colorPrimary: isDark ? "#90CAF9" : "#1976D2",
+          colorPrimaryHover: isDark ? "#90CAF9" : "#1976D2",
         },
         Progress: {
-          colorSuccess: "#52c41a",
-          colorWarning: "#faad14",
-          colorError: "#ff4d4f",
+          colorSuccess: isDark ? "#A5D6A7" : "#388E3C",
+          colorWarning: isDark ? "#FFB74D" : "#F57C00",
+          colorError: isDark ? "#EF9A9A" : "#D32F2F",
         },
         Tag: {
           borderRadiusSM: Math.max((theme.borderRadius || 8) - 2, 4),
         },
         Notification: {
-          colorBgElevated: isDark ? "#1f1f1f" : "#ffffff",
+          colorBgElevated: isDark ? "#2C2C2C" : "#FFFFFF",
           borderRadiusLG: (theme.borderRadius || 8) + 4,
         },
         Modal: {
