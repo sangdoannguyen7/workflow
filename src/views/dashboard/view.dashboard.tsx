@@ -633,8 +633,9 @@ const DashboardPage = () => {
             bodyStyle={{ padding: "16px 24px" }}
           >
             <div style={{ position: "relative" }}>
-              <Area {...executionAreaConfig} height={320} />
-              {/* Error trend line overlay */}
+              <Area {...executionAreaConfig} height={300} />
+
+              {/* Error trend line overlay with data points */}
               <div
                 style={{
                   position: "absolute",
@@ -645,16 +646,66 @@ const DashboardPage = () => {
                   pointerEvents: "none",
                 }}
               >
-                <svg width="100%" height="320" style={{ position: "absolute" }}>
+                <svg width="100%" height="300" style={{ position: "absolute" }}>
                   <path
-                    d="M 50 280 L 150 275 L 250 270 L 350 265 L 450 270 L 550 260 L 650 265"
+                    d="M 70 260 L 150 255 L 230 250 L 310 245 L 390 250 L 470 240 L 550 245"
                     stroke={colorError}
                     strokeWidth="2"
-                    strokeDasharray="4,4"
+                    strokeDasharray="6,4"
                     fill="none"
-                    opacity="0.8"
+                    opacity="0.9"
                   />
+                  {/* Error data points */}
+                  {[
+                    { x: 70, y: 260, errors: 10 },
+                    { x: 150, y: 255, errors: 10 },
+                    { x: 230, y: 250, errors: 15 },
+                    { x: 310, y: 245, errors: 15 },
+                    { x: 390, y: 250, errors: 15 },
+                    { x: 470, y: 240, errors: 20 },
+                    { x: 550, y: 245, errors: 15 },
+                  ].map((point, index) => (
+                    <g key={index}>
+                      <circle
+                        cx={point.x}
+                        cy={point.y}
+                        r="4"
+                        fill={colorError}
+                        stroke="#fff"
+                        strokeWidth="2"
+                        opacity="0.9"
+                      />
+                      <text
+                        x={point.x}
+                        y={point.y - 12}
+                        textAnchor="middle"
+                        fill={colorError}
+                        fontSize="10"
+                        fontWeight="bold"
+                      >
+                        {point.errors}
+                      </text>
+                    </g>
+                  ))}
                 </svg>
+              </div>
+
+              {/* Error rate indicator */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  background: `${colorError}15`,
+                  border: `1px solid ${colorError}30`,
+                  borderRadius: 6,
+                  padding: "4px 8px",
+                  fontSize: 10,
+                  color: colorError,
+                  fontWeight: 500,
+                }}
+              >
+                Avg Error Rate: 8.2%
               </div>
             </div>
             <div
@@ -726,8 +777,8 @@ const DashboardPage = () => {
                 <div
                   style={{
                     background: `linear-gradient(135deg, ${colorSuccess}, ${colorSuccess}cc)`,
-                    borderRadius: "6px",
-                    padding: "4px",
+                    borderRadius: "8px",
+                    padding: "6px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -735,37 +786,64 @@ const DashboardPage = () => {
                 >
                   <TrophyOutlined style={{ color: "#fff", fontSize: "14px" }} />
                 </div>
-                <span style={{ fontWeight: 600 }}>Hiệu suất tổng thể</span>
+                <span style={{ fontWeight: 600, fontSize: 14 }}>
+                  Hiệu suất tổng thể
+                </span>
               </Space>
             }
             style={{
               borderRadius: borderRadiusLG,
               height: 320,
               boxShadow: boxShadowSecondary,
-              background: `linear-gradient(135deg, ${colorBgContainer}, ${colorSuccess}08)`,
+              background: `linear-gradient(135deg, ${colorBgContainer}, ${colorSuccess}06)`,
               border: `1px solid ${colorSuccess}15`,
             }}
-            bodyStyle={{ padding: "20px 16px 16px", overflow: "hidden" }}
+            bodyStyle={{ padding: "16px 20px 20px", overflow: "hidden" }}
           >
-            <div style={{ textAlign: "center", height: "100%" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                height: "calc(100% - 8px)",
+                gap: "12px",
+              }}
+            >
+              {/* Gauge Section */}
               <div
-                style={{ height: 150, overflow: "hidden", marginBottom: 16 }}
+                style={{
+                  height: "140px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden",
+                }}
               >
-                <Gauge {...performanceGaugeConfig} height={130} />
+                <Gauge {...performanceGaugeConfig} height={120} />
               </div>
 
-              <div style={{ height: 85, overflow: "hidden" }}>
+              {/* Stats Section */}
+              <div
+                style={{
+                  flex: 1,
+                  maxHeight: "120px",
+                  overflow: "hidden",
+                }}
+              >
                 <div
                   style={{
                     background: `${colorSuccess}08`,
-                    borderRadius: "8px",
-                    padding: "12px",
+                    borderRadius: "10px",
+                    padding: "16px 14px",
                     border: `1px solid ${colorSuccess}20`,
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
                   }}
                 >
                   <Space
                     direction="vertical"
-                    size={6}
+                    size={8}
                     style={{ width: "100%" }}
                   >
                     <div
@@ -775,7 +853,13 @@ const DashboardPage = () => {
                         alignItems: "center",
                       }}
                     >
-                      <Text style={{ fontSize: 11, color: colorTextSecondary }}>
+                      <Text
+                        style={{
+                          fontSize: 11,
+                          color: colorTextSecondary,
+                          fontWeight: 500,
+                        }}
+                      >
                         Total Executions:
                       </Text>
                       <Text
@@ -785,6 +869,7 @@ const DashboardPage = () => {
                         {dashboardData.stats.totalExecutions.toLocaleString()}
                       </Text>
                     </div>
+
                     <div
                       style={{
                         display: "flex",
@@ -792,7 +877,13 @@ const DashboardPage = () => {
                         alignItems: "center",
                       }}
                     >
-                      <Text style={{ fontSize: 11, color: colorTextSecondary }}>
+                      <Text
+                        style={{
+                          fontSize: 11,
+                          color: colorTextSecondary,
+                          fontWeight: 500,
+                        }}
+                      >
                         Active Agents:
                       </Text>
                       <Text
@@ -803,7 +894,8 @@ const DashboardPage = () => {
                         {dashboardData.stats.totalAgents}
                       </Text>
                     </div>
-                    <div style={{ marginTop: 4 }}>
+
+                    <div style={{ marginTop: 6 }}>
                       <Progress
                         percent={Math.round(
                           (dashboardData.stats.onlineAgents /
@@ -815,7 +907,13 @@ const DashboardPage = () => {
                         strokeWidth={6}
                         style={{ margin: 0 }}
                         format={(percent) => (
-                          <span style={{ fontSize: 10, fontWeight: "bold" }}>
+                          <span
+                            style={{
+                              fontSize: 9,
+                              fontWeight: "bold",
+                              color: colorSuccess,
+                            }}
+                          >
                             {percent}%
                           </span>
                         )}

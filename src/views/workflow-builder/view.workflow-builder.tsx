@@ -428,62 +428,114 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
         />
       </div>
 
-      {/* Stable, Beautiful Connection Handles */}
-      <Handle
-        type="target"
-        position={Position.Left}
-        style={{
-          width: "16px",
-          height: "16px",
-          borderRadius: "50%",
-          border: `3px solid ${config?.color || "#1890ff"}`,
-          backgroundColor: "#fff",
-          boxShadow: `0 2px 8px rgba(0,0,0,0.1)`,
-          opacity: 1,
-          transition:
-            "transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease",
-          cursor: "crosshair",
-          zIndex: 10,
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.transform = "scale(1.15)";
-          e.target.style.boxShadow = `0 4px 12px ${
-            config?.color || "#1890ff"
-          }60, 0 0 0 2px ${config?.color || "#1890ff"}30`;
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.transform = "scale(1)";
-          e.target.style.boxShadow = `0 2px 8px rgba(0,0,0,0.1)`;
-        }}
-      />
+      {/* Enhanced Connection Handles Based on Template Type */}
+      {/* Input Handle - Only for INTERMEDIATE and EXIT */}
+      {(config?.category === "INTERMEDIATE" || config?.category === "EXIT") && (
+        <Handle
+          type="target"
+          position={Position.Left}
+          style={{
+            width: "18px",
+            height: "18px",
+            borderRadius: "50%",
+            border: `3px solid ${config?.color || "#1890ff"}`,
+            backgroundColor: "#fff",
+            boxShadow: `0 3px 10px rgba(0,0,0,0.15), 0 0 0 2px ${
+              config?.color || "#1890ff"
+            }20`,
+            opacity: 1,
+            transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+            cursor: "crosshair",
+            zIndex: 15,
+            left: "-9px",
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = "scale(1.2)";
+            e.target.style.boxShadow = `0 6px 16px ${
+              config?.color || "#1890ff"
+            }50, 0 0 0 4px ${config?.color || "#1890ff"}40`;
+            e.target.style.borderColor = `${config?.color || "#1890ff"}`;
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = "scale(1)";
+            e.target.style.boxShadow = `0 3px 10px rgba(0,0,0,0.15), 0 0 0 2px ${
+              config?.color || "#1890ff"
+            }20`;
+          }}
+        />
+      )}
 
-      <Handle
-        type="source"
-        position={Position.Right}
-        style={{
-          width: "16px",
-          height: "16px",
-          borderRadius: "50%",
-          border: `3px solid ${config?.color || "#1890ff"}`,
-          backgroundColor: "#fff",
-          boxShadow: `0 2px 8px rgba(0,0,0,0.1)`,
-          opacity: 1,
-          transition:
-            "transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease",
-          cursor: "crosshair",
-          zIndex: 10,
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.transform = "scale(1.15)";
-          e.target.style.boxShadow = `0 4px 12px ${
-            config?.color || "#1890ff"
-          }60, 0 0 0 2px ${config?.color || "#1890ff"}30`;
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.transform = "scale(1)";
-          e.target.style.boxShadow = `0 2px 8px rgba(0,0,0,0.1)`;
-        }}
-      />
+      {/* Output Handle - Only for TRIGGER and INTERMEDIATE */}
+      {(config?.category === "TRIGGER" ||
+        config?.category === "INTERMEDIATE") && (
+        <Handle
+          type="source"
+          position={Position.Right}
+          style={{
+            width: "18px",
+            height: "18px",
+            borderRadius: "50%",
+            border: `3px solid ${config?.color || "#1890ff"}`,
+            backgroundColor: "#fff",
+            boxShadow: `0 3px 10px rgba(0,0,0,0.15), 0 0 0 2px ${
+              config?.color || "#1890ff"
+            }20`,
+            opacity: 1,
+            transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+            cursor: "crosshair",
+            zIndex: 15,
+            right: "-9px",
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = "scale(1.2)";
+            e.target.style.boxShadow = `0 6px 16px ${
+              config?.color || "#1890ff"
+            }50, 0 0 0 4px ${config?.color || "#1890ff"}40`;
+            e.target.style.borderColor = `${config?.color || "#1890ff"}`;
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = "scale(1)";
+            e.target.style.boxShadow = `0 3px 10px rgba(0,0,0,0.15), 0 0 0 2px ${
+              config?.color || "#1890ff"
+            }20`;
+          }}
+        />
+      )}
+
+      {/* Visual indicators for handle types */}
+      {config?.category === "TRIGGER" && (
+        <div
+          style={{
+            position: "absolute",
+            left: "-4px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            background: config?.color,
+            opacity: 0.6,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {config?.category === "EXIT" && (
+        <div
+          style={{
+            position: "absolute",
+            right: "-4px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            background: config?.color,
+            opacity: 0.6,
+            pointerEvents: "none",
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -1375,119 +1427,191 @@ const WorkflowBuilderPage: React.FC = () => {
               </Text>
             </div>
 
-            <Collapse
-              ghost
-              size="small"
-              defaultActiveKey={Object.keys(groupedTemplates || {})}
-              items={Object.entries(groupedTemplates || {}).map(
-                ([agent, agentTemplates]) => ({
-                  key: agent,
-                  label: (
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+            >
+              {Object.entries(groupedTemplates || {}).map(
+                ([agent, agentTemplates], index) => {
+                  const agentColor = AGENT_COLORS[agent] || colorPrimary;
+                  const agentName = agent.replace("AGT_", "").replace("_", " ");
+                  const [isExpanded, setIsExpanded] = React.useState(true);
+
+                  return (
                     <div
+                      key={agent}
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        width: "100%",
-                        padding: "8px 4px",
+                        background: `linear-gradient(135deg, ${agentColor}12, ${agentColor}06)`,
+                        border: `2px solid ${agentColor}20`,
+                        borderRadius: "16px",
+                        overflow: "hidden",
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                        boxShadow: `0 4px 12px ${agentColor}15`,
+                        animation: `slideIn 0.4s ease-out ${index * 0.1}s both`,
                       }}
                     >
+                      {/* Agent Header */}
                       <div
+                        onClick={() => setIsExpanded(!isExpanded)}
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: "10px",
-                          flex: 1,
+                          justifyContent: "space-between",
+                          padding: "16px 20px",
+                          cursor: "pointer",
+                          background: `linear-gradient(135deg, ${agentColor}18, ${agentColor}08)`,
+                          borderBottom: isExpanded
+                            ? `1px solid ${agentColor}25`
+                            : "none",
+                          transition: "all 0.3s ease",
                         }}
                       >
                         <div
                           style={{
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "center",
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "8px",
-                            background: `linear-gradient(135deg, ${
-                              AGENT_COLORS[agent] || colorPrimary
-                            }, ${AGENT_COLORS[agent] || colorPrimary}cc)`,
-                            boxShadow: `0 2px 8px ${
-                              AGENT_COLORS[agent] || colorPrimary
-                            }40`,
+                            gap: "12px",
+                            flex: 1,
                           }}
                         >
-                          <Text
+                          <div
                             style={{
-                              fontSize: "12px",
-                              fontWeight: "bold",
-                              color: "#fff",
-                              textAlign: "center",
+                              position: "relative",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              width: "40px",
+                              height: "40px",
+                              borderRadius: "12px",
+                              background: `linear-gradient(135deg, ${agentColor}, ${agentColor}dd)`,
+                              boxShadow: `0 6px 20px ${agentColor}40, inset 0 1px 0 rgba(255,255,255,0.2)`,
+                              transition: "transform 0.2s ease",
                             }}
                           >
-                            {agent.replace("AGT_", "").charAt(0)}
-                          </Text>
+                            <Text
+                              style={{
+                                fontSize: "16px",
+                                fontWeight: "bold",
+                                color: "#fff",
+                                textShadow: "0 1px 2px rgba(0,0,0,0.2)",
+                              }}
+                            >
+                              {agentName.charAt(0)}
+                            </Text>
+                            {/* Pulse animation */}
+                            <div
+                              style={{
+                                position: "absolute",
+                                inset: "-4px",
+                                borderRadius: "16px",
+                                background: `linear-gradient(135deg, ${agentColor}40, transparent)`,
+                                animation: "pulse 2s ease-in-out infinite",
+                              }}
+                            />
+                          </div>
+
+                          <div style={{ flex: 1 }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                                marginBottom: "2px",
+                              }}
+                            >
+                              <Text
+                                strong
+                                style={{
+                                  fontSize: "14px",
+                                  color: agentColor,
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {agentName}
+                              </Text>
+                              {/* Status indicator */}
+                              <div
+                                style={{
+                                  width: "8px",
+                                  height: "8px",
+                                  borderRadius: "50%",
+                                  background: colorSuccess,
+                                  boxShadow: `0 0 6px ${colorSuccess}60`,
+                                  animation: "blink 2s ease-in-out infinite",
+                                }}
+                              />
+                            </div>
+                            <Text
+                              style={{
+                                fontSize: "11px",
+                                color: colorTextSecondary,
+                                fontWeight: 500,
+                              }}
+                            >
+                              {(agentTemplates || []).length} templates • Ready
+                            </Text>
+                          </div>
                         </div>
-                        <div style={{ flex: 1 }}>
-                          <Text
-                            strong
+
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "12px",
+                          }}
+                        >
+                          <Badge
+                            count={(agentTemplates || []).length}
                             style={{
-                              fontSize: "13px",
-                              color: AGENT_COLORS[agent] || colorPrimary,
-                              display: "block",
-                              lineHeight: 1.2,
-                            }}
-                          >
-                            {agent.replace("AGT_", "").replace("_", " ")}
-                          </Text>
-                          <Text
-                            type="secondary"
-                            style={{
+                              backgroundColor: agentColor,
                               fontSize: "10px",
-                              lineHeight: 1.1,
+                              fontWeight: "bold",
+                              boxShadow: `0 2px 8px ${agentColor}40`,
+                            }}
+                          />
+                          <div
+                            style={{
+                              color: agentColor,
+                              fontSize: "12px",
+                              transform: isExpanded
+                                ? "rotate(180deg)"
+                                : "rotate(0deg)",
+                              transition: "transform 0.3s ease",
                             }}
                           >
-                            {(agentTemplates || []).length} templates
-                          </Text>
+                            ▼
+                          </div>
                         </div>
                       </div>
-                      <Badge
-                        count={(agentTemplates || []).length}
-                        size="small"
+
+                      {/* Templates Content */}
+                      <div
                         style={{
-                          backgroundColor: AGENT_COLORS[agent] || colorPrimary,
-                          fontSize: "9px",
-                          fontWeight: "bold",
-                          minWidth: "20px",
-                          height: "20px",
-                          lineHeight: "18px",
-                          borderRadius: "10px",
+                          maxHeight: isExpanded ? "400px" : "0px",
+                          overflow: "hidden",
+                          transition:
+                            "max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
                         }}
-                      />
+                      >
+                        <div
+                          style={{
+                            padding: "16px 20px",
+                            display: "grid",
+                            gap: "8px",
+                          }}
+                        >
+                          {(agentTemplates || []).map((template) => (
+                            <DraggableTemplate
+                              key={template.templateId}
+                              template={template}
+                            />
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  ),
-                  children: (
-                    <div style={{ paddingLeft: "8px", paddingTop: "8px" }}>
-                      {(agentTemplates || []).map((template) => (
-                        <DraggableTemplate
-                          key={template.templateId}
-                          template={template}
-                        />
-                      ))}
-                    </div>
-                  ),
-                  style: {
-                    background: `linear-gradient(135deg, ${
-                      AGENT_COLORS[agent] || colorPrimary
-                    }08, ${AGENT_COLORS[agent] || colorPrimary}02)`,
-                    border: `1px solid ${
-                      AGENT_COLORS[agent] || colorPrimary
-                    }15`,
-                    borderRadius: "12px",
-                    marginBottom: "12px",
-                  },
-                })
+                  );
+                }
               )}
-            />
+            </div>
           </Card>
         </div>
 
@@ -1837,7 +1961,7 @@ const WorkflowBuilderPage: React.FC = () => {
                       }}
                     >
                       <Text style={{ fontSize: "14px", color: colorPrimary }}>
-                        💡 <strong>Mẹo:</strong> Trigger → Intermediate → Exit
+                        💡 <strong>Mẹo:</strong> Trigger → Intermediate ��� Exit
                         là flow chuẩn
                       </Text>
                     </div>
