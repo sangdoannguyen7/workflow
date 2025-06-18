@@ -43,7 +43,7 @@ import {
   useCollapsedSmall,
 } from "../redux/actions/collapsed.action";
 import { MockAPI } from "../mock/enhanced.mock";
-import { NotificationComponent } from "../shared/components/notification/notification";
+import { NotificationComponent } from "../shared/components/notification/notification.tsx";
 
 const { Text } = Typography;
 

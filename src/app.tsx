@@ -3,7 +3,7 @@ import { App as AntApp, ConfigProvider, theme as themeAntd } from "antd";
 import { useSelector } from "react-redux";
 import { IState } from "./interface/action.interface";
 import RenderRouter from "./routers/router.view";
-import { setGlobalNotificationApi } from "./shared/components/notification/notification";
+import { setGlobalNotificationApi } from "./shared/components/notification/notification.tsx";
 import viVN from "antd/es/locale/vi_VN";
 import dayjs from "dayjs";
 import weekday from "dayjs/plugin/weekday";

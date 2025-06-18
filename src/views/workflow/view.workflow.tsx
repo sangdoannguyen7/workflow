@@ -49,7 +49,7 @@ import {
   IWorkflowSearchParams,
 } from "../../interface/workflow.interface";
 import workflowApi from "../../apis/workflow/api.workflow";
-import { NotificationComponent } from "../../shared/components/notification/notification";
+import { NotificationComponent } from "../../shared/components/notification/notification.tsx";
 
 const { Search, TextArea } = Input;
 const { Text, Title } = Typography;

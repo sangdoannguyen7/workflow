@@ -45,7 +45,7 @@ import {
 import { IAgent } from "../../interface/agent.interface";
 import templateApi from "../../apis/template/api.template";
 import agentApi from "../../apis/agent/api.agent";
-import { NotificationComponent } from "../../shared/components/notification/notification";
+import { NotificationComponent } from "../../shared/components/notification/notification.tsx";
 
 const { Search, TextArea } = Input;
 const { Panel } = Collapse;
@@ -717,7 +717,7 @@ const TemplatePage: React.FC = () => {
                             },
                           ]}
                         >
-                          <Input placeholder="Nh���p tên template" />
+                          <Input placeholder="Nhập tên template" />
                         </Form.Item>
                       </Col>
                     </Row>
