@@ -323,12 +323,12 @@
 .ant-table-tbody .action-column {
   position: sticky !important;
   right: 0 !important;
+  z-index: 10 !important;
   background: rgba(255, 255, 255, 0.9) !important;
-  backdrop-filter: blur(12px) !important;
+  border-left: 1px solid rgba(0, 0, 0, 0.06) !important;
   border-radius: 6px !important;
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1) !important;
-  z-index: 10 !important;
-  border-left: 1px solid rgba(0, 0, 0, 0.06) !important;
+  backdrop-filter: blur(12px) !important;
 }
 
 /* Dark mode support for action columns */
@@ -349,8 +349,8 @@
 }
 
 .react-flow__handle:hover {
-  opacity: 1 !important;
   transform: scale(1.2) !important;
+  opacity: 1 !important;
 }
 
 .react-flow__edge.selected {
@@ -358,8 +358,8 @@
 }
 
 .react-flow__edge.animated {
-  stroke-dasharray: 8, 8 !important;
   animation: dash 0.5s linear infinite !important;
+  stroke-dasharray: 8, 8 !important;
 }
 
 @keyframes dash {
@@ -378,9 +378,9 @@
 }
 
 .draggable-template.dragging {
-  opacity: 0.6 !important;
-  transform: scale(0.95) rotate(5deg) !important;
   z-index: 1000 !important;
+  transform: scale(0.95) rotate(5deg) !important;
+  opacity: 0.6 !important;
 }
 
 /* Drop zone feedback */
@@ -391,7 +391,6 @@
 .react-flow__pane.drag-over {
   background-color: rgba(24, 144, 255, 0.05) !important;
 }
-}
 
 .ant-table-thead > tr > th {
   padding: 8px !important;
@@ -399,9 +398,9 @@
 
 /* Page container standardization */
 .page-container {
+  min-height: calc(100vh - 140px);
   padding: 8px;
   background: transparent;
-  min-height: calc(100vh - 140px);
 }
 
 /* Consistent margins for all components */
