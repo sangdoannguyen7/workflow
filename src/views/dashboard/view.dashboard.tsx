@@ -326,7 +326,7 @@ const DashboardPage = () => {
   return (
     <div
       style={{
-        padding: 24,
+        padding: 8,
         background: "transparent",
         minHeight: "calc(100vh - 140px)",
         overflowY: "auto",
