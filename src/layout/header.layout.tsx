@@ -188,7 +188,7 @@ const HeaderLayout = () => {
       case "success":
         return <CheckOutlined style={{ color: colorSuccess }} />;
       case "warning":
-        return <ExclamationTriangleOutlined style={{ color: colorWarning }} />;
+        return <ExclamationCircleOutlined style={{ color: colorWarning }} />;
       case "error":
         return <CloseCircleOutlined style={{ color: colorError }} />;
       case "info":
