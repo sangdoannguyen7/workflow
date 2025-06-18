@@ -70,7 +70,7 @@ class TemplateApi implements ITemplateApi {
     return response.value.data;
   }
 
-  async deleteTemplate(id: number): Promise<void> {
+  async deleteTemplate(_id: number): Promise<void> {
     throw new Error(
       "API does not support delete by ID, use deleteByCode instead"
     );
