@@ -647,7 +647,7 @@ const WorkflowBuilderPage: React.FC = () => {
 
       const maxNumber = Math.max(
         0,
-        ...flowNodes.map((node) => {
+        ...(flowNodes || []).map((node) => {
           const match = node.id.match(/node_(\d+)/);
           return match ? parseInt(match[1]) : 0;
         })
