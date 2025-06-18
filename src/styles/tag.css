@@ -1,0 +1,21 @@
+.tag-dashboard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: '8px 0';
+  height: 100px;
+  font-size: 20px;
+}
+
+.success-color {
+  background-color: #52C51A;
+}
+.info-color {
+  background-color: #1777FF;
+}
+.warning-color {
+  background-color: #FFD732;
+}
+.error-color {
+  background-color: #FF4D4F;
+}
