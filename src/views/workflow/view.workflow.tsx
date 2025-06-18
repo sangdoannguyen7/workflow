@@ -57,7 +57,7 @@ const { Text, Title } = Typography;
 const WorkflowPage: React.FC = () => {
   const [workflows, setWorkflows] = useState<IWorkflow[]>([]);
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const [testDrawerVisible, setTestDrawerVisible] = useState(false);
   const [editingWorkflow, setEditingWorkflow] = useState<IWorkflow | null>(
     null
