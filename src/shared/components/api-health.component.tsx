@@ -61,6 +61,8 @@ const ApiHealthCheck = () => {
         return "green";
       case "offline":
         return "red";
+      case "mock":
+        return "orange";
       case "checking":
         return "blue";
       default:
@@ -74,6 +76,8 @@ const ApiHealthCheck = () => {
         return "API Online";
       case "offline":
         return "API Offline";
+      case "mock":
+        return "Using Mock Data";
       case "checking":
         return "Checking...";
       default:
