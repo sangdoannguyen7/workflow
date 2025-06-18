@@ -184,7 +184,7 @@ const SiderLayout = () => {
                   fontWeight: 700,
                 }}
               >
-                WorkFlow Pro
+                WorkflowUI
               </Text>
               <Text
                 style={{
