@@ -718,14 +718,19 @@ const WorkflowBuilderPage: React.FC = () => {
   };
 
   // Group templates by agent
-  const groupedTemplates = (templates || []).reduce((acc, template) => {
-    const agent = template.agentCode || "unknown";
-    if (!acc[agent]) {
-      acc[agent] = [];
+  const groupedTemplates = React.useMemo(() => {
+    if (!templates || !Array.isArray(templates)) {
+      return {};
     }
-    acc[agent].push(template);
-    return acc;
-  }, {} as Record<string, ITemplate[]>);
+    return templates.reduce((acc, template) => {
+      const agent = template.agentCode || "unknown";
+      if (!acc[agent]) {
+        acc[agent] = [];
+      }
+      acc[agent].push(template);
+      return acc;
+    }, {} as Record<string, ITemplate[]>);
+  }, [templates]);
 
   // Other handlers...
   const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
