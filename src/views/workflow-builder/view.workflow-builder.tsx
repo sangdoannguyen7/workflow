@@ -895,7 +895,7 @@ const WorkflowBuilderPage: React.FC = () => {
                     </Space>
                   ),
                   children: (
-                {currentWorkflow ? (
+                    currentWorkflow ? (
                   <Row gutter={[16, 8]}>
                     <Col xs={24} sm={12} md={8}>
                       <div>
