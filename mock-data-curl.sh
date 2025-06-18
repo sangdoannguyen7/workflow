@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Mock data CURL commands for Property Management API
-# Base URL: http://localhost:8080
+# Base URL: http://172.16.5.100:8082
 
 echo "Creating mock data for Property Management API..."
 
 # Create Agents
 echo "Creating Agents..."
 
-curl -X POST "http://localhost:8080/v1/property/agents" \
+curl -X POST "http://172.16.5.100:8082/v1/property/agents" \
   -H "Content-Type: application/json" \
   -d '{
     "agentCode": "WEBHOOK",
@@ -18,7 +18,7 @@ curl -X POST "http://localhost:8080/v1/property/agents" \
     "description": "Agent for handling webhook requests"
   }'
 
-curl -X POST "http://localhost:8080/v1/property/agents" \
+curl -X POST "http://172.16.5.100:8082/v1/property/agents" \
   -H "Content-Type: application/json" \
   -d '{
     "agentCode": "SCHEDULE",
@@ -28,7 +28,7 @@ curl -X POST "http://localhost:8080/v1/property/agents" \
     "description": "Agent for scheduled tasks"
   }'
 
-curl -X POST "http://localhost:8080/v1/property/agents" \
+curl -X POST "http://172.16.5.100:8082/v1/property/agents" \
   -H "Content-Type: application/json" \
   -d '{
     "agentCode": "API",
@@ -41,7 +41,7 @@ curl -X POST "http://localhost:8080/v1/property/agents" \
 # Create Templates
 echo "Creating Templates..."
 
-curl -X POST "http://localhost:8080/v1/property/templates" \
+curl -X POST "http://172.16.5.100:8082/v1/property/templates" \
   -H "Content-Type: application/json" \
   -d '{
     "templateCode": "WEBHOOK_RECEIVE",
@@ -53,7 +53,7 @@ curl -X POST "http://localhost:8080/v1/property/templates" \
     "description": "Template for receiving webhooks"
   }'
 
-curl -X POST "http://localhost:8080/v1/property/templates" \
+curl -X POST "http://172.16.5.100:8082/v1/property/templates" \
   -H "Content-Type: application/json" \
   -d '{
     "templateCode": "WEBHOOK_SEND",
@@ -65,7 +65,7 @@ curl -X POST "http://localhost:8080/v1/property/templates" \
     "description": "Template for sending webhooks"
   }'
 
-curl -X POST "http://localhost:8080/v1/property/templates" \
+curl -X POST "http://172.16.5.100:8082/v1/property/templates" \
   -H "Content-Type: application/json" \
   -d '{
     "templateCode": "SCHEDULE_DAILY",
@@ -77,7 +77,7 @@ curl -X POST "http://localhost:8080/v1/property/templates" \
     "description": "Template for daily scheduled tasks"
   }'
 
-curl -X POST "http://localhost:8080/v1/property/templates" \
+curl -X POST "http://172.16.5.100:8082/v1/property/templates" \
   -H "Content-Type: application/json" \
   -d '{
     "templateCode": "SCHEDULE_HOURLY",
@@ -89,7 +89,7 @@ curl -X POST "http://localhost:8080/v1/property/templates" \
     "description": "Template for hourly scheduled tasks"
   }'
 
-curl -X POST "http://localhost:8080/v1/property/templates" \
+curl -X POST "http://172.16.5.100:8082/v1/property/templates" \
   -H "Content-Type: application/json" \
   -d '{
     "templateCode": "API_GET",
@@ -101,7 +101,7 @@ curl -X POST "http://localhost:8080/v1/property/templates" \
     "description": "Template for GET API calls"
   }'
 
-curl -X POST "http://localhost:8080/v1/property/templates" \
+curl -X POST "http://172.16.5.100:8082/v1/property/templates" \
   -H "Content-Type: application/json" \
   -d '{
     "templateCode": "API_POST",
@@ -116,7 +116,7 @@ curl -X POST "http://localhost:8080/v1/property/templates" \
 # Create Workflows
 echo "Creating Workflows..."
 
-curl -X POST "http://localhost:8080/v1/property/workflows" \
+curl -X POST "http://172.16.5.100:8082/v1/property/workflows" \
   -H "Content-Type: application/json" \
   -d '{
     "workflowName": "Hotel Booking Workflow",
@@ -126,7 +126,7 @@ curl -X POST "http://localhost:8080/v1/property/workflows" \
     "nodes": []
   }'
 
-curl -X POST "http://localhost:8080/v1/property/workflows" \
+curl -X POST "http://172.16.5.100:8082/v1/property/workflows" \
   -H "Content-Type: application/json" \
   -d '{
     "workflowName": "Notification Workflow",
@@ -136,7 +136,7 @@ curl -X POST "http://localhost:8080/v1/property/workflows" \
     "nodes": []
   }'
 
-curl -X POST "http://localhost:8080/v1/property/workflows" \
+curl -X POST "http://172.16.5.100:8082/v1/property/workflows" \
   -H "Content-Type: application/json" \
   -d '{
     "workflowName": "Data Sync Workflow",
@@ -146,7 +146,7 @@ curl -X POST "http://localhost:8080/v1/property/workflows" \
     "nodes": []
   }'
 
-curl -X POST "http://localhost:8080/v1/property/workflows" \
+curl -X POST "http://172.16.5.100:8082/v1/property/workflows" \
   -H "Content-Type: application/json" \
   -d '{
     "workflowName": "Daily Report Workflow",
@@ -159,7 +159,7 @@ curl -X POST "http://localhost:8080/v1/property/workflows" \
 # Create sample workflow with nodes
 echo "Creating sample workflow with nodes..."
 
-curl -X POST "http://localhost:8080/v1/property/workflows" \
+curl -X POST "http://172.16.5.100:8082/v1/property/workflows" \
   -H "Content-Type: application/json" \
   -d '{
     "workflowName": "Complete Booking Flow",
@@ -233,12 +233,12 @@ echo "Mock data creation completed!"
 echo "Testing data retrieval..."
 
 echo "Getting all agents:"
-curl -X GET "http://localhost:8080/v1/property/agents?current=1&pageSize=20"
+curl -X GET "http://172.16.5.100:8082/v1/property/agents?current=1&pageSize=20"
 
 echo -e "\n\nGetting all templates:"
-curl -X GET "http://localhost:8080/v1/property/templates?current=1&pageSize=20"
+curl -X GET "http://172.16.5.100:8082/v1/property/templates?current=1&pageSize=20"
 
 echo -e "\n\nGetting all workflows:"
-curl -X GET "http://localhost:8080/v1/property/workflows?current=1&pageSize=20"
+curl -X GET "http://172.16.5.100:8082/v1/property/workflows?current=1&pageSize=20"
 
 echo -e "\n\nMock data setup complete!"
