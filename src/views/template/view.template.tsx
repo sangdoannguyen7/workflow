@@ -361,7 +361,7 @@ const TemplatePage: React.FC = () => {
   ];
 
   // Group templates by agent
-  const groupedTemplates = templates.reduce((acc, template) => {
+  const groupedTemplates = (templates || []).reduce((acc, template) => {
     const agentCode = template.agentCode || "unknown";
     if (!acc[agentCode]) {
       acc[agentCode] = [];
