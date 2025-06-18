@@ -23,21 +23,22 @@ export interface IDataResponse<T> {
 }
 
 async function refreshToken(): Promise<string | null> {
-  const res = await axios({
-    method: 'POST',
-    url: constants.BACKEND_HOST+'/v1/pub/refresh',
-    data: {
-      "refreshToken": localStorage.getItem('refreshToken')
-    }
-  })
-  if(res.status === 200) {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.setItem('accessToken', res.data.accessToken);
-    localStorage.setItem('refreshToken', res.data.refreshToken);
-    return res.data.accessToken
-  }
-  return null;
+  // const res = await axios({
+  //   method: 'POST',
+  //   url: constants.BACKEND_HOST+'/v1/pub/refresh',
+  //   data: {
+  //     "refreshToken": localStorage.getItem('refreshToken')
+  //   }
+  // })
+  // if(res.status === 200) {
+  //   localStorage.removeItem('accessToken');
+  //   localStorage.removeItem('refreshToken');
+  //   localStorage.setItem('accessToken', res.data.accessToken);
+  //   localStorage.setItem('refreshToken', res.data.refreshToken);
+  //   return res.data.accessToken
+  // }
+  // return null;
+  return "accessTOken";
 }
 
 export async function axiosCustom<IDataResponse>(options: IDataRequest): Promise<IDataResponse> {
