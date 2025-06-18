@@ -17,6 +17,7 @@ import WorkflowPage from "../views/workflow/view.workflow.tsx";
 import WorkflowDesignerPage from "../views/workflow/view.workflow-designer.tsx";
 import NodeFlowPage from "../views/node-flow/view.node-flow.tsx";
 import WorkflowBuilderPage from "../views/workflow-builder/view.workflow-builder.tsx";
+import ManagementPage from "../views/management/view.management.tsx";
 
 // const Dashboard = lazy(DashBoardPage);
 
@@ -74,6 +75,7 @@ const RenderRouter = () => {
                   path="/workflow-builder"
                   element={<WorkflowBuilderPage />}
                 />
+                <Route path="/management" element={<ManagementPage />} />
               </Route>
               <Route path="*" element={<NotfoundPage />} />
             </Routes>

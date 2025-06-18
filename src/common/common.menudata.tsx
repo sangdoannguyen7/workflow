@@ -14,6 +14,7 @@ import {
   FileTextOutlined,
   NodeExpandOutlined,
   ApartmentOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
@@ -361,6 +362,18 @@ const menuData = [
     label: "Workflow Builder",
     permission: "WORKFLOW_BUILDER",
     description: "WORKFLOW_BUILDER",
+  },
+  {
+    path: "/management",
+    key: "MANAGEMENT",
+    icon: (
+      <Link to="/management">
+        <SettingOutlined />
+      </Link>
+    ),
+    label: "Property Management",
+    permission: "MANAGEMENT",
+    description: "MANAGEMENT",
   },
   // {
   //   path: '/hotel/list',
