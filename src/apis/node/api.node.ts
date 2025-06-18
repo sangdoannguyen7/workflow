@@ -1,5 +1,4 @@
-import { AxiosResponse } from "axios";
-import axiosCustom from "../axiosCustom";
+import axiosCustom, { IDataRequest, IDataResponse } from "../axiosCustom";
 import {
   INode,
   INodeResponse,
@@ -11,58 +10,95 @@ class NodeApi implements INodeApi {
   private readonly baseUrl = "/api/nodes";
 
   async getNodes(params?: INodeSearchParams): Promise<INodeResponse> {
-    const response: AxiosResponse<INodeResponse> = await axiosCustom.get(
-      this.baseUrl,
-      { params }
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "GET",
+      uri: this.baseUrl,
+      params: params || null,
+      data: null,
+    };
+    const response: IDataResponse<INode> = await axiosCustom(request);
+    return {
+      content: response.data,
+      totalElements: response.total,
+      totalPages: response.totalPage,
+      size: response.pageSize,
+      number: response.page,
+    };
   }
 
   async getNodeById(id: number): Promise<INode> {
-    const response: AxiosResponse<INode> = await axiosCustom.get(
-      `${this.baseUrl}/${id}`
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "GET",
+      uri: `${this.baseUrl}/${id}`,
+      params: null,
+      data: null,
+    };
+    const response: IDataResponse<INode> = await axiosCustom(request);
+    return response.value;
   }
 
   async createNode(node: Omit<INode, "nodeId">): Promise<INode> {
-    const response: AxiosResponse<INode> = await axiosCustom.post(
-      this.baseUrl,
-      node
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "POST",
+      uri: this.baseUrl,
+      params: null,
+      data: node,
+    };
+    const response: IDataResponse<INode> = await axiosCustom(request);
+    return response.value;
   }
 
   async updateNode(id: number, node: INode): Promise<INode> {
-    const response: AxiosResponse<INode> = await axiosCustom.put(
-      `${this.baseUrl}/${id}`,
-      node
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "PUT",
+      uri: `${this.baseUrl}/${id}`,
+      params: null,
+      data: node,
+    };
+    const response: IDataResponse<INode> = await axiosCustom(request);
+    return response.value;
   }
 
   async deleteNode(id: number): Promise<void> {
-    await axiosCustom.delete(`${this.baseUrl}/${id}`);
+    const request: IDataRequest = {
+      method: "DELETE",
+      uri: `${this.baseUrl}/${id}`,
+      params: null,
+      data: null,
+    };
+    await axiosCustom(request);
   }
 
   async getNodeByCode(code: string): Promise<INode> {
-    const response: AxiosResponse<INode> = await axiosCustom.get(
-      `${this.baseUrl}/code/${code}`
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "GET",
+      uri: `${this.baseUrl}/code/${code}`,
+      params: null,
+      data: null,
+    };
+    const response: IDataResponse<INode> = await axiosCustom(request);
+    return response.value;
   }
 
   async getNodesByWorkflow(workflowCode: string): Promise<INode[]> {
-    const response: AxiosResponse<INode[]> = await axiosCustom.get(
-      `${this.baseUrl}/workflow/${workflowCode}`
-    );
+    const request: IDataRequest = {
+      method: "GET",
+      uri: `${this.baseUrl}/workflow/${workflowCode}`,
+      params: null,
+      data: null,
+    };
+    const response: IDataResponse<INode> = await axiosCustom(request);
     return response.data;
   }
 
   async getNodesByTemplate(templateCode: string): Promise<INode[]> {
-    const response: AxiosResponse<INode[]> = await axiosCustom.get(
-      `${this.baseUrl}/template/${templateCode}`
-    );
+    const request: IDataRequest = {
+      method: "GET",
+      uri: `${this.baseUrl}/template/${templateCode}`,
+      params: null,
+      data: null,
+    };
+    const response: IDataResponse<INode> = await axiosCustom(request);
     return response.data;
   }
 }

@@ -1,5 +1,4 @@
-import { AxiosResponse } from "axios";
-import axiosCustom from "../axiosCustom";
+import axiosCustom, { IDataRequest, IDataResponse } from "../axiosCustom";
 import {
   ITemplate,
   ITemplateResponse,
@@ -13,53 +12,86 @@ class TemplateApi implements ITemplateApi {
   async getTemplates(
     params?: ITemplateSearchParams
   ): Promise<ITemplateResponse> {
-    const response: AxiosResponse<ITemplateResponse> = await axiosCustom.get(
-      this.baseUrl,
-      { params }
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "GET",
+      uri: this.baseUrl,
+      params: params || null,
+      data: null,
+    };
+    const response: IDataResponse<ITemplate> = await axiosCustom(request);
+    return {
+      content: response.data,
+      totalElements: response.total,
+      totalPages: response.totalPage,
+      size: response.pageSize,
+      number: response.page,
+    };
   }
 
   async getTemplateById(id: number): Promise<ITemplate> {
-    const response: AxiosResponse<ITemplate> = await axiosCustom.get(
-      `${this.baseUrl}/${id}`
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "GET",
+      uri: `${this.baseUrl}/${id}`,
+      params: null,
+      data: null,
+    };
+    const response: IDataResponse<ITemplate> = await axiosCustom(request);
+    return response.value;
   }
 
   async createTemplate(
     template: Omit<ITemplate, "templateId">
   ): Promise<ITemplate> {
-    const response: AxiosResponse<ITemplate> = await axiosCustom.post(
-      this.baseUrl,
-      template
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "POST",
+      uri: this.baseUrl,
+      params: null,
+      data: template,
+    };
+    const response: IDataResponse<ITemplate> = await axiosCustom(request);
+    return response.value;
   }
 
   async updateTemplate(id: number, template: ITemplate): Promise<ITemplate> {
-    const response: AxiosResponse<ITemplate> = await axiosCustom.put(
-      `${this.baseUrl}/${id}`,
-      template
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "PUT",
+      uri: `${this.baseUrl}/${id}`,
+      params: null,
+      data: template,
+    };
+    const response: IDataResponse<ITemplate> = await axiosCustom(request);
+    return response.value;
   }
 
   async deleteTemplate(id: number): Promise<void> {
-    await axiosCustom.delete(`${this.baseUrl}/${id}`);
+    const request: IDataRequest = {
+      method: "DELETE",
+      uri: `${this.baseUrl}/${id}`,
+      params: null,
+      data: null,
+    };
+    await axiosCustom(request);
   }
 
   async getTemplateByCode(code: string): Promise<ITemplate> {
-    const response: AxiosResponse<ITemplate> = await axiosCustom.get(
-      `${this.baseUrl}/code/${code}`
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "GET",
+      uri: `${this.baseUrl}/code/${code}`,
+      params: null,
+      data: null,
+    };
+    const response: IDataResponse<ITemplate> = await axiosCustom(request);
+    return response.value;
   }
 
   async getTemplatesByAgent(agentCode: string): Promise<ITemplate[]> {
-    const response: AxiosResponse<ITemplate[]> = await axiosCustom.get(
-      `${this.baseUrl}/agent/${agentCode}`
-    );
+    const request: IDataRequest = {
+      method: "GET",
+      uri: `${this.baseUrl}/agent/${agentCode}`,
+      params: null,
+      data: null,
+    };
+    const response: IDataResponse<ITemplate> = await axiosCustom(request);
     return response.data;
   }
 }

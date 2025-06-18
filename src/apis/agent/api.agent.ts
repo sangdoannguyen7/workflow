@@ -1,5 +1,4 @@
-import { AxiosResponse } from "axios";
-import axiosCustom from "../axiosCustom";
+import axiosCustom, { IDataRequest, IDataResponse } from "../axiosCustom";
 import {
   IAgent,
   IAgentResponse,
@@ -11,45 +10,74 @@ class AgentApi implements IAgentApi {
   private readonly baseUrl = "/api/agents";
 
   async getAgents(params?: IAgentSearchParams): Promise<IAgentResponse> {
-    const response: AxiosResponse<IAgentResponse> = await axiosCustom.get(
-      this.baseUrl,
-      { params }
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "GET",
+      uri: this.baseUrl,
+      params: params || null,
+      data: null,
+    };
+    const response: IDataResponse<IAgent> = await axiosCustom(request);
+    return {
+      content: response.data,
+      totalElements: response.total,
+      totalPages: response.totalPage,
+      size: response.pageSize,
+      number: response.page,
+    };
   }
 
   async getAgentById(id: number): Promise<IAgent> {
-    const response: AxiosResponse<IAgent> = await axiosCustom.get(
-      `${this.baseUrl}/${id}`
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "GET",
+      uri: `${this.baseUrl}/${id}`,
+      params: null,
+      data: null,
+    };
+    const response: IDataResponse<IAgent> = await axiosCustom(request);
+    return response.value;
   }
 
   async createAgent(agent: Omit<IAgent, "agentId">): Promise<IAgent> {
-    const response: AxiosResponse<IAgent> = await axiosCustom.post(
-      this.baseUrl,
-      agent
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "POST",
+      uri: this.baseUrl,
+      params: null,
+      data: agent,
+    };
+    const response: IDataResponse<IAgent> = await axiosCustom(request);
+    return response.value;
   }
 
   async updateAgent(id: number, agent: IAgent): Promise<IAgent> {
-    const response: AxiosResponse<IAgent> = await axiosCustom.put(
-      `${this.baseUrl}/${id}`,
-      agent
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "PUT",
+      uri: `${this.baseUrl}/${id}`,
+      params: null,
+      data: agent,
+    };
+    const response: IDataResponse<IAgent> = await axiosCustom(request);
+    return response.value;
   }
 
   async deleteAgent(id: number): Promise<void> {
-    await axiosCustom.delete(`${this.baseUrl}/${id}`);
+    const request: IDataRequest = {
+      method: "DELETE",
+      uri: `${this.baseUrl}/${id}`,
+      params: null,
+      data: null,
+    };
+    await axiosCustom(request);
   }
 
   async getAgentByCode(code: string): Promise<IAgent> {
-    const response: AxiosResponse<IAgent> = await axiosCustom.get(
-      `${this.baseUrl}/code/${code}`
-    );
-    return response.data;
+    const request: IDataRequest = {
+      method: "GET",
+      uri: `${this.baseUrl}/code/${code}`,
+      params: null,
+      data: null,
+    };
+    const response: IDataResponse<IAgent> = await axiosCustom(request);
+    return response.value;
   }
 }
 
