@@ -852,7 +852,7 @@ const WorkflowBuilderPage: React.FC = () => {
               <Space>
                 <DragOutlined style={{ color: colorPrimary }} />
                 <span>Template Palette</span>
-                <Badge count={templates.length} />
+                <Badge count={(templates || []).length} />
               </Space>
             }
             size="small"
