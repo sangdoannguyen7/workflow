@@ -333,56 +333,32 @@ const HeaderLayout = () => {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 6,
-                  padding: "2px 4px",
-                  background: isDark
-                    ? "rgba(255, 255, 255, 0.08)"
-                    : "rgba(25, 118, 210, 0.08)",
-                  borderRadius: 6,
-                  transition: "all 0.3s ease",
+                  gap: 4,
+                  padding: "2px",
                 }}
               >
-                <div
+                <SunOutlined
                   style={{
-                    padding: "2px",
-                    borderRadius: 4,
-                    background: !isDark ? `${colorPrimary}15` : "transparent",
+                    color: !isDark ? colorPrimary : colorTextSecondary,
+                    fontSize: 12,
                     transition: "all 0.3s ease",
                   }}
-                >
-                  <SunOutlined
-                    style={{
-                      color: !isDark ? colorPrimary : colorTextSecondary,
-                      fontSize: 12,
-                      transition: "all 0.3s ease",
-                    }}
-                  />
-                </div>
+                />
                 <Switch
                   checked={isDark}
                   onChange={() => dispatch(nextTheme())}
                   size="small"
                   style={{
                     backgroundColor: isDark ? colorPrimary : "#f0f0f0",
-                    border: `1px solid ${isDark ? colorPrimary : "#d9d9d9"}`,
                   }}
                 />
-                <div
+                <MoonOutlined
                   style={{
-                    padding: "2px",
-                    borderRadius: 4,
-                    background: isDark ? `${colorPrimary}15` : "transparent",
+                    color: isDark ? colorPrimary : colorTextSecondary,
+                    fontSize: 12,
                     transition: "all 0.3s ease",
                   }}
-                >
-                  <MoonOutlined
-                    style={{
-                      color: isDark ? colorPrimary : colorTextSecondary,
-                      fontSize: 12,
-                      transition: "all 0.3s ease",
-                    }}
-                  />
-                </div>
+                />
               </div>
             </Tooltip>
           </div>
