@@ -622,14 +622,14 @@ const WorkflowBuilderPage: React.FC = () => {
       const workflow = workflows.find((w) => w.workflowCode === code);
       setCurrentWorkflow(workflow || null);
 
-      const flowNodes: Node[] = design.nodes.map((node) => ({
+      const flowNodes: Node[] = (design.nodes || []).map((node) => ({
         id: node.id,
         type: "workflowNode",
         position: node.position,
         data: node.data,
       }));
 
-      const flowEdges: Edge[] = design.edges.map((edge) => ({
+      const flowEdges: Edge[] = (design.edges || []).map((edge) => ({
         id: edge.id,
         source: edge.source,
         target: edge.target,
