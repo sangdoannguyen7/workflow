@@ -242,8 +242,12 @@ const HeaderLayout = () => {
   const frameStyle = {
     border: `1px solid ${colorBorder}`,
     borderRadius: 8,
-    padding: "4px 8px",
-    background: `${colorPrimary}05`,
+    padding: "2px 6px",
+    background: `${colorPrimary}08`,
+    transition: "all 0.2s ease",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   };
 
   return (
@@ -453,7 +457,7 @@ const HeaderLayout = () => {
               <Form.Item name="email" label="Email">
                 <Input />
               </Form.Item>
-              <Form.Item name="phone" label="Số đi���n thoại">
+              <Form.Item name="phone" label="Số điện thoại">
                 <Input />
               </Form.Item>
               <Row gutter={16}>
