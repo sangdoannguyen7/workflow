@@ -688,7 +688,7 @@ const WorkflowPage: React.FC = () => {
             <TextArea rows={4} placeholder="Nhập mô tả workflow" />
           </Form.Item>
         </Form>
-      </Modal>
+      </Drawer>
 
       {/* Test Results Drawer */}
       <Drawer
