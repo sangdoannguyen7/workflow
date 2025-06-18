@@ -33,6 +33,7 @@ import { getMockAgents } from "../../mock/agent.mock";
 import { getMockTemplates } from "../../mock/template.mock";
 import WorkflowPerformanceChart from "../../shared/components/charts/workflow-performance.component";
 import WorkflowStatusChart from "../../shared/components/charts/workflow-status.component";
+import SystemStatusComponent from "../../shared/components/system-status.component";
 import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
