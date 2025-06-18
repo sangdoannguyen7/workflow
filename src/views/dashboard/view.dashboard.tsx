@@ -666,10 +666,10 @@ const DashboardPage = () => {
             }
             style={{
               borderRadius: borderRadiusLG,
-              height: 380,
+              height: 350,
               boxShadow: boxShadowSecondary,
             }}
-            bodyStyle={{ padding: "24px" }}
+            bodyStyle={{ padding: "8px", overflow: "hidden" }}
           >
             <div style={{ textAlign: "center" }}>
               <Gauge {...performanceGaugeConfig} height={200} />
