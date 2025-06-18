@@ -1,32 +1,38 @@
-import axios from "axios";
-import { IAxiosCustom, IDataResponse } from "./axiosCustom";
-import {constants} from "../common/common.constants.ts";
+import axiosCustom, { IDataRequest, IDataResponse } from "./axiosCustom.ts";
 
-async function axiosFile(config: IAxiosCustom): Promise<IDataResponse> {
-  let response: IDataResponse = await axios({
-    method: config.method,
-    url: constants.BACKEND_HOST+config.uri,
-    headers: {
-      "Content-type": "multipart/form-data",
-    },
-    params: config.params,
-    data: config.data
-  })
-  .then(res => {
-    response = {
-      status: true,
-      data: res.data
-    }
-    return response;
-  })
-  .catch(() => {
-    const response: IDataResponse = {
-      status: false,
-      data: {msg: "Hình ảnh không được quá 5MB"}
-    }
-    return response;
-  })
-  return response as IDataResponse;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function uploadFile(file: any): Promise<IDataResponse<any>> {
+  const request: IDataRequest = {
+    method: "POST",
+    uri: "/v1/medias",
+    params: null,
+    data: file,
+    type: "multipart",
+  };
+  const data: IDataResponse<any> = await axiosCustom(request);
+  return data;
 }
 
-export default axiosFile;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function downloadFile(fileName: string): Promise<any> {
+  try {
+    const request: IDataRequest = {
+      method: "GET",
+      uri: `/v1/medias/download/${fileName}`,
+      params: null,
+      data: null,
+      type: "file",
+    };
+    const data: IDataResponse<any> = await axiosCustom(request);
+    return data;
+  } catch {
+    const request: IDataRequest = {
+      method: "GET",
+      uri: `/v1/medias/download/${fileName}`,
+      params: null,
+      data: null,
+    };
+    const data: IDataResponse<any> = await axiosCustom(request);
+    return data;
+  }
+}
