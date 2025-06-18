@@ -395,27 +395,29 @@ const HeaderLayout = () => {
             </Tooltip>
           </div>
 
-          {/* Notifications */}
-          <div style={frameStyle}>
+          {/* Enhanced Notifications */}
+          <div style={notificationFrameStyle}>
             <Tooltip title="Thông báo">
-              <div style={{ padding: "4px 8px" }}>
-                <Badge count={unreadCount} size="small">
-                  <Button
-                    type="text"
-                    icon={<BellOutlined />}
-                    onClick={handleNotificationOpen}
-                    style={{
-                      width: 32,
-                      height: 32,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: colorText,
-                      border: "none",
-                    }}
-                  />
-                </Badge>
-              </div>
+              <Badge count={unreadCount} size="small" offset={[-2, 2]}>
+                <Button
+                  type="text"
+                  icon={<BellOutlined />}
+                  onClick={handleNotificationOpen}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: colorText,
+                    border: "none",
+                    borderRadius: 6,
+                    background:
+                      unreadCount > 0 ? `${colorPrimary}10` : "transparent",
+                    transition: "all 0.2s ease",
+                  }}
+                />
+              </Badge>
             </Tooltip>
           </div>
 
@@ -582,7 +584,7 @@ const HeaderLayout = () => {
               size="small"
               style={{ marginBottom: 16 }}
             >
-              <Form.Item name={["general", "siteName"]} label="Tên website">
+              <Form.Item name={["general", "siteName"]} label="T��n website">
                 <Input />
               </Form.Item>
               <Form.Item name={["general", "siteDescription"]} label="Mô tả">
