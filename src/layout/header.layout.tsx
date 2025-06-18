@@ -466,7 +466,7 @@ const HeaderLayout = () => {
               size="small"
               style={{ marginBottom: 16 }}
             >
-              <Form.Item name={["preferences", "theme"]} label="Giao di��n">
+              <Form.Item name={["preferences", "theme"]} label="Giao diện">
                 <Select>
                   <Select.Option value="light">Sáng</Select.Option>
                   <Select.Option value="dark">Tối</Select.Option>
@@ -677,9 +677,8 @@ const HeaderLayout = () => {
                       {notification.title}
                     </Text>
                     <Tag
-                      size="small"
                       color={getNotificationColor(notification.type)}
-                      style={{ marginLeft: 8 }}
+                      style={{ marginLeft: 8, fontSize: 11 }}
                     >
                       {notification.category}
                     </Tag>
