@@ -4,7 +4,6 @@ import {
   IWorkflowResponse,
   IWorkflowSearchParams,
   IWorkflowDesign,
-  IWorkflowRequest,
 } from "../../interface/workflow.interface";
 import { SingleApiResponse } from "../../interface/common.interface";
 import { IWorkflowApi } from "./api.workflow.interface";
