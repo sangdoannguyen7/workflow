@@ -649,7 +649,7 @@ const TemplatePage: React.FC = () => {
         onCancel={() => setModalVisible(false)}
         onOk={() => form.submit()}
         width={900}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Tabs defaultActiveKey="1">
