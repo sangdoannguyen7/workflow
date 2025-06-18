@@ -7,4 +7,4 @@ export {
   infoNotification,
   useNotificationComponent,
   type INotification,
-} from "./notification";
+} from "./notification.tsx";
