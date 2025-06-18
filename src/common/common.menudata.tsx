@@ -1,12 +1,9 @@
 import {
   RobotOutlined,
   FileTextOutlined,
-  NodeExpandOutlined,
   ApartmentOutlined,
-  SettingOutlined,
   DashboardOutlined,
   ThunderboltOutlined,
-  ClusterOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
