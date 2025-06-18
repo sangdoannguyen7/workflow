@@ -1,16 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Image,
-  Layout,
-  Menu,
-  theme,
-  Typography,
-  Divider,
-  Badge,
-  Space,
-  Button,
-  Tooltip,
-} from "antd";
+import { Layout, Menu, theme, Typography, Badge, Space, Tooltip } from "antd";
 import {
   WifiOutlined,
   DisconnectOutlined,
