@@ -27,3 +27,4 @@ export const apiLogger = (message: string, data?: any) => {
 
 // Re-export MockAPI from enhanced.mock.ts
 export { MockAPI } from "../mock/enhanced.mock";
+export { WorkflowMockAPI } from "../mock/workflow-enhanced.mock";
