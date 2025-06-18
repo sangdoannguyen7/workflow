@@ -71,42 +71,6 @@ const menuData = [
     permission: "AGENT",
     description: "Quản lý agent và dịch vụ",
   },
-  {
-    path: "/node",
-    key: "NODE",
-    icon: (
-      <Link to="/node">
-        <NodeExpandOutlined />
-      </Link>
-    ),
-    label: "Node",
-    permission: "NODE",
-    description: "Quản lý node và thành phần",
-  },
-  {
-    path: "/node-flow",
-    key: "NODE_FLOW",
-    icon: (
-      <Link to="/node-flow">
-        <ClusterOutlined />
-      </Link>
-    ),
-    label: "Node Flow",
-    permission: "NODE_FLOW",
-    description: "Thiết kế luồng node",
-  },
-  {
-    path: "/management",
-    key: "MANAGEMENT",
-    icon: (
-      <Link to="/management">
-        <SettingOutlined />
-      </Link>
-    ),
-    label: "Quản lý hệ thống",
-    permission: "MANAGEMENT",
-    description: "Cài đặt và quản lý hệ thống",
-  },
 ];
 
 export default menuData;
