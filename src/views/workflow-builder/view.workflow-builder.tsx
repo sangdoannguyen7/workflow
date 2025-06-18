@@ -1030,7 +1030,7 @@ const WorkflowBuilderPage: React.FC = () => {
                     placeholder="Chọn workflow"
                     value={selectedWorkflow}
                     onChange={setSelectedWorkflow}
-                    options={workflows.map((w) => ({
+                    options={(workflows || []).map((w) => ({
                       value: w.workflowCode,
                       label: `${w.workflowName} (${w.workflowCode})`,
                     }))}
