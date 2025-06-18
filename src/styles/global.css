@@ -343,58 +343,27 @@
   box-shadow: 0 0 0 2px #1890ff !important;
 }
 
-/* Stable, smooth handles */
+/* Simple, stable ReactFlow styles */
 .react-flow__handle {
-  transform: translateZ(0) !important;
-  backface-visibility: hidden !important;
+  cursor: crosshair !important;
   opacity: 1 !important;
-  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.15s ease !important;
-  will-change: transform !important;
 }
 
 .react-flow__handle:hover {
-  opacity: 1 !important;
+  transform: scale(1.1) !important;
 }
 
-.react-flow__handle.react-flow__handle-left,
-.react-flow__handle.react-flow__handle-right {
-  z-index: 10 !important;
-  background: #fff !important;
-  border: 3px solid !important;
-  opacity: 1 !important;
-}
-
-/* Smooth node movement */
 .react-flow__node {
-  transform: translateZ(0) !important;
-  transition: none !important;
-  will-change: transform !important;
+  cursor: move !important;
 }
 
 .react-flow__node.selected {
-  z-index: 1000 !important;
   box-shadow: 0 0 0 2px #1890ff !important;
-}
-
-/* Stable edge connections */
-.react-flow__edge {
-  transition: stroke 0.2s ease !important;
-}
-
-.react-flow__edge.selected {
-  z-index: 1000 !important;
 }
 
 .react-flow__edge.animated {
   animation: dash 0.8s linear infinite !important;
   stroke-dasharray: 8, 8 !important;
-}
-
-/* Smoother node dragging */
-.react-flow__node.dragging {
-  z-index: 1001 !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
 }
 
 .react-flow__edge.selected {
