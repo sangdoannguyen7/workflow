@@ -14,8 +14,6 @@ import {
   Col,
   Select,
   Drawer,
-  Form,
-  Input,
   theme,
   Typography,
   List,
@@ -24,23 +22,16 @@ import {
   Badge,
   Tooltip,
   Modal,
-  Tabs,
   Collapse,
 } from "antd";
 import {
-  SaveOutlined,
-  ReloadOutlined,
-  PlusOutlined,
-  DeleteOutlined,
   ApartmentOutlined,
   ApiOutlined,
   ScheduleOutlined,
   LinkOutlined,
   DragOutlined,
-  SettingOutlined,
-  PlayCircleOutlined,
-  PauseCircleOutlined,
-  EditOutlined,
+  DownloadOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 import {
   ReactFlow,
@@ -57,22 +48,25 @@ import {
   BackgroundVariant,
   ConnectionMode,
   Panel,
+  useReactFlow,
+  ReactFlowInstance,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
 import { ITemplate } from "../../interface/template.interface";
 import { IWorkflow } from "../../interface/workflow.interface";
 import { IWorkflowDesign } from "../../interface/workflow.interface";
-
 import templateApi from "../../apis/template/api.template";
 import workflowApi from "../../apis/workflow/api.workflow";
 
-const { Option } = Select;
+// Import components
+import WorkflowToolbar from "./components/WorkflowToolbar";
+import NodePropertiesPanel from "./components/NodePropertiesPanel";
+
 const { Text, Title } = Typography;
-const { TabPane } = Tabs;
 const { Panel: CollapsePanel } = Collapse;
 
-// Template type configurations
+// Template configurations
 const TEMPLATE_CONFIGS = {
   webhook: {
     icon: <LinkOutlined />,
@@ -94,7 +88,7 @@ const TEMPLATE_CONFIGS = {
   },
 };
 
-// Draggable Template Item Component
+// Draggable Template Component
 const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
   const config =
     TEMPLATE_CONFIGS[template.templateType as keyof typeof TEMPLATE_CONFIGS];
@@ -125,16 +119,24 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
         cursor: "grab",
         backgroundColor: config?.bgColor || "#fafafa",
         transition: "all 0.2s ease",
+        userSelect: "none",
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = "translateY(-2px)";
         e.currentTarget.style.boxShadow = `0 4px 12px ${
           config?.color || "#ccc"
         }30`;
+        e.currentTarget.style.cursor = "grab";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = "translateY(0)";
         e.currentTarget.style.boxShadow = "none";
+      }}
+      onMouseDown={(e) => {
+        e.currentTarget.style.cursor = "grabbing";
+      }}
+      onMouseUp={(e) => {
+        e.currentTarget.style.cursor = "grab";
       }}
     >
       <div
@@ -174,7 +176,7 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
   );
 };
 
-// Custom Node Component with enhanced styling
+// Enhanced Custom Node Component
 const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
   data,
   selected,
@@ -198,6 +200,7 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
           : "0 2px 8px rgba(0,0,0,0.1)",
         position: "relative",
         transition: "all 0.2s ease",
+        cursor: "pointer",
       }}
     >
       {/* Node Type Badge */}
@@ -234,7 +237,7 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
         >
           {config?.icon}
         </div>
-        <div>
+        <div style={{ flex: 1 }}>
           <Text
             strong
             style={{
@@ -262,11 +265,13 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
             marginBottom: "8px",
           }}
         >
-          {data.description}
+          {data.description.length > 80
+            ? `${data.description.substring(0, 80)}...`
+            : data.description}
         </Text>
       )}
 
-      {/* Node Footer */}
+      {/* Node Status */}
       <div
         style={{
           display: "flex",
@@ -282,12 +287,12 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
             width: "8px",
             height: "8px",
             borderRadius: "50%",
-            backgroundColor: config?.color || "#666",
+            backgroundColor: selected ? config?.color : "#ccc",
           }}
         />
       </div>
 
-      {/* Connection Points */}
+      {/* Connection Handles */}
       <div
         style={{
           position: "absolute",
@@ -335,8 +340,8 @@ const WorkflowBuilderPage: React.FC = () => {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [nodeCounter, setNodeCounter] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [nodePropertiesVisible, setNodePropertiesVisible] = useState(false);
-  const [form] = Form.useForm();
+  const [reactFlowInstance, setReactFlowInstance] =
+    useState<ReactFlowInstance | null>(null);
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
@@ -349,13 +354,18 @@ const WorkflowBuilderPage: React.FC = () => {
     (params: Connection) => {
       const newEdge = {
         ...params,
-        animated: true,
-        style: { stroke: "#1890ff", strokeWidth: 2 },
+        id: `edge-${Date.now()}`,
+        animated: isPlaying,
+        style: {
+          stroke: "#1890ff",
+          strokeWidth: 2,
+          strokeDasharray: isPlaying ? "5,5" : undefined,
+        },
       };
       setEdges((eds) => addEdge(newEdge, eds));
       message.success("Đã kết nối nodes");
     },
-    [setEdges]
+    [setEdges, isPlaying]
   );
 
   // Handle drop from template palette
@@ -364,23 +374,28 @@ const WorkflowBuilderPage: React.FC = () => {
       event.preventDefault();
 
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-      if (!reactFlowBounds) return;
+      if (!reactFlowBounds || !reactFlowInstance) return;
 
       const data = event.dataTransfer.getData("application/reactflow");
       if (!data) return;
 
       try {
         const { template } = JSON.parse(data);
-        const position = {
-          x: event.clientX - reactFlowBounds.left - 125, // Center the node
-          y: event.clientY - reactFlowBounds.top - 50,
-        };
+
+        // Convert screen coordinates to flow coordinates
+        const position = reactFlowInstance.project({
+          x: event.clientX - reactFlowBounds.left,
+          y: event.clientY - reactFlowBounds.top,
+        });
 
         const newNodeId = `node_${nodeCounter}`;
         const newNode: Node = {
           id: newNodeId,
           type: "workflowNode",
-          position,
+          position: {
+            x: position.x - 125, // Center the node
+            y: position.y - 50,
+          },
           data: {
             label: template.templateName,
             templateCode: template.templateCode,
@@ -388,6 +403,9 @@ const WorkflowBuilderPage: React.FC = () => {
             agentCode: template.agentCode,
             description: template.description,
             template: template,
+            timeout: 30000,
+            retries: 3,
+            priority: "normal",
           },
         };
 
@@ -398,7 +416,7 @@ const WorkflowBuilderPage: React.FC = () => {
         message.error("Không thể thêm node");
       }
     },
-    [nodeCounter, setNodes]
+    [nodeCounter, setNodes, reactFlowInstance]
   );
 
   const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
@@ -406,7 +424,7 @@ const WorkflowBuilderPage: React.FC = () => {
     event.dataTransfer.dropEffect = "move";
   }, []);
 
-  // Fetch workflows and templates
+  // Fetch data
   const fetchWorkflows = async () => {
     try {
       const response = await workflowApi.getWorkflows({ size: 1000 });
@@ -444,8 +462,12 @@ const WorkflowBuilderPage: React.FC = () => {
         source: edge.source,
         target: edge.target,
         type: edge.type || "default",
-        animated: true,
-        style: { stroke: "#1890ff", strokeWidth: 2 },
+        animated: isPlaying,
+        style: {
+          stroke: "#1890ff",
+          strokeWidth: 2,
+          strokeDasharray: isPlaying ? "5,5" : undefined,
+        },
       }));
 
       setNodes(flowNodes);
@@ -500,16 +522,31 @@ const WorkflowBuilderPage: React.FC = () => {
   };
 
   // Node click handler
-  const onNodeClick = useCallback(
-    (_event: React.MouseEvent, node: Node) => {
-      setSelectedNode(node);
-      form.setFieldsValue(node.data);
+  const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
+    setSelectedNode(node);
+  }, []);
+
+  // Pane click handler
+  const onPaneClick = useCallback(() => {
+    setSelectedNode(null);
+  }, []);
+
+  // Update node data
+  const updateNodeData = useCallback(
+    (nodeId: string, data: any) => {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: { ...node.data, ...data } }
+            : node
+        )
+      );
     },
-    [form]
+    [setNodes]
   );
 
   // Delete selected node
-  const deleteSelectedNode = () => {
+  const deleteSelectedNode = useCallback(() => {
     if (selectedNode) {
       setNodes((nds) => nds.filter((node) => node.id !== selectedNode.id));
       setEdges((eds) =>
@@ -521,10 +558,10 @@ const WorkflowBuilderPage: React.FC = () => {
       setSelectedNode(null);
       message.success("Đã xóa node");
     }
-  };
+  }, [selectedNode, setNodes, setEdges]);
 
-  // Clear all workflow
-  const clearWorkflow = () => {
+  // Clear workflow
+  const clearWorkflow = useCallback(() => {
     Modal.confirm({
       title: "Xóa tất cả workflow?",
       content: "Thao tác này sẽ xóa toàn bộ nodes và connections.",
@@ -536,32 +573,119 @@ const WorkflowBuilderPage: React.FC = () => {
         message.success("Đã xóa toàn bộ workflow");
       },
     });
-  };
+  }, [setNodes, setEdges]);
 
-  // Toggle workflow simulation
-  const toggleSimulation = () => {
-    setIsPlaying(!isPlaying);
-    if (!isPlaying) {
-      // Animate edges when playing
-      setEdges((eds) =>
-        eds.map((edge) => ({
-          ...edge,
-          animated: true,
-          style: { ...edge.style, strokeDasharray: "5,5" },
-        }))
-      );
-      message.info("Bắt đầu mô phỏng workflow");
-    } else {
-      setEdges((eds) =>
-        eds.map((edge) => ({
-          ...edge,
-          animated: true,
-          style: { ...edge.style, strokeDasharray: undefined },
-        }))
-      );
-      message.info("Dừng mô phỏng workflow");
+  // Toggle simulation
+  const toggleSimulation = useCallback(() => {
+    const newIsPlaying = !isPlaying;
+    setIsPlaying(newIsPlaying);
+
+    // Update edge styles
+    setEdges((eds) =>
+      eds.map((edge) => ({
+        ...edge,
+        animated: newIsPlaying,
+        style: {
+          ...edge.style,
+          strokeDasharray: newIsPlaying ? "5,5" : undefined,
+        },
+      }))
+    );
+
+    message.info(
+      newIsPlaying ? "Bắt đầu mô phỏng workflow" : "Dừng mô phỏng workflow"
+    );
+  }, [isPlaying, setEdges]);
+
+  // Export workflow
+  const exportWorkflow = useCallback(() => {
+    if (!selectedWorkflow || nodes.length === 0) {
+      message.error("Không có dữ liệu để xuất");
+      return;
     }
-  };
+
+    const data = {
+      workflowCode: selectedWorkflow,
+      nodes: nodes.map((node) => ({
+        id: node.id,
+        position: node.position,
+        data: node.data,
+      })),
+      edges: edges.map((edge) => ({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        type: edge.type,
+      })),
+      exportedAt: new Date().toISOString(),
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `workflow_${selectedWorkflow}_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    message.success("Đã xuất workflow");
+  }, [selectedWorkflow, nodes, edges]);
+
+  // Import workflow
+  const importWorkflow = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target?.result as string);
+
+          if (data.nodes && data.edges) {
+            setNodes(data.nodes);
+            setEdges(data.edges);
+            setSelectedWorkflow(data.workflowCode || "");
+
+            const maxNumber = Math.max(
+              0,
+              ...data.nodes.map((node: any) => {
+                const match = node.id.match(/node_(\d+)/);
+                return match ? parseInt(match[1]) : 0;
+              })
+            );
+            setNodeCounter(maxNumber + 1);
+
+            message.success("Đã nhập workflow thành công");
+          } else {
+            message.error("File không đúng định dạng");
+          }
+        } catch (error) {
+          message.error("Không thể đọc file");
+        }
+      };
+      reader.readAsText(file);
+
+      // Reset input
+      event.target.value = "";
+    },
+    [setNodes, setEdges]
+  );
+
+  // View controls
+  const fitView = useCallback(() => {
+    reactFlowInstance?.fitView();
+  }, [reactFlowInstance]);
+
+  const zoomIn = useCallback(() => {
+    reactFlowInstance?.zoomIn();
+  }, [reactFlowInstance]);
+
+  const zoomOut = useCallback(() => {
+    reactFlowInstance?.zoomOut();
+  }, [reactFlowInstance]);
 
   // Group templates by type
   const groupedTemplates = templates.reduce((acc, template) => {
@@ -596,9 +720,9 @@ const WorkflowBuilderPage: React.FC = () => {
         {/* Template Palette Sidebar */}
         <div
           style={{
-            width: paletteVisible ? "300px" : "0px",
+            width: paletteVisible ? "320px" : "0px",
             transition: "width 0.3s ease",
-            borderRight: "1px solid #d9d9d9",
+            borderRight: paletteVisible ? "1px solid #d9d9d9" : "none",
             background: "#fafafa",
             overflow: "hidden",
           }}
@@ -608,6 +732,7 @@ const WorkflowBuilderPage: React.FC = () => {
               <Space>
                 <DragOutlined />
                 Template Palette
+                <Badge count={templates.length} />
               </Space>
             }
             size="small"
@@ -618,6 +743,12 @@ const WorkflowBuilderPage: React.FC = () => {
               overflow: "auto",
             }}
           >
+            <div style={{ marginBottom: "12px" }}>
+              <Text type="secondary" style={{ fontSize: "12px" }}>
+                Kéo template vào canvas để tạo node
+              </Text>
+            </div>
+
             <Collapse defaultActiveKey={Object.keys(groupedTemplates)} ghost>
               {Object.entries(groupedTemplates).map(([type, templateList]) => (
                 <CollapsePanel
@@ -645,96 +776,31 @@ const WorkflowBuilderPage: React.FC = () => {
           </Card>
         </div>
 
-        {/* Main Flow Canvas */}
+        {/* Main Canvas Area */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           {/* Toolbar */}
-          <Card size="small" style={{ margin: "8px", marginBottom: "4px" }}>
-            <Row justify="space-between" align="middle">
-              <Col>
-                <Space>
-                  <Button
-                    icon={<DragOutlined />}
-                    onClick={() => setPaletteVisible(!paletteVisible)}
-                  >
-                    Template
-                  </Button>
-                  <Select
-                    style={{ width: 250 }}
-                    placeholder="Chọn workflow"
-                    value={selectedWorkflow}
-                    onChange={setSelectedWorkflow}
-                    showSearch
-                  >
-                    {workflows.map((workflow) => (
-                      <Option
-                        key={workflow.workflowCode}
-                        value={workflow.workflowCode}
-                      >
-                        {workflow.workflowName}
-                      </Option>
-                    ))}
-                  </Select>
-                  <Button
-                    type={isPlaying ? "primary" : "default"}
-                    icon={
-                      isPlaying ? (
-                        <PauseCircleOutlined />
-                      ) : (
-                        <PlayCircleOutlined />
-                      )
-                    }
-                    onClick={toggleSimulation}
-                    disabled={nodes.length === 0}
-                  >
-                    {isPlaying ? "Dừng" : "Chạy"}
-                  </Button>
-                </Space>
-              </Col>
-              <Col>
-                <Space>
-                  <Button
-                    icon={<SettingOutlined />}
-                    onClick={() => setNodePropertiesVisible(true)}
-                    disabled={!selectedNode}
-                  >
-                    Thuộc tính
-                  </Button>
-                  <Button
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={deleteSelectedNode}
-                    disabled={!selectedNode}
-                  >
-                    Xóa Node
-                  </Button>
-                  <Button
-                    icon={<DeleteOutlined />}
-                    onClick={clearWorkflow}
-                    disabled={nodes.length === 0}
-                  >
-                    Xóa tất cả
-                  </Button>
-                  <Button
-                    icon={<ReloadOutlined />}
-                    onClick={() =>
-                      selectedWorkflow && loadWorkflowDesign(selectedWorkflow)
-                    }
-                    disabled={!selectedWorkflow}
-                  >
-                    Tải lại
-                  </Button>
-                  <Button
-                    type="primary"
-                    icon={<SaveOutlined />}
-                    onClick={saveWorkflowDesign}
-                    disabled={!selectedWorkflow || nodes.length === 0}
-                  >
-                    Lưu Workflow
-                  </Button>
-                </Space>
-              </Col>
-            </Row>
-          </Card>
+          <WorkflowToolbar
+            workflows={workflows}
+            selectedWorkflow={selectedWorkflow}
+            onWorkflowChange={setSelectedWorkflow}
+            onSave={saveWorkflowDesign}
+            onLoad={() =>
+              selectedWorkflow && loadWorkflowDesign(selectedWorkflow)
+            }
+            onClear={clearWorkflow}
+            onTogglePalette={() => setPaletteVisible(!paletteVisible)}
+            onToggleSimulation={toggleSimulation}
+            onExport={exportWorkflow}
+            onImport={importWorkflow}
+            onFitView={fitView}
+            onZoomIn={zoomIn}
+            onZoomOut={zoomOut}
+            isPlaying={isPlaying}
+            nodeCount={nodes.length}
+            edgeCount={edges.length}
+            paletteVisible={paletteVisible}
+            selectedNodeId={selectedNode?.id}
+          />
 
           {/* Flow Canvas */}
           <div
@@ -748,14 +814,16 @@ const WorkflowBuilderPage: React.FC = () => {
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
               onNodeClick={onNodeClick}
+              onPaneClick={onPaneClick}
               onDrop={onDrop}
               onDragOver={onDragOver}
+              onInit={setReactFlowInstance}
               nodeTypes={nodeTypes}
               connectionMode={ConnectionMode.Loose}
               fitView
               attributionPosition="bottom-left"
               style={{
-                background: "#f9f9f9",
+                background: "#fafafa",
                 borderRadius: "8px",
                 border: "2px dashed #d9d9d9",
               }}
@@ -781,27 +849,35 @@ const WorkflowBuilderPage: React.FC = () => {
                 <Panel position="top-center">
                   <div
                     style={{
-                      padding: "20px",
-                      background: "rgba(255,255,255,0.9)",
-                      borderRadius: "8px",
+                      padding: "24px",
+                      background: "rgba(255,255,255,0.95)",
+                      borderRadius: "12px",
                       border: "2px dashed #d9d9d9",
                       textAlign: "center",
-                      maxWidth: "400px",
+                      maxWidth: "450px",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                     }}
                   >
                     <ApartmentOutlined
                       style={{
-                        fontSize: "32px",
+                        fontSize: "48px",
                         color: "#d9d9d9",
-                        marginBottom: "12px",
+                        marginBottom: "16px",
+                        display: "block",
                       }}
                     />
-                    <Title level={4} type="secondary">
-                      Kéo thả template từ bên trái để tạo workflow
+                    <Title
+                      level={3}
+                      type="secondary"
+                      style={{ marginBottom: "8px" }}
+                    >
+                      Workflow Builder
                     </Title>
-                    <Text type="secondary">
-                      Chọn workflow từ dropdown trên, sau đó kéo các template từ
-                      palette để xây dựng flow
+                    <Text type="secondary" style={{ fontSize: "14px" }}>
+                      Kéo thả template từ sidebar để tạo workflow.
+                      <br />
+                      Kết nối các node bằng cách kéo từ handle này đến handle
+                      khác.
                     </Text>
                   </div>
                 </Panel>
@@ -810,73 +886,13 @@ const WorkflowBuilderPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Node Properties Modal */}
-        <Modal
-          title={
-            <Space>
-              <EditOutlined />
-              Thuộc tính Node
-            </Space>
-          }
-          open={nodePropertiesVisible}
-          onCancel={() => setNodePropertiesVisible(false)}
-          onOk={() => {
-            const values = form.getFieldsValue();
-            if (selectedNode) {
-              setNodes((nds) =>
-                nds.map((node) =>
-                  node.id === selectedNode.id
-                    ? { ...node, data: { ...node.data, ...values } }
-                    : node
-                )
-              );
-              message.success("Cập nhật thuộc tính node thành công");
-              setNodePropertiesVisible(false);
-            }
-          }}
-          width={600}
-        >
-          {selectedNode && (
-            <Form form={form} layout="vertical">
-              <Tabs defaultActiveKey="1">
-                <TabPane tab="Thông tin cơ bản" key="1">
-                  <Form.Item name="label" label="Tên Node">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name="description" label="Mô tả">
-                    <Input.TextArea rows={3} />
-                  </Form.Item>
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <Form.Item name="templateCode" label="Template Code">
-                        <Input disabled />
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item name="templateType" label="Template Type">
-                        <Input disabled />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                </TabPane>
-                <TabPane tab="Cấu hình nâng cao" key="2">
-                  <Form.Item name="timeout" label="Timeout (ms)">
-                    <Input type="number" placeholder="30000" />
-                  </Form.Item>
-                  <Form.Item name="retries" label="Số lần thử lại">
-                    <Input type="number" placeholder="3" />
-                  </Form.Item>
-                  <Form.Item name="condition" label="Điều kiện thực thi">
-                    <Input.TextArea
-                      rows={2}
-                      placeholder="Nhập điều kiện logic"
-                    />
-                  </Form.Item>
-                </TabPane>
-              </Tabs>
-            </Form>
-          )}
-        </Modal>
+        {/* Node Properties Panel */}
+        <NodePropertiesPanel
+          node={selectedNode}
+          onUpdate={updateNodeData}
+          onDelete={deleteSelectedNode}
+          onClose={() => setSelectedNode(null)}
+        />
       </div>
     </ReactFlowProvider>
   );
