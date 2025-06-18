@@ -928,66 +928,111 @@ export const mockTemplatesForBuilder: ITemplate[] = [
 export const mockAgentsForBuilder: IAgent[] = [
   {
     agentId: 1,
+    agentCode: "AGT_HTTP",
+    agentName: "HTTP Agent",
+    statusCode: "ACTIVE",
+    statusName: "Active",
+    description:
+      "🌐 Handles HTTP requests, webhooks, and external API integrations with robust error handling and retry mechanisms",
+  },
+  {
+    agentId: 2,
+    agentCode: "AGT_SCHEDULER",
+    agentName: "Scheduler Agent",
+    statusCode: "ACTIVE",
+    statusName: "Active",
+    description:
+      "⏰ Manages time-based triggers, cron jobs, and scheduled tasks with timezone support and execution history",
+  },
+  {
+    agentId: 3,
+    agentCode: "AGT_FILE",
+    agentName: "File System Agent",
+    statusCode: "ACTIVE",
+    statusName: "Active",
+    description:
+      "📁 Monitors file systems, handles file operations, and manages data import/export with various formats",
+  },
+  {
+    agentId: 4,
     agentCode: "AGT_VALIDATOR",
     agentName: "Validation Agent",
     statusCode: "ACTIVE",
     statusName: "Active",
     description:
-      "Handles all validation operations including form validation, data validation, and business rule validation",
+      "✅ Performs comprehensive data validation, schema verification, and business rule enforcement",
   },
   {
-    agentId: 2,
+    agentId: 5,
+    agentCode: "AGT_TRANSFORMER",
+    agentName: "Transform Agent",
+    statusCode: "ACTIVE",
+    statusName: "Active",
+    description:
+      "🔄 Transforms data between formats (JSON, XML, CSV), applies mappings, and handles data enrichment",
+  },
+  {
+    agentId: 6,
     agentCode: "AGT_DATABASE",
     agentName: "Database Agent",
     statusCode: "ACTIVE",
     statusName: "Active",
     description:
-      "Manages database operations including CRUD operations, transactions, and data migrations",
+      "🗄️ Executes database operations, manages transactions, and provides connection pooling for multiple databases",
   },
   {
-    agentId: 3,
+    agentId: 7,
+    agentCode: "AGT_LOGIC",
+    agentName: "Logic Agent",
+    statusCode: "ACTIVE",
+    statusName: "Active",
+    description:
+      "🔀 Handles conditional logic, decision trees, and workflow routing based on business rules",
+  },
+  {
+    agentId: 8,
     agentCode: "AGT_EMAIL",
     agentName: "Email Agent",
     statusCode: "ACTIVE",
     statusName: "Active",
     description:
-      "Handles email communications including transactional emails, newsletters, and notifications",
+      "✉️ Sends emails using multiple providers (SendGrid, AWS SES), supports templates and attachments",
   },
   {
-    agentId: 4,
+    agentId: 9,
+    agentCode: "AGT_LOGGER",
+    agentName: "Logging Agent",
+    statusCode: "ACTIVE",
+    statusName: "Active",
+    description:
+      "📝 Provides structured logging, audit trails, and integration with monitoring systems",
+  },
+  {
+    agentId: 10,
     agentCode: "AGT_SECURITY",
     agentName: "Security Agent",
     statusCode: "ACTIVE",
     statusName: "Active",
     description:
-      "Provides security services including fraud detection, risk assessment, and security monitoring",
+      "🔒 Handles authentication, authorization, encryption, and security policy enforcement",
   },
   {
-    agentId: 5,
-    agentCode: "AGT_PAYMENT",
-    agentName: "Payment Agent",
-    statusCode: "ACTIVE",
-    statusName: "Active",
-    description:
-      "Processes payments through various gateways including Stripe, PayPal, and bank transfers",
-  },
-  {
-    agentId: 6,
-    agentCode: "AGT_ETL",
-    agentName: "ETL Agent",
-    statusCode: "ACTIVE",
-    statusName: "Active",
-    description:
-      "Handles Extract, Transform, Load operations for data pipeline and synchronization",
-  },
-  {
-    agentId: 7,
+    agentId: 11,
     agentCode: "AGT_ANALYTICS",
     agentName: "Analytics Agent",
     statusCode: "ACTIVE",
     statusName: "Active",
     description:
-      "Provides analytics and reporting capabilities including user segmentation and behavioral analysis",
+      "📊 Collects metrics, generates reports, and provides real-time analytics and insights",
+  },
+  {
+    agentId: 12,
+    agentCode: "AGT_NOTIFICATION",
+    agentName: "Notification Agent",
+    statusCode: "ACTIVE",
+    statusName: "Active",
+    description:
+      "📢 Sends push notifications, SMS, and manages multi-channel communication strategies",
   },
 ];
 
