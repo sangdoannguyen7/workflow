@@ -613,8 +613,8 @@ const WorkflowBuilderPage: React.FC = () => {
 
   const fetchTemplates = async () => {
     try {
-      const response = await templateApi.getTemplates({ size: 1000 });
-      setTemplates(response.content);
+      const response = await workflowApi.getTemplatesForBuilder();
+      setTemplates(response.data || []);
     } catch (error) {
       NotificationComponent({
         type: "error",
@@ -674,7 +674,7 @@ const WorkflowBuilderPage: React.FC = () => {
       NotificationComponent({
         type: "info",
         message: "Thông báo",
-        description: "T��o workflow mới",
+        description: "Tạo workflow mới",
       });
       setNodes([]);
       setEdges([]);
