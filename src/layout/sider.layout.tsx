@@ -13,8 +13,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { IState } from "../interface/action.interface";
 import menuData from "../common/common.menudata.tsx";
 
-// Import workflow logo (you can replace this with your actual logo)
-import logo from "../images/logo.png";
+// Workflow logo replaced with custom icon component
 
 const { Text } = Typography;
 
