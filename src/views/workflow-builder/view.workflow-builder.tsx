@@ -643,7 +643,7 @@ const WorkflowBuilderPage: React.FC = () => {
     if (!code) return;
 
     try {
-      const design = await workflowApi.getWorkflowDesign(code);
+      const design = await WorkflowMockAPI.getWorkflowDesign(code);
       const workflow = workflows.find((w) => w.workflowCode === code);
       setCurrentWorkflow(workflow || null);
 
