@@ -10,7 +10,7 @@ interface ThemeState {
 
 const initialState: ThemeState = {
   type: "light",
-  primaryColor: "#1890ff",
+  primaryColor: "#1976D2",
   borderRadius: 8,
   compactMode: false,
 };
