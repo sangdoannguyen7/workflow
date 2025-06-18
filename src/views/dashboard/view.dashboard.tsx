@@ -74,7 +74,7 @@ const DashboardPage = () => {
   } = theme.useToken();
 
   // Enhanced mock data
-  const [dashboardData, setDashboardData] = useState({
+  const [dashboardData] = useState({
     stats: {
       totalWorkflows: 128,
       activeWorkflows: 89,
