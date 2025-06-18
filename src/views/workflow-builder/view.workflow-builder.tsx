@@ -726,7 +726,7 @@ const WorkflowBuilderPage: React.FC = () => {
         })),
       };
 
-      await workflowApi.saveWorkflowDesign(selectedWorkflow, design);
+      await WorkflowMockAPI.saveWorkflowDesign(selectedWorkflow, design);
       NotificationComponent({
         type: "success",
         message: "Thành công",
@@ -799,7 +799,7 @@ const WorkflowBuilderPage: React.FC = () => {
   const clearWorkflow = useCallback(() => {
     Modal.confirm({
       title: "Xóa tất cả workflow?",
-      content: "Thao tác này sẽ xóa toàn bộ nodes và connections.",
+      content: "Thao tác này s��� xóa toàn bộ nodes và connections.",
       onOk: () => {
         setNodes([]);
         setEdges([]);
@@ -1030,7 +1030,7 @@ const WorkflowBuilderPage: React.FC = () => {
                     </Row>
                   ) : (
                     <Text type="secondary">
-                      Vui lòng chọn workflow để xem thông tin
+                      Vui l��ng chọn workflow để xem thông tin
                     </Text>
                   ),
                 },
