@@ -5,11 +5,15 @@ import {
   IAgentSearchParams,
 } from "../../interface/agent.interface";
 import { IAgentApi } from "./api.agent.interface";
+import { MockAPI, API_CONFIG } from "../../config/api.config";
 
 class AgentApi implements IAgentApi {
   private readonly baseUrl = "/v1/property/agents";
 
   async getAgents(params?: IAgentSearchParams): Promise<IAgentResponse> {
+    if (API_CONFIG.USE_MOCK) {
+      return await MockAPI.getAgents(params);
+    }
     const request: IDataRequest = {
       method: "GET",
       uri: this.baseUrl,

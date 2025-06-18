@@ -7,6 +7,10 @@ export interface IAgent {
   statusCode: string | null;
   statusName: string | null;
   description: string | null;
+  search?: string;
+  endpoint?: string;
+  lastPing?: string;
+  isOnline?: boolean;
 }
 
 export interface IAgentSearchParams extends CommonSearchParams {}
