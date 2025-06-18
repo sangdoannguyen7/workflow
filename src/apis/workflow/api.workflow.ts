@@ -149,23 +149,6 @@ class WorkflowApi implements IWorkflowApi {
       await axiosCustom(request);
     return response.value.data;
   }
-
-  // Helper method to generate mock workflow nodes from design
-  private generateMockNodes(nodes: any[]) {
-    return nodes.map((node, index) => ({
-      id: node.id,
-      position: node.position,
-      data: {
-        label: node.data?.label || `Node ${index + 1}`,
-        nodeCode: node.data?.nodeCode || `NODE_${index + 1}`,
-        templateCode: node.data?.templateCode || "TPL_DEFAULT",
-        templateType: node.data?.templateType || "webhook",
-        agentCode: node.data?.agentCode || "AGENT_DEFAULT",
-        description: node.data?.description || "",
-        ...node.data,
-      },
-    }));
-  }
 }
 
 const workflowApi = new WorkflowApi();
