@@ -177,23 +177,38 @@ const AgentPage: React.FC = () => {
       title: "Actions",
       key: "action",
       width: 150,
+      className: "action-column-transparent",
       render: (_: any, record: IAgent) => (
-        <Space size="small">
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            size="small"
-          />
-          <Popconfirm
-            title="Are you sure you want to delete this agent?"
-            onConfirm={() => handleDelete(record.agentId)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="text" icon={<DeleteOutlined />} danger size="small" />
-          </Popconfirm>
-        </Space>
+        <div
+          style={{
+            background: "rgba(255, 255, 255, 0.9)",
+            backdropFilter: "blur(8px)",
+            padding: "4px",
+            borderRadius: "6px",
+          }}
+        >
+          <Space size="small">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+              size="small"
+            />
+            <Popconfirm
+              title="Are you sure you want to delete this agent?"
+              onConfirm={() => handleDelete(record.agentId)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button
+                type="text"
+                icon={<DeleteOutlined />}
+                danger
+                size="small"
+              />
+            </Popconfirm>
+          </Space>
+        </div>
       ),
     },
   ];
