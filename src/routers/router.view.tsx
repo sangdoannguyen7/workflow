@@ -47,6 +47,7 @@ const RenderRouter = () => {
           <Route path="/node-flow" element={<NodeFlowPage />} />
           <Route path="/workflow-builder" element={<WorkflowBuilderPage />} />
           <Route path="/management" element={<ManagementPage />} />
+          <Route path="/test" element={<WorkflowTestPage />} />
           <Route path="*" element={<NotfoundPage />} />
         </Routes>
       </MainLayout>
