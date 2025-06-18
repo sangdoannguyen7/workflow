@@ -3,7 +3,7 @@ import {
   Card,
   Button,
   Space,
-  Modal,
+  Drawer,
   Form,
   Input,
   Select,
@@ -19,7 +19,6 @@ import {
   Avatar,
   Tooltip,
   Divider,
-  Drawer,
   Timeline,
   Spin,
 } from "antd";
