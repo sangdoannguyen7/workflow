@@ -1044,13 +1044,47 @@ const WorkflowBuilderPage: React.FC = () => {
     }, {} as Record<string, ITemplate[]>);
   }, [templates]);
 
-  // Other handlers...
+  // Enhanced event handlers with logging
   const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
+    console.log("🎯 Node clicked:", node.id);
     setSelectedNode(node);
   }, []);
 
   const onPaneClick = useCallback(() => {
+    console.log("🖱️ Pane clicked - deselecting node");
     setSelectedNode(null);
+  }, []);
+
+  const onNodesChange = useCallback((changes: any) => {
+    console.log("📝 Nodes changed:", changes);
+    setNodes((nds) => {
+      const newNodes = changes.reduce((acc: Node[], change: any) => {
+        if (change.type === "position") {
+          return acc.map((node) =>
+            node.id === change.id
+              ? { ...node, position: change.position }
+              : node
+          );
+        } else if (change.type === "remove") {
+          return acc.filter((node) => node.id !== change.id);
+        }
+        return acc;
+      }, nds);
+      return newNodes;
+    });
+  }, []);
+
+  const onEdgesChange = useCallback((changes: any) => {
+    console.log("🔗 Edges changed:", changes);
+    setEdges((eds) => {
+      const newEdges = changes.reduce((acc: any[], change: any) => {
+        if (change.type === "remove") {
+          return acc.filter((edge) => edge.id !== change.id);
+        }
+        return acc;
+      }, eds);
+      return newEdges;
+    });
   }, []);
 
   const updateNodeData = useCallback(
