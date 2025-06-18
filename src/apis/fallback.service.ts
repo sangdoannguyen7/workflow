@@ -158,17 +158,37 @@ export class ApiFallbackService {
     }
 
     // Templates
-    if (uri.includes("/templates") && method === "GET") {
-      const mockResponse = getMockTemplates(params);
-      return {
-        value: {
-          content: mockResponse.content,
-          totalElements: mockResponse.totalElements,
-          totalPages: mockResponse.totalPages,
-          size: mockResponse.size,
-          number: mockResponse.number,
-        },
-      };
+    if (uri.includes("/templates")) {
+      if (method === "GET") {
+        const mockResponse = getMockTemplates(params);
+        return {
+          value: {
+            content: mockResponse.content,
+            totalElements: mockResponse.totalElements,
+            totalPages: mockResponse.totalPages,
+            size: mockResponse.size,
+            number: mockResponse.number,
+          },
+        };
+      }
+      if (method === "POST") {
+        const newTemplate = createMockTemplate(data);
+        return { value: { data: newTemplate } };
+      }
+      if (method === "PUT" || method === "PATCH") {
+        const templateCode = uri.split("/").pop();
+        if (templateCode) {
+          const updated = updateMockTemplate(parseInt(templateCode), data);
+          return { value: { data: updated } };
+        }
+      }
+      if (method === "DELETE") {
+        const templateCode = uri.split("/").pop();
+        if (templateCode) {
+          deleteMockTemplate(parseInt(templateCode));
+          return { value: { success: true } };
+        }
+      }
     }
 
     // Health checks
