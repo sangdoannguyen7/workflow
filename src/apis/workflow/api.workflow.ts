@@ -41,7 +41,7 @@ class WorkflowApi implements IWorkflowApi {
 
   async createWorkflow(workflow: any): Promise<any> {
     if (API_CONFIG.USE_MOCK) {
-      const result = await MockAPI.createWorkflow(workflow);
+      const result = await WorkflowMockAPI.createWorkflow(workflow);
       return result.data;
     }
 
