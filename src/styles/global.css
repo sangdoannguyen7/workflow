@@ -344,13 +344,37 @@
 }
 
 .react-flow__handle {
-  opacity: 0.8 !important;
-  transition: opacity 0.2s ease !important;
+  backface-visibility: hidden !important;
+  opacity: 1 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  will-change: transform !important;
 }
 
 .react-flow__handle:hover {
-  transform: scale(1.2) !important;
   opacity: 1 !important;
+}
+
+.react-flow__handle.react-flow__handle-left,
+.react-flow__handle.react-flow__handle-right {
+  background: #fff !important;
+  border: 4px solid !important;
+  opacity: 1 !important;
+}
+
+.react-flow__handle.connecting {
+  animation: pulse-handle 1s ease-in-out infinite !important;
+}
+
+@keyframes pulse-handle {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
 }
 
 .react-flow__edge.selected {
