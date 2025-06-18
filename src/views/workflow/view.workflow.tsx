@@ -385,56 +385,89 @@ const WorkflowPage: React.FC = () => {
       width: 200,
       fixed: "right",
       render: (_: any, record: IWorkflow) => (
-        <Space size="small" wrap>
-          <Tooltip title="Thiết kế workflow">
-            <Button
-              type="text"
-              icon={<ApartmentOutlined />}
-              onClick={() =>
-                window.open(
-                  `/workflow-builder?workflow=${record.workflowCode}`,
-                  "_blank"
-                )
-              }
-              size="small"
-            />
-          </Tooltip>
-          <Tooltip title="Chạy test">
-            <Button
-              type="text"
-              icon={<ThunderboltOutlined />}
-              onClick={() => runWorkflowTest(record)}
-              size="small"
-              style={{ color: colorSuccess }}
-            />
-          </Tooltip>
-          <Tooltip title="Chỉnh sửa">
-            <Button
-              type="text"
-              icon={<EditOutlined />}
-              onClick={() => handleEdit(record)}
-              size="small"
-            />
-          </Tooltip>
-          <Tooltip title="Xóa">
-            <Button
-              type="text"
-              icon={<DeleteOutlined />}
-              onClick={() => {
-                Modal.confirm({
-                  title: "Xác nhận xóa",
-                  content: `Bạn có chắc muốn xóa workflow "${record.workflowName}"?`,
-                  onOk: () => handleDelete(record.workflowCode),
-                  okText: "Xóa",
-                  cancelText: "Hủy",
-                  okButtonProps: { danger: true },
-                });
-              }}
-              danger
-              size="small"
-            />
-          </Tooltip>
-        </Space>
+        <div
+          style={{
+            background: "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(12px)",
+            padding: "6px 8px",
+            borderRadius: "8px",
+            border: "1px solid rgba(25, 118, 210, 0.1)",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+            display: "flex",
+            justifyContent: "center",
+            position: "relative",
+            zIndex: 10,
+          }}
+        >
+          <Space size="small" wrap>
+            <Tooltip title="Thiết kế workflow">
+              <Button
+                type="text"
+                icon={<ApartmentOutlined />}
+                onClick={() =>
+                  window.open(
+                    `/workflow-builder?workflow=${record.workflowCode}`,
+                    "_blank"
+                  )
+                }
+                size="small"
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  color: "#1976D2",
+                }}
+              />
+            </Tooltip>
+            <Tooltip title="Chạy test">
+              <Button
+                type="text"
+                icon={<ThunderboltOutlined />}
+                onClick={() => runWorkflowTest(record)}
+                size="small"
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  color: colorSuccess,
+                }}
+              />
+            </Tooltip>
+            <Tooltip title="Chỉnh sửa">
+              <Button
+                type="text"
+                icon={<EditOutlined />}
+                onClick={() => handleEdit(record)}
+                size="small"
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  color: "#1976D2",
+                }}
+              />
+            </Tooltip>
+            <Tooltip title="Xóa">
+              <Button
+                type="text"
+                icon={<DeleteOutlined />}
+                onClick={() => {
+                  Modal.confirm({
+                    title: "Xác nhận xóa",
+                    content: `Bạn có chắc muốn xóa workflow "${record.workflowName}"?`,
+                    onOk: () => handleDelete(record.workflowCode),
+                    okText: "Xóa",
+                    cancelText: "Hủy",
+                    okButtonProps: { danger: true },
+                  });
+                }}
+                size="small"
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  color: colorError,
+                }}
+              />
+            </Tooltip>
+          </Space>
+        </div>
       ),
     },
   ];
