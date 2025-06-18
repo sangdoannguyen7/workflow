@@ -40,11 +40,11 @@ class NodeApi implements INodeApi {
     throw new Error("API does not support delete node");
   }
 
-  async getNodeByCode(code: string): Promise<INode> {
+  async getNodeByCode(_code: string): Promise<INode> {
     throw new Error("API does not support getByCode");
   }
 
-  async getNodesByWorkflow(workflowCode: string): Promise<INode[]> {
+  async getNodesByWorkflow(_workflowCode: string): Promise<INode[]> {
     // This will be handled by workflow API
     throw new Error("Use workflow API to get nodes");
   }
