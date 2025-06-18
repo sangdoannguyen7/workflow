@@ -156,7 +156,7 @@ const DashboardPage = () => {
         id: 3,
         type: "info",
         title: "Template mới được tạo",
-        description: 'Template "Payment Notification" đã được thêm',
+        description: 'Template "Payment Notification" đã được th��m',
         time: "1 giờ trước",
         user: "Admin",
         workflow: "PAYMENT_NOTIFY",
@@ -271,11 +271,6 @@ const DashboardPage = () => {
     statistic: {
       content: {
         formatter: () => `${dashboardData.stats.successRate}%`,
-        style: {
-          fontSize: 24,
-          fontWeight: 700,
-          color: colorSuccess,
-        },
       },
     },
   };
