@@ -80,6 +80,34 @@ const ApiHealthCheck = () => {
     }
   };
 
+  const debugItems = [
+    {
+      key: "1",
+      label: "API Configuration",
+      children: (
+        <Space direction="vertical" style={{ width: "100%" }}>
+          <Text>
+            Backend Host:{" "}
+            <Text code>{constants.BACKEND_HOST || "Not configured"}</Text>
+          </Text>
+          <Text>
+            Proxy Target: <Text code>http://localhost:8080</Text>
+          </Text>
+          <Text>
+            Expected API: <Text code>http://localhost:8080/v1/health</Text>
+          </Text>
+          <div style={{ marginTop: 8 }}>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              Make sure your API server is running on port 8080 and responding
+              to /v1/* endpoints. You can test manually with:{" "}
+              <Text code>curl http://localhost:8080/v1/health</Text>
+            </Text>
+          </div>
+        </Space>
+      ),
+    },
+  ];
+
   return (
     <Card
       size="small"
@@ -104,15 +132,29 @@ const ApiHealthCheck = () => {
             </Text>
           )}
         </div>
-        <Button
-          icon={<ReloadOutlined />}
-          size="small"
-          onClick={checkApiHealth}
-          loading={status === "checking"}
-        >
-          Refresh
-        </Button>
+        <Space>
+          <Button
+            icon={<ReloadOutlined />}
+            size="small"
+            onClick={checkApiHealth}
+            loading={status === "checking"}
+          >
+            Refresh
+          </Button>
+        </Space>
       </div>
+
+      {status === "offline" && (
+        <Collapse
+          items={debugItems}
+          ghost
+          size="small"
+          style={{ marginTop: 12 }}
+          expandIcon={({ isActive }) => (
+            <InfoCircleOutlined rotate={isActive ? 90 : 0} />
+          )}
+        />
+      )}
     </Card>
   );
 };
