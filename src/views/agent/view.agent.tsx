@@ -124,7 +124,7 @@ const AgentPage: React.FC = () => {
         await agentApi.createAgent(values);
         message.success("Agent created successfully");
       }
-      setModalVisible(false);
+      setDrawerVisible(false);
       fetchAgents();
     } catch (error) {
       console.error("Error saving agent:", error);
