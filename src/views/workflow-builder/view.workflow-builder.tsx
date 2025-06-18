@@ -712,10 +712,30 @@ const WorkflowBuilderPage: React.FC = () => {
     [nodeCounter, setNodes, reactFlowInstance]
   );
 
-  const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  }, []);
+  const onDragOver = useCallback(
+    (event: DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "move";
+
+      // Add visual feedback for drag over
+      const target = event.currentTarget;
+      if (target) {
+        target.style.backgroundColor = `${colorPrimary}08`;
+      }
+    },
+    [colorPrimary]
+  );
+
+  const onDragLeave = useCallback(
+    (event: DragEvent<HTMLDivElement>) => {
+      // Remove visual feedback when drag leaves
+      const target = event.currentTarget;
+      if (target) {
+        target.style.backgroundColor = colorBgContainer;
+      }
+    },
+    [colorBgContainer]
+  );
 
   // Test workflow functionality
   const runWorkflowTest = async () => {
@@ -1540,6 +1560,7 @@ const WorkflowBuilderPage: React.FC = () => {
               onPaneClick={onPaneClick}
               onDrop={onDrop}
               onDragOver={onDragOver}
+              onDragLeave={onDragLeave}
               onInit={setReactFlowInstance}
               nodeTypes={nodeTypes}
               connectionMode={ConnectionMode.Loose}
