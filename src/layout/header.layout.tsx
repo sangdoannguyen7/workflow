@@ -222,7 +222,7 @@ const HeaderLayout = () => {
       label: <span onClick={handleSettingsOpen}>Cài đặt hệ thống</span>,
     },
     {
-      type: "divider",
+      type: "divider" as const,
     },
     {
       key: "3",
@@ -466,7 +466,7 @@ const HeaderLayout = () => {
               size="small"
               style={{ marginBottom: 16 }}
             >
-              <Form.Item name={["preferences", "theme"]} label="Giao diện">
+              <Form.Item name={["preferences", "theme"]} label="Giao di��n">
                 <Select>
                   <Select.Option value="light">Sáng</Select.Option>
                   <Select.Option value="dark">Tối</Select.Option>
