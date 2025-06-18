@@ -120,6 +120,37 @@ export const enhancedMockWorkflows: IWorkflow[] = [
       "compliance monitoring regulatory checks audit trail generation hoạt động",
     nodes: [],
   },
+  {
+    workflowId: 11,
+    workflowCode: "DRAG_DROP_TEST",
+    workflowName: "Drag & Drop Test Workflow",
+    statusCode: "ACTIVE",
+    statusName: "Hoạt động",
+    description: "Test workflow for drag and drop functionality validation",
+    search: "drag drop test workflow functionality validation hoạt động",
+    nodes: [],
+  },
+  {
+    workflowId: 12,
+    workflowCode: "COMPLEX_WORKFLOW",
+    workflowName: "Complex Multi-Branch Workflow",
+    statusCode: "ACTIVE",
+    statusName: "Hoạt động",
+    description:
+      "Complex workflow with multiple branches and decision points for testing",
+    search: "complex multi-branch workflow decision points testing hoạt động",
+    nodes: [],
+  },
+  {
+    workflowId: 13,
+    workflowCode: "SIMPLE_TEST",
+    workflowName: "Simple Test Workflow",
+    statusCode: "ACTIVE",
+    statusName: "Hoạt động",
+    description: "Simple two-node workflow for basic functionality testing",
+    search: "simple test workflow basic functionality testing hoạt động",
+    nodes: [],
+  },
 ];
 
 // Enhanced workflow designs for React Flow
