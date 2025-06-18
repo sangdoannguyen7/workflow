@@ -12,7 +12,26 @@ export interface INode {
   workflowName: string;
   statusCode: string;
   statusName: string;
-  templateType: string;
+  description?: string;
+  search?: string;
+  metadata?: string;
+  info?: string; // Store node properties here
+  schema?: string;
+  body?: string;
+  rule?: string;
+  configuration?: string;
+  outputCode?: string;
+}
+
+export interface INodeRequest {
+  nodeCode: string;
+  nodeName: string;
+  templateCode: string;
+  templateName: string;
+  typeCode: string;
+  typeName: string;
+  agentCode: string;
+  agentName: string;
   description?: string;
   search?: string;
   metadata?: string;
@@ -24,16 +43,19 @@ export interface INode {
   outputCode?: string;
 }
 
+export interface INodeCreateRequest {
+  templateCode: string;
+}
+
+export interface INodeInitRequest {
+  initializationCode: string;
+}
+
 export interface INodeSearchParams {
-  page?: number;
-  size?: number;
   search?: string;
-  statusCode?: string;
-  nodeCode?: string;
-  templateCode?: string;
-  agentCode?: string;
-  workflowCode?: string;
-  typeCode?: string;
+  sorter?: string;
+  current?: number;
+  pageSize?: number;
 }
 
 export interface INodeResponse {
@@ -42,4 +64,6 @@ export interface INodeResponse {
   totalPages: number;
   size: number;
   number: number;
+  first: boolean;
+  last: boolean;
 }

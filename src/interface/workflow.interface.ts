@@ -1,22 +1,35 @@
-import { INode } from "./node.interface";
+import { INode, INodeRequest } from "./node.interface";
 
 export interface IWorkflow {
-  workflowId?: number;
   workflowCode: string;
   workflowName: string;
   statusCode: string;
   statusName: string;
   description?: string;
-  search?: string;
   nodes?: INode[];
 }
 
+export interface IWorkflowRequest {
+  workflowName: string;
+  statusCode: string;
+  statusName: string;
+  description: string;
+  nodes: INodeRequest[];
+}
+
+export interface IWorkflowSearchRequest {
+  workflowCodes: string[];
+}
+
+export interface IWorkflowDeleteRequest {
+  workflowCodes: string[];
+}
+
 export interface IWorkflowSearchParams {
-  page?: number;
-  size?: number;
   search?: string;
-  statusCode?: string;
-  workflowCode?: string;
+  sorter?: string;
+  current?: number;
+  pageSize?: number;
 }
 
 export interface IWorkflowResponse {
@@ -25,6 +38,8 @@ export interface IWorkflowResponse {
   totalPages: number;
   size: number;
   number: number;
+  first: boolean;
+  last: boolean;
 }
 
 // React Flow related interfaces
@@ -38,6 +53,7 @@ export interface IWorkflowNode {
     templateCode?: string;
     agentCode?: string;
     description?: string;
+    [key: string]: any; // For storing additional properties
   };
 }
 

@@ -2,32 +2,19 @@ export interface ITemplate {
   templateId?: number;
   templateCode: string;
   templateName: string;
-  typeCode: string;
-  typeName: string;
   agentCode: string;
   agentName: string;
   statusCode: string;
   statusName: string;
-  templateType: string;
   description?: string;
-  search?: string;
-  metadata?: string;
-  info?: string;
-  schema?: string;
-  body?: string;
-  rule?: string;
-  configuration?: string;
 }
 
 export interface ITemplateSearchParams {
-  page?: number;
-  size?: number;
-  search?: string;
-  statusCode?: string;
-  templateCode?: string;
   agentCode?: string;
-  typeCode?: string;
-  templateType?: string;
+  search?: string;
+  sorter?: string;
+  current?: number;
+  pageSize?: number;
 }
 
 export interface ITemplateResponse {
@@ -36,4 +23,18 @@ export interface ITemplateResponse {
   totalPages: number;
   size: number;
   number: number;
+  first: boolean;
+  last: boolean;
+}
+
+export interface ValueResponse<T> {
+  data: T;
+  success: boolean;
+  message?: string;
+}
+
+export interface ListResponse<T> {
+  data: T[];
+  success: boolean;
+  message?: string;
 }

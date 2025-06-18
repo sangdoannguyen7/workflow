@@ -1,139 +1,141 @@
+import axiosCustom, { IDataRequest, IDataResponse } from "../axiosCustom";
 import {
   IWorkflow,
   IWorkflowResponse,
   IWorkflowSearchParams,
   IWorkflowDesign,
+  IWorkflowRequest,
+  IWorkflowSearchRequest,
 } from "../../interface/workflow.interface";
-import { IWorkflowApi } from "./api.workflow.interface";
 import {
-  getMockWorkflows,
-  getMockWorkflowById,
-  getMockWorkflowByCode,
-  getMockWorkflowDesign,
-  saveMockWorkflowDesign,
-  mockWorkflows,
-} from "../../mock/workflow.mock";
+  ValueResponse,
+  ListResponse,
+} from "../../interface/template.interface";
+import { PageImplResponse } from "../../interface/agent.interface";
+import { IWorkflowApi } from "./api.workflow.interface";
 
 class WorkflowApi implements IWorkflowApi {
-  private nextId = Math.max(...mockWorkflows.map((w) => w.workflowId || 0)) + 1;
+  private readonly baseUrl = "/v1/property/workflows";
 
   async getWorkflows(
     params?: IWorkflowSearchParams
   ): Promise<IWorkflowResponse> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(getMockWorkflows(params));
-      }, 300);
-    });
+    const request: IDataRequest = {
+      method: "GET",
+      uri: this.baseUrl,
+      params: {
+        search: params?.search || "",
+        sorter: params?.sorter || "",
+        current: params?.current || 1,
+        pageSize: params?.pageSize || 20,
+      },
+      data: null,
+    };
+
+    const response: IDataResponse<PageImplResponse<IWorkflow>> =
+      await axiosCustom(request);
+
+    return {
+      content: response.value.content,
+      totalElements: response.value.totalElements,
+      totalPages: response.value.totalPages,
+      size: response.value.size,
+      number: response.value.number,
+      first: response.value.first,
+      last: response.value.last,
+    };
   }
 
   async getWorkflowById(id: number): Promise<IWorkflow> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const workflow = getMockWorkflowById(id);
-        if (workflow) {
-          resolve(workflow);
-        } else {
-          reject(new Error("Workflow not found"));
-        }
-      }, 200);
-    });
+    throw new Error("API does not support getById, use getByCode instead");
   }
 
-  async createWorkflow(
-    workflow: Omit<IWorkflow, "workflowId">
+  async createWorkflow(workflowRequest: IWorkflowRequest): Promise<IWorkflow> {
+    const request: IDataRequest = {
+      method: "POST",
+      uri: this.baseUrl,
+      params: null,
+      data: workflowRequest,
+    };
+    const response: IDataResponse<ValueResponse<IWorkflow>> = await axiosCustom(
+      request
+    );
+    return response.value.data;
+  }
+
+  async updateWorkflow(
+    workflowCode: string,
+    workflowRequest: IWorkflowRequest
   ): Promise<IWorkflow> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const newWorkflow: IWorkflow = {
-          ...workflow,
-          workflowId: this.nextId++,
-          search:
-            `${workflow.workflowCode} ${workflow.workflowName} ${workflow.statusName}`.toLowerCase(),
-          nodes: [],
-        };
-        mockWorkflows.push(newWorkflow);
-        resolve(newWorkflow);
-      }, 500);
-    });
+    const request: IDataRequest = {
+      method: "PATCH",
+      uri: `${this.baseUrl}/${workflowCode}`,
+      params: null,
+      data: workflowRequest,
+    };
+    const response: IDataResponse<ValueResponse<IWorkflow>> = await axiosCustom(
+      request
+    );
+    return response.value.data;
   }
 
-  async updateWorkflow(id: number, workflow: IWorkflow): Promise<IWorkflow> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const index = mockWorkflows.findIndex((w) => w.workflowId === id);
-        if (index !== -1) {
-          const updatedWorkflow = {
-            ...workflow,
-            workflowId: id,
-            search:
-              `${workflow.workflowCode} ${workflow.workflowName} ${workflow.statusName}`.toLowerCase(),
-          };
-          mockWorkflows[index] = updatedWorkflow;
-          resolve(updatedWorkflow);
-        } else {
-          reject(new Error("Workflow not found"));
-        }
-      }, 500);
-    });
-  }
-
-  async deleteWorkflow(id: number): Promise<void> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const index = mockWorkflows.findIndex((w) => w.workflowId === id);
-        if (index !== -1) {
-          mockWorkflows.splice(index, 1);
-          resolve();
-        } else {
-          reject(new Error("Workflow not found"));
-        }
-      }, 300);
-    });
+  async deleteWorkflow(workflowCode: string): Promise<void> {
+    const request: IDataRequest = {
+      method: "DELETE",
+      uri: `${this.baseUrl}/${workflowCode}`,
+      params: null,
+      data: null,
+    };
+    await axiosCustom(request);
   }
 
   async getWorkflowByCode(code: string): Promise<IWorkflow> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const workflow = getMockWorkflowByCode(code);
-        if (workflow) {
-          resolve(workflow);
-        } else {
-          reject(new Error("Workflow not found"));
-        }
-      }, 200);
-    });
+    const request: IDataRequest = {
+      method: "GET",
+      uri: `${this.baseUrl}/${code}`,
+      params: null,
+      data: null,
+    };
+    const response: IDataResponse<ValueResponse<IWorkflow>> = await axiosCustom(
+      request
+    );
+    return response.value.data;
   }
 
+  async getWorkflowsByCodes(
+    searchRequest: IWorkflowSearchRequest
+  ): Promise<IWorkflow[]> {
+    const request: IDataRequest = {
+      method: "POST",
+      uri: `${this.baseUrl}/workflowCodes`,
+      params: null,
+      data: searchRequest,
+    };
+    const response: IDataResponse<ListResponse<IWorkflow>> = await axiosCustom(
+      request
+    );
+    return response.value.data;
+  }
+
+  // For workflow design (this might need to be implemented on backend)
   async getWorkflowDesign(workflowCode: string): Promise<IWorkflowDesign> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const design = getMockWorkflowDesign(workflowCode);
-        if (design) {
-          resolve(design);
-        } else {
-          // Return empty design for new workflows
-          resolve({
-            workflowCode,
-            nodes: [],
-            edges: [],
-            viewport: { x: 0, y: 0, zoom: 1 },
-          });
-        }
-      }, 200);
-    });
+    // This is custom functionality for React Flow - might need backend support
+    // For now, return empty design
+    return {
+      workflowCode,
+      nodes: [],
+      edges: [],
+      viewport: { x: 0, y: 0, zoom: 1 },
+    };
   }
 
   async saveWorkflowDesign(
     workflowCode: string,
     design: IWorkflowDesign
   ): Promise<IWorkflowDesign> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const savedDesign = saveMockWorkflowDesign(workflowCode, design);
-        resolve(savedDesign);
-      }, 400);
-    });
+    // Store design data in workflow's info field or separate endpoint
+    // For now, just return the design
+    return design;
   }
 }
 
