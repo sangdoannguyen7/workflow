@@ -33,6 +33,7 @@ import {
   ClockCircleOutlined,
   CheckCircleOutlined,
   ExclamationCircleOutlined,
+  CloseCircleOutlined,
   SyncOutlined,
   ThunderboltOutlined,
   TrophyOutlined,
@@ -188,7 +189,7 @@ const DashboardPage = () => {
       },
       {
         type: "info",
-        message: "Phiên bản v2.1.0 đã được phát hành với nhiều tính năng m���i",
+        message: "Phiên bản v2.1.0 đã được phát hành với nhiều tính năng mới",
         showIcon: true,
         closable: true,
       },
