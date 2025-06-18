@@ -1549,6 +1549,14 @@ const WorkflowBuilderPage: React.FC = () => {
                 background: colorBgContainer,
               }}
               defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+              selectNodesOnDrag={false}
+              panOnDrag={true}
+              elementsSelectable={true}
+              nodesDraggable={true}
+              nodesConnectable={true}
+              edgesFocusable={true}
+              edgesUpdatable={true}
+              deleteKeyCode={["Backspace", "Delete"]}
             >
               <Controls
                 style={{
