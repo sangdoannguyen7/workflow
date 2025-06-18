@@ -27,12 +27,16 @@ export interface INode {
 }
 
 export interface IWorkflow {
+  workflowId?: number;
   workflowCode: string;
   workflowName: string;
   statusCode: string;
   statusName: string;
   description: string | null;
+  version?: string;
   nodes: INode[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface IWorkflowRequest {
