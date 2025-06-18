@@ -14,13 +14,11 @@ import {
   Collapse,
   List,
   Tag,
-  Modal,
 } from "antd";
 import {
   SaveOutlined,
   ReloadOutlined,
   PlusOutlined,
-  SettingOutlined,
   DeleteOutlined,
   ApartmentOutlined,
 } from "@ant-design/icons";
@@ -45,11 +43,7 @@ import { IWorkflow } from "../../interface/workflow.interface";
 import { INode } from "../../interface/node.interface";
 import { ITemplate } from "../../interface/template.interface";
 import { IAgent } from "../../interface/agent.interface";
-import {
-  IWorkflowDesign,
-  IWorkflowNode,
-  IWorkflowEdge,
-} from "../../interface/workflow.interface";
+import { IWorkflowDesign } from "../../interface/workflow.interface";
 
 import workflowApi from "../../apis/workflow/api.workflow";
 import nodeApi from "../../apis/node/api.node";
@@ -57,7 +51,7 @@ import templateApi from "../../apis/template/api.template";
 import agentApi from "../../apis/agent/api.agent";
 
 const { Option } = Select;
-const { Text, Title } = Typography;
+const { Text } = Typography;
 const { Panel } = Collapse;
 
 // Custom Node Components
@@ -103,13 +97,9 @@ const WorkflowDesignerPage: React.FC = () => {
   const [workflows, setWorkflows] = useState<IWorkflow[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<string>("");
   const [availableNodes, setAvailableNodes] = useState<INode[]>([]);
-  const [templates, setTemplates] = useState<ITemplate[]>([]);
-  const [agents, setAgents] = useState<IAgent[]>([]);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [nodeModalVisible, setNodeModalVisible] = useState(false);
 
   const {
     token: { colorBgContainer },
@@ -138,14 +128,8 @@ const WorkflowDesignerPage: React.FC = () => {
 
   const fetchReferenceData = async () => {
     try {
-      const [nodesRes, templatesRes, agentsRes] = await Promise.all([
-        nodeApi.getNodes({ size: 1000 }),
-        templateApi.getTemplates({ size: 1000 }),
-        agentApi.getAgents({ size: 1000 }),
-      ]);
+      const nodesRes = await nodeApi.getNodes({ size: 1000 });
       setAvailableNodes(nodesRes.content);
-      setTemplates(templatesRes.content);
-      setAgents(agentsRes.content);
     } catch (error) {
       message.error("Không thể tải dữ liệu tham chiếu");
     }
