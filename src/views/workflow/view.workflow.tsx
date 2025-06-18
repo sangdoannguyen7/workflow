@@ -621,7 +621,7 @@ const WorkflowPage: React.FC = () => {
         onCancel={() => setModalVisible(false)}
         onOk={() => form.submit()}
         width={800}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Row gutter={16}>
