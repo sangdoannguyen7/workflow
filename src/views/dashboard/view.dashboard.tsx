@@ -42,7 +42,7 @@ import {
   PieChartOutlined,
   StarFilled,
 } from "@ant-design/icons";
-import { Column, Pie, Line, Area, Gauge } from "@ant-design/plots";
+import { Pie, Area, Gauge } from "@ant-design/plots";
 import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
