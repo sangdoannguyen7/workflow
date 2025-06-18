@@ -361,6 +361,166 @@ const nodeTypes = {
   workflowNode: WorkflowNode,
 };
 
+// Component con để sử dụng useReactFlow hook
+const WorkflowCanvas: React.FC<{
+  nodes: Node[];
+  edges: Edge[];
+  onNodesChange: any;
+  onEdgesChange: any;
+  onConnect: any;
+  onNodeClick: any;
+  onPaneClick: any;
+  onDrop: any;
+  onDragOver: any;
+  onDragLeave: any;
+  nodeTypes: any;
+  isPlaying: boolean;
+  isDragging: boolean;
+  selectedNode: Node | null;
+  getNodeTypeFromTemplate: any;
+  getNodeTypeColor: any;
+  getNodeTypeIcon: any;
+  deleteSelectedNode: any;
+}> = ({
+  nodes,
+  edges,
+  onNodesChange,
+  onEdgesChange,
+  onConnect,
+  onNodeClick,
+  onPaneClick,
+  onDrop,
+  onDragOver,
+  onDragLeave,
+  nodeTypes,
+  isPlaying,
+  isDragging,
+  selectedNode,
+  deleteSelectedNode,
+}) => {
+  const reactFlowInstance = useReactFlow();
+
+  // Cải thiện onDrop với useReactFlow
+  const handleDrop = useCallback(
+    (event: DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      console.log("Drop event with useReactFlow");
+
+      const data = event.dataTransfer.getData("application/reactflow");
+      if (!data) return;
+
+      try {
+        const { template, nodeType } = JSON.parse(data);
+
+        // Sử dụng screenToFlowPosition từ useReactFlow
+        const position = reactFlowInstance.screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
+        });
+
+        console.log("Flow position:", position);
+
+        // Trigger parent component để tạo node
+        onDrop(event, { template, nodeType, position });
+      } catch (error) {
+        console.error("Error in handleDrop:", error);
+      }
+    },
+    [reactFlowInstance, onDrop]
+  );
+
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      onNodeClick={onNodeClick}
+      onPaneClick={onPaneClick}
+      onDrop={handleDrop}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      nodeTypes={nodeTypes}
+      connectionMode={ConnectionMode.Loose}
+      fitView
+      attributionPosition="bottom-left"
+      style={{
+        background: isDragging ? "#e6f7ff" : "#fafafa",
+        borderRadius: "8px",
+      }}
+    >
+      <Controls />
+      <MiniMap
+        nodeColor={(node) => {
+          const nodeType = getNodeTypeFromTemplate(node.data?.templateType);
+          return getNodeTypeColor(nodeType);
+        }}
+        style={{
+          backgroundColor: "#fafafa",
+          border: "1px solid #d9d9d9",
+        }}
+      />
+      <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
+
+      {/* Drop Zone Hint */}
+      {nodes.length === 0 && (
+        <Panel position="top-center">
+          <div
+            style={{
+              padding: "24px",
+              background: "rgba(255,255,255,0.95)",
+              borderRadius: "12px",
+              border: "2px dashed #d9d9d9",
+              textAlign: "center",
+              maxWidth: "450px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            }}
+          >
+            <ApartmentOutlined
+              style={{
+                fontSize: "48px",
+                color: "#d9d9d9",
+                marginBottom: "16px",
+                display: "block",
+              }}
+            />
+            <Title level={3} type="secondary" style={{ marginBottom: "8px" }}>
+              Workflow Builder
+            </Title>
+            <Text type="secondary" style={{ fontSize: "14px" }}>
+              🎯 <strong>Bước 1:</strong> Kéo template từ sidebar trái vào đây
+              <br />
+              🎯 <strong>Bước 2:</strong> Kết nối các node: 🚀 TRIGGER → ⚙️
+              BEHAVIOR → 📤 OUTPUT
+              <br />
+              🎯 <strong>Bước 3:</strong> Lưu workflow và test
+            </Text>
+          </div>
+        </Panel>
+      )}
+
+      {/* Drag Feedback */}
+      {isDragging && (
+        <Panel position="bottom-center">
+          <div
+            style={{
+              padding: "12px 24px",
+              background: "#1890ff",
+              color: "white",
+              borderRadius: "24px",
+              fontSize: "14px",
+              fontWeight: "bold",
+            }}
+          >
+            📍 Thả để tạo node mới
+          </div>
+        </Panel>
+      )}
+    </ReactFlow>
+  );
+};
+
 const WorkflowBuilderPage: React.FC = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -371,8 +531,6 @@ const WorkflowBuilderPage: React.FC = () => {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [nodeCounter, setNodeCounter] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [reactFlowInstance, setReactFlowInstance] =
-    useState<ReactFlowInstance | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -734,7 +892,7 @@ const WorkflowBuilderPage: React.FC = () => {
                 <br />
                 1. Kéo template từ đây vào canvas bên phải
                 <br />
-                2. Kết nối các node b��ng cách kéo handle
+                2. Kết nối các node bằng cách kéo handle
                 <br />
                 <br />
                 <Text strong style={{ color: "#52c41a" }}>
