@@ -296,7 +296,7 @@ const HeaderLayout = () => {
               marginLeft: 12,
             }}
           >
-            WorkFlow Management
+            WorkflowUI Management
           </div>
         </Space>
 
@@ -453,7 +453,7 @@ const HeaderLayout = () => {
               <Form.Item name="email" label="Email">
                 <Input />
               </Form.Item>
-              <Form.Item name="phone" label="Số điện thoại">
+              <Form.Item name="phone" label="Số đi���n thoại">
                 <Input />
               </Form.Item>
               <Row gutter={16}>
