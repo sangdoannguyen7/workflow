@@ -1111,6 +1111,7 @@ const WorkflowBuilderPage: React.FC = () => {
               style={{
                 background: colorBgContainer,
               }}
+              defaultViewport={{ x: 0, y: 0, zoom: 1 }}
             >
               <Controls
                 style={{
