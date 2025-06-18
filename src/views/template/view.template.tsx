@@ -342,7 +342,7 @@ const TemplatePage: React.FC = () => {
     {
       title: "Actions",
       key: "action",
-      width: 100,
+      width: 80,
       fixed: "right",
       render: (_: any, record: ITemplate) => (
         <div
