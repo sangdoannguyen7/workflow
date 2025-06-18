@@ -91,7 +91,10 @@ export class ApiFallbackService {
       const workflowCode = pathParts[workflowCodeIndex];
 
       if (workflowCode) {
-        const design = getEnhancedMockWorkflowDesign(workflowCode);
+        let design = getEnhancedMockWorkflowDesign(workflowCode);
+        if (!design) {
+          design = getTestWorkflowDesign(workflowCode);
+        }
         return { value: design || this.getDefaultWorkflowDesign(workflowCode) };
       }
     }
