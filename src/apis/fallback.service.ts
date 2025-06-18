@@ -1,5 +1,8 @@
 import { getMockWorkflows, getMockWorkflowByCode } from "../mock/workflow.mock";
-import { getEnhancedMockWorkflows } from "../mock/enhanced-workflow.mock";
+import {
+  getEnhancedMockWorkflows,
+  getEnhancedMockWorkflowDesign,
+} from "../mock/enhanced-workflow.mock";
 import { getMockNodes, getMockNodesByWorkflow } from "../mock/node.mock";
 import { getMockAgents } from "../mock/agent.mock";
 import { getMockTemplates } from "../mock/template.mock";
@@ -42,43 +45,116 @@ export class ApiFallbackService {
   }
 
   static handleWorkflowRequests(request: IDataRequest): any {
-    const { uri, params } = request;
+    const { uri, params, method, data } = request;
+    console.log("Mock API Request:", { uri, method, params });
 
     // Workflows
-    if (uri === "/v1/workflows" && request.method === "GET") {
-      return getEnhancedMockWorkflows(params);
+    if (
+      uri.includes("/workflows") &&
+      method === "GET" &&
+      !uri.includes("/design")
+    ) {
+      const mockResponse = getEnhancedMockWorkflows(params);
+      return {
+        value: {
+          content: mockResponse.content,
+          totalElements: mockResponse.totalElements,
+          totalPages: mockResponse.totalPages,
+          size: mockResponse.size,
+          number: mockResponse.number,
+        },
+      };
     }
 
-    if (uri.startsWith("/v1/workflows/") && request.method === "GET") {
+    // Workflow by code
+    if (
+      uri.includes("/workflows/") &&
+      method === "GET" &&
+      !uri.includes("/design")
+    ) {
       const workflowCode = uri.split("/").pop();
       if (workflowCode) {
         const workflow = getMockWorkflowByCode(workflowCode);
-        return { data: workflow };
+        return { value: { data: workflow } };
       }
     }
 
-    // Nodes
-    if (uri === "/v1/nodes" && request.method === "GET") {
-      return getMockNodes(params);
+    // Workflow design
+    if (
+      uri.includes("/workflows/") &&
+      uri.includes("/design") &&
+      method === "GET"
+    ) {
+      const pathParts = uri.split("/");
+      const workflowCodeIndex = pathParts.indexOf("workflows") + 1;
+      const workflowCode = pathParts[workflowCodeIndex];
+
+      if (workflowCode) {
+        const design = getEnhancedMockWorkflowDesign(workflowCode);
+        return { value: design || this.getDefaultWorkflowDesign(workflowCode) };
+      }
     }
 
-    if (uri.startsWith("/v1/workflows/") && uri.includes("/nodes")) {
+    // Save workflow design
+    if (
+      uri.includes("/workflows/") &&
+      uri.includes("/design") &&
+      method === "POST"
+    ) {
+      console.log("Saving workflow design:", data);
+      return { value: data };
+    }
+
+    // Nodes
+    if (uri.includes("/nodes") && method === "GET") {
+      const mockResponse = getMockNodes(params);
+      return {
+        value: {
+          content: mockResponse.content,
+          totalElements: mockResponse.totalElements,
+          totalPages: mockResponse.totalPages,
+          size: mockResponse.size,
+          number: mockResponse.number,
+        },
+      };
+    }
+
+    // Nodes by workflow
+    if (uri.includes("/workflows/") && uri.includes("/nodes")) {
       const pathParts = uri.split("/");
       const workflowCode = pathParts[pathParts.indexOf("workflows") + 1];
       if (workflowCode) {
         const nodes = getMockNodesByWorkflow(workflowCode);
-        return { data: nodes };
+        return { value: { data: nodes } };
       }
     }
 
     // Agents
-    if (uri === "/v1/agents" && request.method === "GET") {
-      return getMockAgents(params);
+    if (uri.includes("/agents") && method === "GET") {
+      const mockResponse = getMockAgents(params);
+      return {
+        value: {
+          content: mockResponse.content,
+          totalElements: mockResponse.totalElements,
+          totalPages: mockResponse.totalPages,
+          size: mockResponse.size,
+          number: mockResponse.number,
+        },
+      };
     }
 
     // Templates
-    if (uri === "/v1/templates" && request.method === "GET") {
-      return getMockTemplates(params);
+    if (uri.includes("/templates") && method === "GET") {
+      const mockResponse = getMockTemplates(params);
+      return {
+        value: {
+          content: mockResponse.content,
+          totalElements: mockResponse.totalElements,
+          totalPages: mockResponse.totalPages,
+          size: mockResponse.size,
+          number: mockResponse.number,
+        },
+      };
     }
 
     // Health checks
@@ -87,14 +163,31 @@ export class ApiFallbackService {
       uri.includes("status") ||
       uri.includes("ping")
     ) {
-      return { status: "OK", timestamp: new Date().toISOString() };
+      return {
+        value: {
+          status: "OK",
+          timestamp: new Date().toISOString(),
+          mode: "mock",
+        },
+      };
     }
 
     // Default fallback
     return {
-      message: "Mock response for " + uri,
-      timestamp: new Date().toISOString(),
-      data: null,
+      value: {
+        message: "Mock response for " + uri,
+        timestamp: new Date().toISOString(),
+        data: null,
+      },
+    };
+  }
+
+  private static getDefaultWorkflowDesign(workflowCode: string) {
+    return {
+      workflowCode,
+      nodes: [],
+      edges: [],
+      viewport: { x: 0, y: 0, zoom: 1 },
     };
   }
 }
