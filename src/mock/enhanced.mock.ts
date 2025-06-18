@@ -410,38 +410,26 @@ export class MockAPI {
     } as any);
   }
 
-  static async getNotifications() {
-    return this.request(
-      "/notifications",
-      { method: "GET" },
-      {
-        success: true,
-        data: mockNotifications,
-        unreadCount: mockNotifications.filter((n) => !n.read).length,
-      }
-    );
+  static async getNotifications(): Promise<any> {
+    return this.request("/notifications", { method: "GET" }, {
+      success: true,
+      data: mockNotifications,
+      unreadCount: mockNotifications.filter((n) => !n.read).length,
+    } as any);
   }
 
-  static async getUserProfile() {
-    return this.request(
-      "/user/profile",
-      { method: "GET" },
-      {
-        success: true,
-        data: mockUserProfile,
-      }
-    );
+  static async getUserProfile(): Promise<any> {
+    return this.request("/user/profile", { method: "GET" }, {
+      success: true,
+      data: mockUserProfile,
+    } as any);
   }
 
-  static async getSystemSettings() {
-    return this.request(
-      "/system/settings",
-      { method: "GET" },
-      {
-        success: true,
-        data: mockSystemSettings,
-      }
-    );
+  static async getSystemSettings(): Promise<any> {
+    return this.request("/system/settings", { method: "GET" }, {
+      success: true,
+      data: mockSystemSettings,
+    } as any);
   }
 
   // Create/Update operations
