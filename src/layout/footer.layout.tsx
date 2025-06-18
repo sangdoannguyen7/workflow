@@ -64,7 +64,7 @@ const FooterComponent = () => {
   ];
 
   const quickLinks = [
-    { label: "Tài liệu API", icon: <ApiOutlined />, path: "/docs/api" },
+    { label: "Tài li��u API", icon: <ApiOutlined />, path: "/docs/api" },
     {
       label: "Hướng dẫn sử dụng",
       icon: <ApartmentOutlined />,
@@ -383,7 +383,7 @@ const FooterComponent = () => {
             }
           >
             <Text style={{ color: colorTextSecondary, fontSize: 12 }}>
-              © {currentYear} WorkFlow Pro. All rights reserved.
+              © {currentYear} WorkflowUI. All rights reserved.
             </Text>
             <Space>
               <Text style={{ color: colorTextSecondary, fontSize: 12 }}>
