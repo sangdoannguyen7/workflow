@@ -124,8 +124,14 @@ const NodePropertiesPanel: React.FC<NodePropertiesPanelProps> = ({
         initialValues={node.data}
         size="small"
       >
-        <Tabs defaultActiveKey="1" size="small">
-          <TabPane tab="Cơ bản" key="1">
+        <Tabs
+          defaultActiveKey="1"
+          size="small"
+          items={[
+            {
+              key: "1",
+              label: "Cơ bản",
+              children: (
             <Space direction="vertical" style={{ width: "100%" }}>
               <div>
                 <Text strong>ID:</Text> <Text type="secondary">{node.id}</Text>
