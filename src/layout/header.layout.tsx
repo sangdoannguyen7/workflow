@@ -305,7 +305,14 @@ const HeaderLayout = () => {
           {/* Theme Toggle */}
           <div style={frameStyle}>
             <Tooltip title={isDark ? "Chuyển sang sáng" : "Chuyển sang tối"}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "4px 8px",
+                }}
+              >
                 <SunOutlined
                   style={{
                     color: !isDark ? colorPrimary : colorTextSecondary,
@@ -333,22 +340,24 @@ const HeaderLayout = () => {
           {/* Notifications */}
           <div style={frameStyle}>
             <Tooltip title="Thông báo">
-              <Badge count={unreadCount} size="small">
-                <Button
-                  type="text"
-                  icon={<BellOutlined />}
-                  onClick={handleNotificationOpen}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: colorText,
-                    border: "none",
-                  }}
-                />
-              </Badge>
+              <div style={{ padding: "4px 8px" }}>
+                <Badge count={unreadCount} size="small">
+                  <Button
+                    type="text"
+                    icon={<BellOutlined />}
+                    onClick={handleNotificationOpen}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: colorText,
+                      border: "none",
+                    }}
+                  />
+                </Badge>
+              </div>
             </Tooltip>
           </div>
 
@@ -360,7 +369,7 @@ const HeaderLayout = () => {
               arrow
               trigger={["click"]}
             >
-              <Space style={{ cursor: "pointer", padding: "4px" }}>
+              <Space style={{ cursor: "pointer", padding: "4px 8px" }}>
                 <Avatar
                   src={
                     <img
