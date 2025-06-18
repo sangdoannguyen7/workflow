@@ -25,16 +25,28 @@ const menuData = [
     description: "Dashboard tổng quan hệ thống",
   },
   {
-    path: "/agent",
-    key: "AGENT",
+    path: "/workflow",
+    key: "WORKFLOW",
     icon: (
-      <Link to="/agent">
-        <RobotOutlined />
+      <Link to="/workflow">
+        <ApartmentOutlined />
       </Link>
     ),
-    label: "Quản lý Agent",
-    permission: "AGENT",
-    description: "AGENT",
+    label: "Workflow",
+    permission: "WORKFLOW",
+    description: "Quản lý và giám sát workflow",
+  },
+  {
+    path: "/workflow-builder",
+    key: "WORKFLOW_BUILDER",
+    icon: (
+      <Link to="/workflow-builder">
+        <ThunderboltOutlined />
+      </Link>
+    ),
+    label: "Workflow Builder",
+    permission: "WORKFLOW_BUILDER",
+    description: "Thiết kế và xây dựng workflow",
   },
   {
     path: "/template",
@@ -44,9 +56,21 @@ const menuData = [
         <FileTextOutlined />
       </Link>
     ),
-    label: "Quản lý Template",
+    label: "Template",
     permission: "TEMPLATE",
-    description: "TEMPLATE",
+    description: "Quản lý template và mẫu",
+  },
+  {
+    path: "/agent",
+    key: "AGENT",
+    icon: (
+      <Link to="/agent">
+        <RobotOutlined />
+      </Link>
+    ),
+    label: "Agent",
+    permission: "AGENT",
+    description: "Quản lý agent và dịch vụ",
   },
   {
     path: "/node",
@@ -56,45 +80,21 @@ const menuData = [
         <NodeExpandOutlined />
       </Link>
     ),
-    label: "Quản lý Node",
+    label: "Node",
     permission: "NODE",
-    description: "NODE",
-  },
-  {
-    path: "/workflow",
-    key: "WORKFLOW",
-    icon: (
-      <Link to="/workflow">
-        <ApartmentOutlined />
-      </Link>
-    ),
-    label: "Quản lý Workflow",
-    permission: "WORKFLOW",
-    description: "WORKFLOW",
+    description: "Quản lý node và thành phần",
   },
   {
     path: "/node-flow",
     key: "NODE_FLOW",
     icon: (
       <Link to="/node-flow">
-        <ApartmentOutlined />
+        <ClusterOutlined />
       </Link>
     ),
-    label: "Thiết kế Node Flow",
+    label: "Node Flow",
     permission: "NODE_FLOW",
-    description: "NODE_FLOW",
-  },
-  {
-    path: "/workflow-builder",
-    key: "WORKFLOW_BUILDER",
-    icon: (
-      <Link to="/workflow-builder">
-        <ApartmentOutlined />
-      </Link>
-    ),
-    label: "Workflow Builder",
-    permission: "WORKFLOW_BUILDER",
-    description: "WORKFLOW_BUILDER",
+    description: "Thiết kế luồng node",
   },
   {
     path: "/management",
@@ -104,9 +104,9 @@ const menuData = [
         <SettingOutlined />
       </Link>
     ),
-    label: "Property Management",
+    label: "Quản lý hệ thống",
     permission: "MANAGEMENT",
-    description: "MANAGEMENT",
+    description: "Cài đặt và quản lý hệ thống",
   },
 ];
 
