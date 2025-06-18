@@ -1041,6 +1041,38 @@ const WorkflowBuilderPage: React.FC = () => {
     }
   }, [reactFlowInstance]);
 
+  const handleCreateNewWorkflow = async (values: any) => {
+    try {
+      const newWorkflow = {
+        workflowCode: values.workflowCode,
+        workflowName: values.workflowName,
+        description: values.description || "",
+        statusCode: "DRAFT",
+        version: "v1.0.0",
+      };
+
+      const result = await WorkflowMockAPI.createWorkflow(newWorkflow);
+
+      // Add to local workflows list
+      setWorkflows((prev) => [...prev, result.data]);
+      setSelectedWorkflow(result.data.workflowCode);
+      setCreateWorkflowModalVisible(false);
+      createForm.resetFields();
+
+      NotificationComponent({
+        type: "success",
+        message: "Thành công",
+        description: "Tạo workflow mới thành công",
+      });
+    } catch (error) {
+      NotificationComponent({
+        type: "error",
+        message: "Lỗi",
+        description: "Không thể tạo workflow mới",
+      });
+    }
+  };
+
   const toggleSimulation = useCallback(() => {
     const newIsPlaying = !isPlaying;
     setIsPlaying(newIsPlaying);
