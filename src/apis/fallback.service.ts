@@ -144,17 +144,37 @@ export class ApiFallbackService {
     }
 
     // Agents
-    if (uri.includes("/agents") && method === "GET") {
-      const mockResponse = getMockAgents(params);
-      return {
-        value: {
-          content: mockResponse.content,
-          totalElements: mockResponse.totalElements,
-          totalPages: mockResponse.totalPages,
-          size: mockResponse.size,
-          number: mockResponse.number,
-        },
-      };
+    if (uri.includes("/agents")) {
+      if (method === "GET") {
+        const mockResponse = getMockAgents(params);
+        return {
+          value: {
+            content: mockResponse.content,
+            totalElements: mockResponse.totalElements,
+            totalPages: mockResponse.totalPages,
+            size: mockResponse.size,
+            number: mockResponse.number,
+          },
+        };
+      }
+      if (method === "POST") {
+        const newAgent = createMockAgent(data);
+        return { value: { data: newAgent } };
+      }
+      if (method === "PUT" || method === "PATCH") {
+        const agentCode = uri.split("/").pop();
+        if (agentCode) {
+          const updated = updateMockAgent(parseInt(agentCode), data);
+          return { value: { data: updated } };
+        }
+      }
+      if (method === "DELETE") {
+        const agentCode = uri.split("/").pop();
+        if (agentCode) {
+          deleteMockAgent(parseInt(agentCode));
+          return { value: { success: true } };
+        }
+      }
     }
 
     // Templates
