@@ -376,7 +376,7 @@ const DashboardPage = () => {
               </Text>
               <RangePicker
                 value={dateRange}
-                onChange={(dates) => setDateRange(dates || [])}
+                onChange={(dates) => setDateRange((dates as any) || [])}
                 format="DD/MM/YYYY"
                 allowClear={false}
                 style={{ width: "100%" }}
