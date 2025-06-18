@@ -104,16 +104,17 @@ class WorkflowApi implements IWorkflowApi {
   }
 
   async getWorkflowDesign(workflowCode: string): Promise<IWorkflowDesign> {
-    // Mock workflow design data
-    const mockDesign: IWorkflowDesign = {
-      workflowCode,
-      nodes: [],
-      edges: [],
-    };
-
     if (API_CONFIG.USE_MOCK) {
-      // Return mock design or empty design
-      return mockDesign;
+      try {
+        return await WorkflowMockAPI.getWorkflowDesign(workflowCode);
+      } catch (error) {
+        // Return empty design if not found
+        return {
+          workflowCode,
+          nodes: [],
+          edges: [],
+        };
+      }
     }
 
     const request: IDataRequest = {
