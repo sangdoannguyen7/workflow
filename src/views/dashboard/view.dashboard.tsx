@@ -40,6 +40,7 @@ import {
   LineChartOutlined,
   PieChartOutlined,
   StarFilled,
+  RocketOutlined,
 } from "@ant-design/icons";
 import { Pie, Area, Gauge } from "@ant-design/plots";
 import dayjs from "dayjs";
@@ -136,7 +137,7 @@ const DashboardPage = () => {
       {
         id: 1,
         type: "success",
-        title: 'Workflow "Data Sync" hoàn th��nh',
+        title: 'Workflow "Data Sync" hoàn thành',
         description: "Đã xử lý 1,234 records thành công",
         time: "2 phút trước",
         user: "System",
