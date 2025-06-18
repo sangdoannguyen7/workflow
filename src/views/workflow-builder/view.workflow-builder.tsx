@@ -718,7 +718,7 @@ const WorkflowBuilderPage: React.FC = () => {
   };
 
   // Group templates by agent
-  const groupedTemplates = templates.reduce((acc, template) => {
+  const groupedTemplates = (templates || []).reduce((acc, template) => {
     const agent = template.agentCode || "unknown";
     if (!acc[agent]) {
       acc[agent] = [];
