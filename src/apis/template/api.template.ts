@@ -7,6 +7,7 @@ import {
   ITemplateValueResponse,
 } from "../../interface/template.interface";
 import { ITemplateApi } from "./api.template.interface";
+import { MockAPI, API_CONFIG } from "../../config/api.config";
 
 class TemplateApi implements ITemplateApi {
   private readonly baseUrl = "/v1/property/templates";
@@ -14,6 +15,9 @@ class TemplateApi implements ITemplateApi {
   async getTemplates(
     params?: ITemplateSearchParams
   ): Promise<ITemplateResponse> {
+    if (API_CONFIG.USE_MOCK) {
+      return await MockAPI.getTemplates(params);
+    }
     const request: IDataRequest = {
       method: "GET",
       uri: this.baseUrl,
@@ -33,7 +37,7 @@ class TemplateApi implements ITemplateApi {
     return response.value;
   }
 
-  async getTemplateById(id: number): Promise<ITemplate> {
+  async getTemplateById(_id: number): Promise<ITemplate> {
     throw new Error("API does not support getById, use getByCode instead");
   }
 
@@ -66,7 +70,7 @@ class TemplateApi implements ITemplateApi {
     return response.value.data;
   }
 
-  async deleteTemplate(id: number): Promise<void> {
+  async deleteTemplate(_id: number): Promise<void> {
     throw new Error(
       "API does not support delete by ID, use deleteByCode instead"
     );

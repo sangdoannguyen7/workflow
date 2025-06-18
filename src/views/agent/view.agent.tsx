@@ -4,7 +4,7 @@ import {
   Card,
   Button,
   Space,
-  Modal,
+  Drawer,
   Form,
   Input,
   Select,
@@ -31,7 +31,7 @@ const { Option } = Select;
 const AgentPage: React.FC = () => {
   const [agents, setAgents] = useState<IAgent[]>([]);
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingAgent, setEditingAgent] = useState<IAgent | null>(null);
   const [form] = Form.useForm();
   const [searchParams, setSearchParams] = useState<IAgentSearchParams>({
@@ -95,13 +95,13 @@ const AgentPage: React.FC = () => {
   const handleCreate = () => {
     setEditingAgent(null);
     form.resetFields();
-    setModalVisible(true);
+    setDrawerVisible(true);
   };
 
   const handleEdit = (agent: IAgent) => {
     setEditingAgent(agent);
     form.setFieldsValue(agent);
-    setModalVisible(true);
+    setDrawerVisible(true);
   };
 
   const handleDelete = async (id: number) => {
@@ -124,7 +124,7 @@ const AgentPage: React.FC = () => {
         await agentApi.createAgent(values);
         message.success("Agent created successfully");
       }
-      setModalVisible(false);
+      setDrawerVisible(false);
       fetchAgents();
     } catch (error) {
       console.error("Error saving agent:", error);
@@ -176,24 +176,55 @@ const AgentPage: React.FC = () => {
     {
       title: "Actions",
       key: "action",
-      width: 150,
+      width: 100,
       render: (_: any, record: IAgent) => (
-        <Space size="small">
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            size="small"
-          />
-          <Popconfirm
-            title="Are you sure you want to delete this agent?"
-            onConfirm={() => handleDelete(record.agentId)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="text" icon={<DeleteOutlined />} danger size="small" />
-          </Popconfirm>
-        </Space>
+        <div
+          style={{
+            background: "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(12px)",
+            padding: "4px 6px",
+            borderRadius: "6px",
+            border: "1px solid rgba(25, 118, 210, 0.1)",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "relative",
+            zIndex: 10,
+            minHeight: "32px",
+          }}
+        >
+          <Space size="small">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+              size="small"
+              style={{
+                border: "none",
+                background: "transparent",
+                color: "#1976D2",
+              }}
+            />
+            <Popconfirm
+              title="Are you sure you want to delete this agent?"
+              onConfirm={() => handleDelete(record.agentId)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button
+                type="text"
+                icon={<DeleteOutlined />}
+                size="small"
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  color: "#D32F2F",
+                }}
+              />
+            </Popconfirm>
+          </Space>
+        </div>
       ),
     },
   ];
@@ -201,8 +232,8 @@ const AgentPage: React.FC = () => {
   return (
     <div
       style={{
-        padding: "24px",
-        background: colorBgContainer,
+        padding: "8px",
+        background: "transparent",
         borderRadius: "8px",
       }}
     >
@@ -258,63 +289,60 @@ const AgentPage: React.FC = () => {
         </Col>
       </Row>
 
-      <Modal
+      <Drawer
         title={editingAgent ? "Edit Agent" : "Add Agent"}
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        onOk={() => form.submit()}
-        width={600}
+        open={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
+        width={480}
+        extra={
+          <Space>
+            <Button onClick={() => setDrawerVisible(false)}>Cancel</Button>
+            <Button type="primary" onClick={() => form.submit()}>
+              {editingAgent ? "Update" : "Create"}
+            </Button>
+          </Space>
+        }
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="agentCode"
-                label="Agent Code"
-                rules={[{ required: true, message: "Please enter agent code" }]}
-              >
-                <Input placeholder="Enter agent code" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="agentName"
-                label="Agent Name"
-                rules={[{ required: true, message: "Please enter agent name" }]}
-              >
-                <Input placeholder="Enter agent name" />
-              </Form.Item>
-            </Col>
-          </Row>
+          <Form.Item
+            name="agentCode"
+            label="Agent Code"
+            rules={[{ required: true, message: "Please enter agent code" }]}
+          >
+            <Input placeholder="Enter agent code" />
+          </Form.Item>
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="statusCode"
-                label="Status"
-                rules={[{ required: true, message: "Please select status" }]}
-              >
-                <Select placeholder="Select status">
-                  {statusOptions.map((option) => (
-                    <Option key={option.value} value={option.value}>
-                      {option.label}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="statusName" label="Status Name">
-                <Input placeholder="Enter status name" />
-              </Form.Item>
-            </Col>
-          </Row>
+          <Form.Item
+            name="agentName"
+            label="Agent Name"
+            rules={[{ required: true, message: "Please enter agent name" }]}
+          >
+            <Input placeholder="Enter agent name" />
+          </Form.Item>
+
+          <Form.Item
+            name="statusCode"
+            label="Status"
+            rules={[{ required: true, message: "Please select status" }]}
+          >
+            <Select placeholder="Select status">
+              {statusOptions.map((option) => (
+                <Option key={option.value} value={option.value}>
+                  {option.label}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item name="statusName" label="Status Name">
+            <Input placeholder="Enter status name" />
+          </Form.Item>
 
           <Form.Item name="description" label="Description">
             <Input.TextArea rows={4} placeholder="Enter description" />
           </Form.Item>
         </Form>
-      </Modal>
+      </Drawer>
     </div>
   );
 };

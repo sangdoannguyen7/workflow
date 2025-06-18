@@ -1,0 +1,491 @@
+/* Enhanced global styles for Travel Admin */
+
+/* Custom notification styles */
+.custom-notification {
+  border-radius: 12px !important;
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.custom-notification .ant-notification-notice-message {
+  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.custom-notification .ant-notification-notice-description {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Enhanced scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Dark mode scrollbar */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #2c2c2c;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #6c6c6c;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #8c8c8c;
+}
+
+/* Enhanced card hover effects */
+.ant-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+/* Enhanced button styles */
+.ant-btn {
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.ant-btn:hover {
+  transform: translateY(-1px);
+}
+
+.ant-btn-primary {
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+}
+
+.ant-btn-primary:hover {
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+}
+
+/* Enhanced table styles */
+.ant-table-thead > tr > th {
+  font-weight: 600;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: rgba(24, 144, 255, 0.04) !important;
+}
+
+/* Enhanced form styles */
+.ant-form-item-label > label {
+  font-weight: 500;
+}
+
+.ant-input:focus,
+.ant-input-focused {
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+  border-color: #40a9ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+}
+
+/* Enhanced tag styles */
+.tag-dashboard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  padding: 8px 0;
+  font-size: 20px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.tag-dashboard:hover {
+  transform: scale(1.05);
+}
+
+.success-color {
+  color: white;
+  background: linear-gradient(135deg, #52c51a 0%, #389e0d 100%);
+}
+
+.info-color {
+  color: white;
+  background: linear-gradient(135deg, #1777ff 0%, #096dd9 100%);
+}
+
+.warning-color {
+  color: white;
+  background: linear-gradient(135deg, #ffd732 0%, #faad14 100%);
+}
+
+.error-color {
+  color: white;
+  background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+}
+
+/* Enhanced menu styles */
+.ant-menu-item:hover {
+  background: rgba(24, 144, 255, 0.06) !important;
+  border-radius: 8px !important;
+}
+
+.ant-menu-item-selected {
+  font-weight: 600;
+  background: rgba(24, 144, 255, 0.1) !important;
+  border-radius: 8px !important;
+}
+
+/* Enhanced layout animations */
+.ant-layout {
+  transition: all 0.3s ease;
+}
+
+.ant-layout-sider {
+  transition: all 0.3s ease;
+}
+
+.ant-layout-header {
+  transition: all 0.3s ease;
+}
+
+/* Enhanced React Flow styles */
+.react-flow__node {
+  transition: all 0.3s ease;
+}
+
+.react-flow__node:hover {
+  transform: scale(1.02);
+}
+
+.react-flow__node.selected {
+  box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.3);
+}
+
+.react-flow__edge {
+  transition: all 0.3s ease;
+}
+
+.react-flow__edge:hover {
+  stroke-width: 4px;
+}
+
+/* Enhanced modal styles */
+.ant-modal-content {
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.ant-modal-header {
+  border-bottom: 1px solid #f0f0f0;
+  border-radius: 12px 12px 0 0;
+}
+
+/* Enhanced drawer styles */
+.ant-drawer-content {
+  border-radius: 12px 0 0 12px;
+}
+
+/* Enhanced loading styles */
+.ant-spin-dot-item {
+  background-color: #1890ff;
+}
+
+/* Enhanced collapse styles */
+.ant-collapse {
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.ant-collapse-header {
+  font-weight: 500;
+}
+
+/* Enhanced progress styles */
+.ant-progress-circle .ant-progress-text {
+  font-weight: 600;
+}
+
+/* Enhanced statistic styles */
+.ant-statistic-title {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.ant-statistic-content {
+  font-weight: 600;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .ant-layout-sider {
+    position: fixed !important;
+    z-index: 999;
+    height: 100vh;
+  }
+
+  .ant-layout-content {
+    margin-left: 0 !important;
+  }
+
+  .ant-card {
+    margin: 8px;
+  }
+
+  .ant-table-wrapper {
+    overflow-x: auto;
+  }
+}
+
+/* Print styles */
+@media print {
+  .ant-layout-sider,
+  .ant-layout-header,
+  .ant-layout-footer,
+  .ant-float-btn,
+  .ant-back-top {
+    display: none !important;
+  }
+
+  .ant-layout-content {
+    margin: 0 !important;
+    padding: 20px !important;
+  }
+
+  .ant-card {
+    border: 1px solid #d9d9d9 !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Accessibility improvements */
+.ant-btn:focus-visible,
+.ant-input:focus-visible,
+.ant-select:focus-visible {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .ant-btn {
+    border-width: 2px;
+  }
+
+  .ant-card {
+    border-width: 2px;
+  }
+
+  .ant-table-thead > tr > th {
+    border-bottom-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-delay: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Enhanced float button styles */
+.ant-float-btn-group {
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}
+
+.ant-float-btn {
+  transition: all 0.3s ease;
+}
+
+.ant-float-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Enhanced action column transparency */
+.ant-table-tbody .action-column {
+  position: sticky !important;
+  right: 0 !important;
+  z-index: 10 !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-left: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: 6px !important;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+/* Dark mode support for action columns */
+.ant-theme-dark .ant-table-tbody .action-column {
+  background: rgba(20, 20, 20, 0.9) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Drag and Drop Workflow Builder Styles */
+.react-flow__node.selected {
+  box-shadow: 0 0 0 2px #1890ff !important;
+}
+
+/* Simple, stable ReactFlow styles */
+.react-flow__handle {
+  cursor: crosshair !important;
+  opacity: 1 !important;
+}
+
+.react-flow__handle:hover {
+  transform: scale(1.1) !important;
+}
+
+.react-flow__node {
+  cursor: move !important;
+}
+
+.react-flow__node.selected {
+  box-shadow: 0 0 0 2px #1890ff !important;
+}
+
+.react-flow__edge.animated {
+  animation: dash 0.8s linear infinite !important;
+  stroke-dasharray: 8, 8 !important;
+}
+
+.react-flow__edge.selected {
+  z-index: 1000 !important;
+}
+
+.react-flow__edge.animated {
+  animation: dash 0.5s linear infinite !important;
+  stroke-dasharray: 8, 8 !important;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.02);
+    opacity: 0.9;
+  }
+}
+
+/* Lively animations for agent groups */
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+/* Agent group hover effects */
+.agent-group:hover .agent-icon {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+  transform: scale(1.05) !important;
+}
+
+/* Enhanced handle styles for different types */
+.react-flow__handle.handle-input {
+  background: radial-gradient(circle, #fff 30%, #4caf50 100%) !important;
+}
+
+.react-flow__handle.handle-output {
+  background: radial-gradient(circle, #fff 30%, #2196f3 100%) !important;
+}
+
+/* Draggable template styles */
+.draggable-template {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.draggable-template:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+}
+
+.draggable-template.dragging {
+  z-index: 1000 !important;
+  transform: scale(0.95) rotate(5deg) !important;
+  opacity: 0.6 !important;
+}
+
+/* Drop zone feedback */
+.react-flow__pane {
+  transition: background-color 0.2s ease !important;
+}
+
+.react-flow__pane.drag-over {
+  background-color: rgba(24, 144, 255, 0.05) !important;
+}
+
+.ant-table-thead > tr > th {
+  padding: 8px !important;
+}
+
+/* Page container standardization */
+.page-container {
+  min-height: calc(100vh - 140px);
+  padding: 8px;
+  background: transparent;
+}
+
+/* Consistent margins for all components */
+.ant-card {
+  margin-bottom: 8px;
+}
+
+.ant-row {
+  margin-bottom: 8px;
+}
+
+/* Dark mode enhancements */
+[data-theme="dark"] .ant-table-tbody > tr:hover > td {
+  background: rgba(144, 202, 249, 0.04) !important;
+}

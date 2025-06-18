@@ -322,7 +322,7 @@ const NodeFlowPage: React.FC = () => {
   }, []);
 
   // Group templates by type
-  const groupedTemplates = templates.reduce((acc, template) => {
+  const groupedTemplates = (templates || []).reduce((acc, template) => {
     const type = template.templateType || "other";
     if (!acc[type]) {
       acc[type] = [];
