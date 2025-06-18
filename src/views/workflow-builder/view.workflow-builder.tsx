@@ -1727,13 +1727,22 @@ const WorkflowBuilderPage: React.FC = () => {
               }}
               defaultViewport={{ x: 0, y: 0, zoom: 1 }}
               selectNodesOnDrag={false}
-              panOnDrag={true}
+              panOnDrag={[1, 2]} // Only pan with left and right mouse buttons
               elementsSelectable={true}
               nodesDraggable={true}
               nodesConnectable={true}
               edgesFocusable={true}
-              edgesUpdatable={true}
+              edgesUpdatable={false}
               deleteKeyCode={["Backspace", "Delete"]}
+              snapToGrid={true}
+              snapGrid={[20, 20]}
+              connectionLineStyle={{
+                strokeWidth: 3,
+                stroke: colorPrimary,
+                strokeDasharray: "5,5",
+              }}
+              minZoom={0.3}
+              maxZoom={2}
             >
               <Controls
                 style={{
@@ -1957,7 +1966,7 @@ const WorkflowBuilderPage: React.FC = () => {
                   </Col>
                   <Col span={8}>
                     <Statistic
-                      title="Nodes thành công"
+                      title="Nodes th��nh công"
                       value={testResults.successfulNodes}
                       valueStyle={{ color: colorSuccess, fontSize: 14 }}
                     />
