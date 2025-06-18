@@ -240,9 +240,11 @@ const HeaderLayout = () => {
 
   // Enhanced component frame styles
   const frameStyle = {
-    border: `1px solid ${isDark ? "#444444" : "#E0E0E0"}`,
-    borderRadius: 8,
-    padding: "6px 8px",
+    border: `1px solid ${
+      isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(25, 118, 210, 0.15)"
+    }`,
+    borderRadius: 6,
+    padding: "4px 6px",
     background: isDark
       ? "rgba(255, 255, 255, 0.05)"
       : "rgba(25, 118, 210, 0.04)",
@@ -250,28 +252,18 @@ const HeaderLayout = () => {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backdropFilter: "blur(8px)",
-    boxShadow: `0 2px 8px ${
-      isDark ? "rgba(0, 0, 0, 0.3)" : "rgba(25, 118, 210, 0.1)"
-    }`,
   };
 
   const notificationFrameStyle = {
     ...frameStyle,
-    border: `1px solid ${isDark ? "#444444" : "#E0E0E0"}`,
-    padding: "4px 6px",
-    background: isDark
-      ? "rgba(255, 255, 255, 0.05)"
-      : "rgba(25, 118, 210, 0.04)",
   };
 
   const avatarFrameStyle = {
     ...frameStyle,
-    padding: "2px",
-    border: `2px solid ${isDark ? "#444444" : "#E0E0E0"}`,
-    background: isDark
-      ? "rgba(255, 255, 255, 0.05)"
-      : "rgba(25, 118, 210, 0.04)",
+    padding: "3px 6px",
+    border: `1px solid ${
+      isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(25, 118, 210, 0.15)"
+    }`,
   };
 
   return (
