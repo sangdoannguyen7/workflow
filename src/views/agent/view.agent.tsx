@@ -95,13 +95,13 @@ const AgentPage: React.FC = () => {
   const handleCreate = () => {
     setEditingAgent(null);
     form.resetFields();
-    setModalVisible(true);
+    setDrawerVisible(true);
   };
 
   const handleEdit = (agent: IAgent) => {
     setEditingAgent(agent);
     form.setFieldsValue(agent);
-    setModalVisible(true);
+    setDrawerVisible(true);
   };
 
   const handleDelete = async (id: number) => {
