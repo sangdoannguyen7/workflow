@@ -3,7 +3,6 @@ import {
   IAgent,
   IAgentResponse,
   IAgentSearchParams,
-  PageImplResponse,
 } from "../../interface/agent.interface";
 import { IAgentApi } from "./api.agent.interface";
 
@@ -23,19 +22,8 @@ class AgentApi implements IAgentApi {
       data: null,
     };
 
-    const response: IDataResponse<PageImplResponse<IAgent>> = await axiosCustom(
-      request
-    );
-
-    return {
-      content: response.value.content,
-      totalElements: response.value.totalElements,
-      totalPages: response.value.totalPages,
-      size: response.value.size,
-      number: response.value.number,
-      first: response.value.first,
-      last: response.value.last,
-    };
+    const response: IDataResponse<IAgentResponse> = await axiosCustom(request);
+    return response.value;
   }
 
   async getAgentById(id: number): Promise<IAgent> {
@@ -45,8 +33,10 @@ class AgentApi implements IAgentApi {
       params: null,
       data: null,
     };
-    const response: IDataResponse<IAgent> = await axiosCustom(request);
-    return response.value;
+    const response: IDataResponse<{ data: IAgent }> = await axiosCustom(
+      request
+    );
+    return response.value.data;
   }
 
   async createAgent(agent: Omit<IAgent, "agentId">): Promise<IAgent> {
@@ -56,8 +46,10 @@ class AgentApi implements IAgentApi {
       params: null,
       data: agent,
     };
-    const response: IDataResponse<IAgent> = await axiosCustom(request);
-    return response.value;
+    const response: IDataResponse<{ data: IAgent }> = await axiosCustom(
+      request
+    );
+    return response.value.data;
   }
 
   async updateAgent(id: number, agent: IAgent): Promise<IAgent> {
@@ -67,8 +59,10 @@ class AgentApi implements IAgentApi {
       params: null,
       data: agent,
     };
-    const response: IDataResponse<IAgent> = await axiosCustom(request);
-    return response.value;
+    const response: IDataResponse<{ data: IAgent }> = await axiosCustom(
+      request
+    );
+    return response.value.data;
   }
 
   async deleteAgent(id: number): Promise<void> {
@@ -88,8 +82,10 @@ class AgentApi implements IAgentApi {
       params: null,
       data: null,
     };
-    const response: IDataResponse<IAgent> = await axiosCustom(request);
-    return response.value;
+    const response: IDataResponse<{ data: IAgent }> = await axiosCustom(
+      request
+    );
+    return response.value.data;
   }
 }
 

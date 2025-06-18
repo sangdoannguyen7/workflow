@@ -1,12 +1,42 @@
-import { INode, INodeRequest } from "./node.interface";
+import {
+  ApiResponse,
+  CommonSearchParams,
+  SingleApiResponse,
+} from "./common.interface";
+
+export interface INode {
+  nodeId?: number;
+  nodeCode: string;
+  nodeName: string;
+  templateCode: string;
+  templateName: string;
+  typeCode: string;
+  typeName: string;
+  agentCode: string;
+  agentName: string;
+  workflowCode: string;
+  workflowName: string;
+  statusCode: string;
+  statusName: string;
+  templateType: string;
+  description: string | null;
+  search: string | null;
+  metadata: string | null;
+  info: string | null;
+  schema: string | null;
+  body: string | null;
+  rule: string | null;
+  configuration: string | null;
+  outputCode: string | null;
+}
 
 export interface IWorkflow {
   workflowCode: string;
   workflowName: string;
   statusCode: string;
   statusName: string;
-  description?: string;
-  nodes?: INode[];
+  description: string | null;
+  nodes: INode[];
 }
 
 export interface IWorkflowRequest {
@@ -17,32 +47,31 @@ export interface IWorkflowRequest {
   nodes: INodeRequest[];
 }
 
-export interface IWorkflowSearchRequest {
-  workflowCodes: string[];
+export interface INodeRequest {
+  nodeCode: string;
+  nodeName: string;
+  templateCode: string;
+  templateName: string;
+  typeCode: string;
+  typeName: string;
+  agentCode: string;
+  agentName: string;
+  description: string;
+  search: string;
+  metadata: string;
+  info: string;
+  schema: string;
+  body: string;
+  rule: string;
+  configuration: string;
+  outputCode: string;
 }
 
-export interface IWorkflowDeleteRequest {
-  workflowCodes: string[];
-}
+export interface IWorkflowSearchParams extends CommonSearchParams {}
 
-export interface IWorkflowSearchParams {
-  search?: string;
-  sorter?: string;
-  current?: number;
-  pageSize?: number;
-}
+export interface IWorkflowResponse extends ApiResponse<IWorkflow> {}
 
-export interface IWorkflowResponse {
-  content: IWorkflow[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-  first: boolean;
-  last: boolean;
-}
-
-// React Flow related interfaces
+// React Flow interfaces
 export interface IWorkflowNode {
   id: string;
   type?: string;
@@ -53,7 +82,8 @@ export interface IWorkflowNode {
     templateCode?: string;
     agentCode?: string;
     description?: string;
-    [key: string]: any; // For storing additional properties
+    templateType?: string;
+    [key: string]: any;
   };
 }
 

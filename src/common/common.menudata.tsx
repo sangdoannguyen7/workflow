@@ -363,6 +363,7 @@ const menuData = [
     permission: "WORKFLOW_BUILDER",
     description: "WORKFLOW_BUILDER",
   },
+<<<<<<< HEAD
   {
     path: "/management",
     key: "MANAGEMENT",
@@ -375,6 +376,8 @@ const menuData = [
     permission: "MANAGEMENT",
     description: "MANAGEMENT",
   },
+=======
+>>>>>>> 031cf87b6008b5349e161b8d0e1b57cbb150209a
   // {
   //   path: '/hotel/list',
   //   key: 'HOTEL_LIST',

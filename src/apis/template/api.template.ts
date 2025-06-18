@@ -3,10 +3,7 @@ import {
   ITemplate,
   ITemplateResponse,
   ITemplateSearchParams,
-  ValueResponse,
-  ListResponse,
 } from "../../interface/template.interface";
-import { PageImplResponse } from "../../interface/agent.interface";
 import { ITemplateApi } from "./api.template.interface";
 
 class TemplateApi implements ITemplateApi {
@@ -28,22 +25,13 @@ class TemplateApi implements ITemplateApi {
       data: null,
     };
 
-    const response: IDataResponse<PageImplResponse<ITemplate>> =
-      await axiosCustom(request);
-
-    return {
-      content: response.value.content,
-      totalElements: response.value.totalElements,
-      totalPages: response.value.totalPages,
-      size: response.value.size,
-      number: response.value.number,
-      first: response.value.first,
-      last: response.value.last,
-    };
+    const response: IDataResponse<ITemplateResponse> = await axiosCustom(
+      request
+    );
+    return response.value;
   }
 
   async getTemplateById(id: number): Promise<ITemplate> {
-    // Note: API doesn't have getById, using getByCode as fallback
     throw new Error("API does not support getById, use getByCode instead");
   }
 
@@ -56,7 +44,7 @@ class TemplateApi implements ITemplateApi {
       params: null,
       data: template,
     };
-    const response: IDataResponse<ValueResponse<ITemplate>> = await axiosCustom(
+    const response: IDataResponse<{ data: ITemplate }> = await axiosCustom(
       request
     );
     return response.value.data;
@@ -69,14 +57,13 @@ class TemplateApi implements ITemplateApi {
       params: null,
       data: template,
     };
-    const response: IDataResponse<ValueResponse<ITemplate>> = await axiosCustom(
+    const response: IDataResponse<{ data: ITemplate }> = await axiosCustom(
       request
     );
     return response.value.data;
   }
 
   async deleteTemplate(id: number): Promise<void> {
-    // API doesn't support delete by ID, need templateCode
     throw new Error(
       "API does not support delete by ID, use deleteByCode instead"
     );
@@ -89,7 +76,7 @@ class TemplateApi implements ITemplateApi {
       params: null,
       data: null,
     };
-    const response: IDataResponse<ValueResponse<ITemplate>> = await axiosCustom(
+    const response: IDataResponse<{ data: ITemplate }> = await axiosCustom(
       request
     );
     return response.value.data;
@@ -97,7 +84,7 @@ class TemplateApi implements ITemplateApi {
 
   async getTemplatesByAgent(agentCode: string): Promise<ITemplate[]> {
     const response = await this.getTemplates({ agentCode, pageSize: 1000 });
-    return response.content;
+    return response.data;
   }
 
   async initializeTemplates(initializationCode: string): Promise<ITemplate[]> {
@@ -107,7 +94,7 @@ class TemplateApi implements ITemplateApi {
       params: { initializationCode },
       data: null,
     };
-    const response: IDataResponse<ListResponse<ITemplate>> = await axiosCustom(
+    const response: IDataResponse<{ data: ITemplate[] }> = await axiosCustom(
       request
     );
     return response.value.data;

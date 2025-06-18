@@ -5,13 +5,8 @@ import {
   IWorkflowSearchParams,
   IWorkflowDesign,
   IWorkflowRequest,
-  IWorkflowSearchRequest,
 } from "../../interface/workflow.interface";
-import {
-  ValueResponse,
-  ListResponse,
-} from "../../interface/template.interface";
-import { PageImplResponse } from "../../interface/agent.interface";
+import { SingleApiResponse } from "../../interface/common.interface";
 import { IWorkflowApi } from "./api.workflow.interface";
 
 class WorkflowApi implements IWorkflowApi {
@@ -32,18 +27,10 @@ class WorkflowApi implements IWorkflowApi {
       data: null,
     };
 
-    const response: IDataResponse<PageImplResponse<IWorkflow>> =
-      await axiosCustom(request);
-
-    return {
-      content: response.value.content,
-      totalElements: response.value.totalElements,
-      totalPages: response.value.totalPages,
-      size: response.value.size,
-      number: response.value.number,
-      first: response.value.first,
-      last: response.value.last,
-    };
+    const response: IDataResponse<IWorkflowResponse> = await axiosCustom(
+      request
+    );
+    return response.value;
   }
 
   async getWorkflowById(id: number): Promise<IWorkflow> {
@@ -57,9 +44,8 @@ class WorkflowApi implements IWorkflowApi {
       params: null,
       data: workflowRequest,
     };
-    const response: IDataResponse<ValueResponse<IWorkflow>> = await axiosCustom(
-      request
-    );
+    const response: IDataResponse<SingleApiResponse<IWorkflow>> =
+      await axiosCustom(request);
     return response.value.data;
   }
 
@@ -73,9 +59,8 @@ class WorkflowApi implements IWorkflowApi {
       params: null,
       data: workflowRequest,
     };
-    const response: IDataResponse<ValueResponse<IWorkflow>> = await axiosCustom(
-      request
-    );
+    const response: IDataResponse<SingleApiResponse<IWorkflow>> =
+      await axiosCustom(request);
     return response.value.data;
   }
 
@@ -96,46 +81,137 @@ class WorkflowApi implements IWorkflowApi {
       params: null,
       data: null,
     };
-    const response: IDataResponse<ValueResponse<IWorkflow>> = await axiosCustom(
-      request
-    );
+    const response: IDataResponse<SingleApiResponse<IWorkflow>> =
+      await axiosCustom(request);
     return response.value.data;
   }
 
-  async getWorkflowsByCodes(
-    searchRequest: IWorkflowSearchRequest
-  ): Promise<IWorkflow[]> {
-    const request: IDataRequest = {
-      method: "POST",
-      uri: `${this.baseUrl}/workflowCodes`,
-      params: null,
-      data: searchRequest,
-    };
-    const response: IDataResponse<ListResponse<IWorkflow>> = await axiosCustom(
-      request
-    );
-    return response.value.data;
-  }
-
-  // For workflow design (this might need to be implemented on backend)
+  // For workflow design - store as metadata in workflow description or separate endpoint
   async getWorkflowDesign(workflowCode: string): Promise<IWorkflowDesign> {
-    // This is custom functionality for React Flow - might need backend support
-    // For now, return empty design
-    return {
-      workflowCode,
-      nodes: [],
-      edges: [],
-      viewport: { x: 0, y: 0, zoom: 1 },
-    };
+    try {
+      const workflow = await this.getWorkflowByCode(workflowCode);
+
+      // Try to extract design from workflow description or metadata
+      let design: IWorkflowDesign = {
+        workflowCode,
+        nodes: [],
+        edges: [],
+        viewport: { x: 0, y: 0, zoom: 1 },
+      };
+
+      if (workflow.nodes && workflow.nodes.length > 0) {
+        design.nodes = workflow.nodes.map((node, index) => {
+          let position = {
+            x: 100 + (index % 3) * 250,
+            y: 100 + Math.floor(index / 3) * 150,
+          };
+
+          // Try to parse position from metadata
+          try {
+            if (node.metadata) {
+              const metadata = JSON.parse(node.metadata);
+              if (metadata.position) {
+                position = metadata.position;
+              }
+            }
+          } catch (e) {
+            console.warn("Failed to parse node metadata");
+          }
+
+          return {
+            id: node.nodeCode,
+            position,
+            data: {
+              label: node.nodeName,
+              nodeCode: node.nodeCode,
+              templateCode: node.templateCode,
+              templateType: node.templateType || "restapi",
+              agentCode: node.agentCode,
+              description: node.description,
+              info: node.info,
+            },
+          };
+        });
+
+        // Try to extract edges from node rules
+        const edges: any[] = [];
+        workflow.nodes.forEach((node) => {
+          try {
+            if (node.rule) {
+              const rule = JSON.parse(node.rule);
+              if (rule.edges) {
+                edges.push(...rule.edges);
+              }
+            }
+          } catch (e) {
+            console.warn("Failed to parse node rule");
+          }
+        });
+
+        design.edges = edges.map((edge, index) => ({
+          id: edge.id || `edge-${index}`,
+          source: edge.source,
+          target: edge.target,
+          type: edge.type || "default",
+        }));
+      }
+
+      return design;
+    } catch (error) {
+      return {
+        workflowCode,
+        nodes: [],
+        edges: [],
+        viewport: { x: 0, y: 0, zoom: 1 },
+      };
+    }
   }
 
   async saveWorkflowDesign(
     workflowCode: string,
     design: IWorkflowDesign
   ): Promise<IWorkflowDesign> {
-    // Store design data in workflow's info field or separate endpoint
-    // For now, just return the design
-    return design;
+    try {
+      const workflow = await this.getWorkflowByCode(workflowCode);
+
+      // Convert design nodes to workflow nodes
+      const nodes = design.nodes.map((node) => ({
+        nodeCode: node.id,
+        nodeName: node.data.label,
+        templateCode: node.data.templateCode || "",
+        templateName: node.data.label,
+        typeCode: node.data.templateType || "DEFAULT",
+        typeName: node.data.templateType || "Default",
+        agentCode: node.data.agentCode || "",
+        agentName: node.data.agentCode || "",
+        description: node.data.description || "",
+        search: `${node.data.label} ${node.data.templateCode}`.toLowerCase(),
+        metadata: JSON.stringify({ position: node.position }),
+        info: node.data.info || JSON.stringify({}),
+        schema: "",
+        body: "",
+        rule: JSON.stringify({
+          edges: design.edges.filter(
+            (e) => e.source === node.id || e.target === node.id
+          ),
+        }),
+        configuration: "",
+        outputCode: "",
+      }));
+
+      const workflowRequest: IWorkflowRequest = {
+        workflowName: workflow.workflowName,
+        statusCode: workflow.statusCode,
+        statusName: workflow.statusName,
+        description: workflow.description || "",
+        nodes,
+      };
+
+      await this.updateWorkflow(workflowCode, workflowRequest);
+      return design;
+    } catch (error) {
+      throw new Error("Failed to save workflow design");
+    }
   }
 }
 
