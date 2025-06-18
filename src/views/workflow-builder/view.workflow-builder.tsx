@@ -1044,7 +1044,7 @@ const WorkflowBuilderPage: React.FC = () => {
               transition: "border 0.2s ease",
             }}
           >
-            <ReactFlow
+            <WorkflowCanvas
               nodes={nodes}
               edges={edges}
               onNodesChange={onNodesChange}
@@ -1055,91 +1055,15 @@ const WorkflowBuilderPage: React.FC = () => {
               onDrop={onDrop}
               onDragOver={onDragOver}
               onDragLeave={onDragLeave}
-              onInit={setReactFlowInstance}
               nodeTypes={nodeTypes}
-              connectionMode={ConnectionMode.Loose}
-              fitView
-              attributionPosition="bottom-left"
-              style={{
-                background: isDragging ? "#e6f7ff" : "#fafafa",
-                borderRadius: "8px",
-              }}
-            >
-              <Controls />
-              <MiniMap
-                nodeColor={(node) => {
-                  const nodeType = getNodeTypeFromTemplate(
-                    node.data?.templateType
-                  );
-                  return getNodeTypeColor(nodeType);
-                }}
-                style={{
-                  backgroundColor: "#fafafa",
-                  border: "1px solid #d9d9d9",
-                }}
-              />
-              <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
-
-              {/* Drop Zone Hint */}
-              {nodes.length === 0 && (
-                <Panel position="top-center">
-                  <div
-                    style={{
-                      padding: "24px",
-                      background: "rgba(255,255,255,0.95)",
-                      borderRadius: "12px",
-                      border: "2px dashed #d9d9d9",
-                      textAlign: "center",
-                      maxWidth: "450px",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                    }}
-                  >
-                    <ApartmentOutlined
-                      style={{
-                        fontSize: "48px",
-                        color: "#d9d9d9",
-                        marginBottom: "16px",
-                        display: "block",
-                      }}
-                    />
-                    <Title
-                      level={3}
-                      type="secondary"
-                      style={{ marginBottom: "8px" }}
-                    >
-                      Workflow Builder
-                    </Title>
-                    <Text type="secondary" style={{ fontSize: "14px" }}>
-                      🎯 <strong>Bước 1:</strong> Kéo template từ sidebar trái
-                      vào đây
-                      <br />
-                      🎯 <strong>Bước 2:</strong> Kết nối các node: 🚀 TRIGGER →
-                      ⚙️ BEHAVIOR → 📤 OUTPUT
-                      <br />
-                      🎯 <strong>Bước 3:</strong> Lưu workflow và test
-                    </Text>
-                  </div>
-                </Panel>
-              )}
-
-              {/* Drag Feedback */}
-              {isDragging && (
-                <Panel position="bottom-center">
-                  <div
-                    style={{
-                      padding: "12px 24px",
-                      background: "#1890ff",
-                      color: "white",
-                      borderRadius: "24px",
-                      fontSize: "14px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    📍 Thả để tạo node mới
-                  </div>
-                </Panel>
-              )}
-            </ReactFlow>
+              isPlaying={isPlaying}
+              isDragging={isDragging}
+              selectedNode={selectedNode}
+              getNodeTypeFromTemplate={getNodeTypeFromTemplate}
+              getNodeTypeColor={getNodeTypeColor}
+              getNodeTypeIcon={getNodeTypeIcon}
+              deleteSelectedNode={deleteSelectedNode}
+            />
           </div>
         </div>
 
