@@ -234,7 +234,7 @@ const NodePage: React.FC = () => {
       title: "Thao tác",
       key: "action",
       width: 150,
-      fixed: "right",
+      fixed: "right" as const,
       render: (_: any, record: INode) => (
         <Space size="small">
           <Button
