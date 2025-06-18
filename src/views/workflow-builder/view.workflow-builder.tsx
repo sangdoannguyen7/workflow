@@ -688,12 +688,12 @@ const WorkflowBuilderPage: React.FC = () => {
     try {
       const design: IWorkflowDesign = {
         workflowCode: selectedWorkflow,
-        nodes: nodes.map((node) => ({
+        nodes: (nodes || []).map((node) => ({
           id: node.id,
           position: node.position,
           data: node.data,
         })),
-        edges: edges.map((edge) => ({
+        edges: (edges || []).map((edge) => ({
           id: edge.id,
           source: edge.source,
           target: edge.target,
