@@ -344,7 +344,7 @@ const DashboardPage = () => {
         <Alert
           key={index}
           message={alert.message}
-          type={alert.type}
+          type={alert.type as any}
           showIcon={alert.showIcon}
           closable={alert.closable}
           style={{
