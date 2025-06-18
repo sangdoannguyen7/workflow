@@ -124,13 +124,13 @@ const WorkflowPage: React.FC = () => {
     form.setFieldsValue({
       statusCode: "DRAFT",
     });
-    setModalVisible(true);
+    setDrawerVisible(true);
   };
 
   const handleEdit = (workflow: IWorkflow) => {
     setEditingWorkflow(workflow);
     form.setFieldsValue(workflow);
-    setModalVisible(true);
+    setDrawerVisible(true);
   };
 
   const handleDelete = async (workflowCode: string) => {
@@ -879,7 +879,7 @@ const WorkflowPage: React.FC = () => {
               }}
             />
             <Title level={4} style={{ color: colorTextSecondary }}>
-              Chưa có kết quả test
+              Chưa có kết qu��� test
             </Title>
             <Text type="secondary">Vui lòng chạy test để xem kết quả</Text>
           </div>
