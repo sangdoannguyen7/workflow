@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Avatar,
   Button,
@@ -8,6 +9,17 @@ import {
   Space,
   Badge,
   Tooltip,
+  Drawer,
+  Typography,
+  Card,
+  Form,
+  Input,
+  Select,
+  Divider,
+  Row,
+  Col,
+  List,
+  Tag,
 } from "antd";
 import {
   LogoutOutlined,
@@ -16,10 +28,16 @@ import {
   UserOutlined,
   BellOutlined,
   SettingOutlined,
-  GlobalOutlined,
+  SunOutlined,
+  MoonOutlined,
+  EditOutlined,
+  KeyOutlined,
+  NotificationOutlined,
+  CheckOutlined,
+  ExclamationTriangleOutlined,
+  InfoCircleOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
-import MoonIcon from "../shared/icons/moon.icon";
-import SunIcon from "../shared/icons/sun.icon";
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../interface/action.interface";
 import { useDarkMode, useLightMode } from "../redux/actions/theme.action";
@@ -27,9 +45,22 @@ import {
   useCollapsedLarge,
   useCollapsedSmall,
 } from "../redux/actions/collapsed.action";
+import { MockAPI } from "../mock/enhanced.mock";
+import { NotificationComponent } from "../shared/components/notification/notification";
+
+const { Text, Title } = Typography;
 
 const HeaderLayout = () => {
   const dispatch = useDispatch();
+  const [profileDrawerVisible, setProfileDrawerVisible] = useState(false);
+  const [settingsDrawerVisible, setSettingsDrawerVisible] = useState(false);
+  const [notificationDrawerVisible, setNotificationDrawerVisible] =
+    useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
+  const [systemSettings, setSystemSettings] = useState(null);
+  const [profileForm] = Form.useForm();
+  const [settingsForm] = Form.useForm();
 
   const themeStore = useSelector((state: IState) => state.getTheme);
   const collapseStore = useSelector((state: IState) => state.getCollapsed);
@@ -46,23 +77,152 @@ const HeaderLayout = () => {
       boxShadowSecondary,
       colorText,
       colorTextSecondary,
+      colorBorder,
+      colorSuccess,
+      colorWarning,
+      colorError,
+      colorInfo,
     },
   } = theme.useToken();
 
   const isDark = themeStore.type === "dark";
 
+  // Load data functions
+  const loadNotifications = async () => {
+    try {
+      const result = await MockAPI.getNotifications();
+      setNotifications(result.data);
+    } catch (error) {
+      console.error("Failed to load notifications:", error);
+    }
+  };
+
+  const loadUserProfile = async () => {
+    try {
+      const result = await MockAPI.getUserProfile();
+      setUserProfile(result.data);
+      profileForm.setFieldsValue(result.data);
+    } catch (error) {
+      console.error("Failed to load user profile:", error);
+    }
+  };
+
+  const loadSystemSettings = async () => {
+    try {
+      const result = await MockAPI.getSystemSettings();
+      setSystemSettings(result.data);
+      settingsForm.setFieldsValue(result.data);
+    } catch (error) {
+      console.error("Failed to load system settings:", error);
+    }
+  };
+
+  // Handle drawer open
+  const handleProfileOpen = () => {
+    setProfileDrawerVisible(true);
+    loadUserProfile();
+  };
+
+  const handleSettingsOpen = () => {
+    setSettingsDrawerVisible(true);
+    loadSystemSettings();
+  };
+
+  const handleNotificationOpen = () => {
+    setNotificationDrawerVisible(true);
+    loadNotifications();
+  };
+
+  // Handle form submissions
+  const handleProfileUpdate = async (values: any) => {
+    try {
+      await MockAPI.updateUserProfile(values);
+      setUserProfile({ ...userProfile, ...values });
+      NotificationComponent({
+        type: "success",
+        message: "Thành công",
+        description: "Cập nhật thông tin cá nhân thành công",
+      });
+      setProfileDrawerVisible(false);
+    } catch (error) {
+      NotificationComponent({
+        type: "error",
+        message: "Lỗi",
+        description: "Không thể cập nhật thông tin cá nhân",
+      });
+    }
+  };
+
+  const handleSettingsUpdate = async (values: any) => {
+    try {
+      await MockAPI.updateSystemSettings(values);
+      setSystemSettings({ ...systemSettings, ...values });
+      NotificationComponent({
+        type: "success",
+        message: "Thành công",
+        description: "Cập nhật cài đặt hệ thống thành công",
+      });
+      setSettingsDrawerVisible(false);
+    } catch (error) {
+      NotificationComponent({
+        type: "error",
+        message: "Lỗi",
+        description: "Không thể cập nhật cài đặt hệ thống",
+      });
+    }
+  };
+
+  const markNotificationAsRead = async (id: number) => {
+    try {
+      await MockAPI.markNotificationAsRead(id);
+      setNotifications(
+        notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
+      );
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "success":
+        return <CheckOutlined style={{ color: colorSuccess }} />;
+      case "warning":
+        return <ExclamationTriangleOutlined style={{ color: colorWarning }} />;
+      case "error":
+        return <CloseCircleOutlined style={{ color: colorError }} />;
+      case "info":
+      default:
+        return <InfoCircleOutlined style={{ color: colorInfo }} />;
+    }
+  };
+
+  const getNotificationColor = (type: string) => {
+    switch (type) {
+      case "success":
+        return colorSuccess;
+      case "warning":
+        return colorWarning;
+      case "error":
+        return colorError;
+      case "info":
+      default:
+        return colorInfo;
+    }
+  };
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
   const userMenuItems = [
     {
       key: "1",
       icon: <UserOutlined />,
-      label: (
-        <span onClick={() => console.log("profile")}>Thông tin cá nhân</span>
-      ),
+      label: <span onClick={handleProfileOpen}>Thông tin cá nhân</span>,
     },
     {
       key: "2",
       icon: <SettingOutlined />,
-      label: <span onClick={() => console.log("settings")}>Cài đặt</span>,
+      label: <span onClick={handleSettingsOpen}>Cài đặt hệ thống</span>,
     },
     {
       type: "divider",
@@ -81,164 +241,482 @@ const HeaderLayout = () => {
     },
   ];
 
+  // Component frame style
+  const frameStyle = {
+    border: `1px solid ${colorBorder}`,
+    borderRadius: 8,
+    padding: "4px 8px",
+    background: `${colorPrimary}05`,
+  };
+
   return (
-    <Layout.Header
-      style={{
-        margin: "4px 4px 0 4px",
-        background: colorBgContainer,
-        borderRadius: borderRadiusLG,
-        boxShadow: boxShadowSecondary,
-        border: isDark ? "1px solid #303030" : "1px solid #f0f0f0",
-        padding: "0 16px",
-        height: 64,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
-      {/* Left Section - Menu Toggle */}
-      <Space size="middle">
-        <Button
-          type="text"
-          icon={
-            nextCollapse().type === "small" ? (
-              <MenuUnfoldOutlined />
-            ) : (
-              <MenuFoldOutlined />
-            )
-          }
-          onClick={() => dispatch(nextCollapse())}
-          style={{
-            fontSize: "16px",
-            width: 40,
-            height: 40,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            borderRadius: 8,
-            color: colorText,
-          }}
-        />
-
-        {/* Breadcrumb or Page Title can go here */}
-        <div
-          style={{
-            fontSize: "16px",
-            fontWeight: 600,
-            color: colorText,
-            marginLeft: 8,
-          }}
-        >
-          Travel Admin
-        </div>
-      </Space>
-
-      {/* Right Section - User Controls */}
-      <Space size="middle">
-        {/* Language Selector */}
-        <Tooltip title="Ngôn ngữ">
-          <Button
-            type="text"
-            icon={<GlobalOutlined />}
-            style={{
-              width: 40,
-              height: 40,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: 8,
-              color: colorTextSecondary,
-            }}
-            onClick={() => console.log("language")}
-          />
-        </Tooltip>
-
-        {/* Theme Toggle */}
-        <Tooltip title={isDark ? "Chuyển sang sáng" : "Chuyển sang tối"}>
-          <Switch
-            checked={isDark}
-            checkedChildren={<MoonIcon />}
-            unCheckedChildren={<SunIcon />}
-            onChange={() => dispatch(nextTheme())}
-            style={{
-              backgroundColor: isDark ? colorPrimary : "#f0f0f0",
-            }}
-          />
-        </Tooltip>
-
-        {/* Notifications */}
-        <Tooltip title="Thông báo">
-          <Badge count={5} size="small">
+    <>
+      <Layout.Header
+        style={{
+          margin: "4px 4px 0 4px",
+          background: colorBgContainer,
+          borderRadius: borderRadiusLG,
+          boxShadow: boxShadowSecondary,
+          border: isDark ? "1px solid #303030" : "1px solid #f0f0f0",
+          padding: "0 16px",
+          height: 64,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        {/* Left Section */}
+        <Space size="middle">
+          <div style={frameStyle}>
             <Button
               type="text"
-              icon={<BellOutlined />}
+              icon={
+                nextCollapse().type === "small" ? (
+                  <MenuUnfoldOutlined />
+                ) : (
+                  <MenuFoldOutlined />
+                )
+              }
+              onClick={() => dispatch(nextCollapse())}
               style={{
-                width: 40,
-                height: 40,
+                fontSize: "16px",
+                width: 32,
+                height: 32,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                borderRadius: 8,
-                color: colorTextSecondary,
+                color: colorText,
+                border: "none",
               }}
-              onClick={() => console.log("notifications")}
             />
-          </Badge>
-        </Tooltip>
+          </div>
 
-        {/* User Avatar and Dropdown */}
-        <Dropdown
-          menu={{ items: userMenuItems }}
-          placement="bottomRight"
-          arrow
-          trigger={["click"]}
-        >
-          <Space
-            style={{ cursor: "pointer", padding: "4px 8px", borderRadius: 8 }}
+          <div
+            style={{
+              fontSize: "18px",
+              fontWeight: 600,
+              color: colorPrimary,
+              marginLeft: 12,
+            }}
           >
-            <Avatar
-              src={
-                <img
-                  src={"https://api.dicebear.com/7.x/miniavs/svg?seed=3"}
-                  alt="avatar"
+            WorkFlow Management
+          </div>
+        </Space>
+
+        {/* Right Section */}
+        <Space size="middle">
+          {/* Theme Toggle */}
+          <div style={frameStyle}>
+            <Tooltip title={isDark ? "Chuyển sang sáng" : "Chuyển sang tối"}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <SunOutlined
+                  style={{
+                    color: !isDark ? colorPrimary : colorTextSecondary,
+                    fontSize: 14,
+                  }}
                 />
-              }
-              size={36}
-              style={{
-                border: `2px solid ${colorPrimary}20`,
-                boxShadow: `0 2px 8px ${colorPrimary}30`,
-              }}
-            />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                lineHeight: 1.2,
+                <Switch
+                  checked={isDark}
+                  onChange={() => dispatch(nextTheme())}
+                  size="small"
+                  style={{
+                    backgroundColor: isDark ? colorPrimary : "#f0f0f0",
+                  }}
+                />
+                <MoonOutlined
+                  style={{
+                    color: isDark ? colorPrimary : colorTextSecondary,
+                    fontSize: 14,
+                  }}
+                />
+              </div>
+            </Tooltip>
+          </div>
+
+          {/* Notifications */}
+          <div style={frameStyle}>
+            <Tooltip title="Thông báo">
+              <Badge count={unreadCount} size="small">
+                <Button
+                  type="text"
+                  icon={<BellOutlined />}
+                  onClick={handleNotificationOpen}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: colorText,
+                    border: "none",
+                  }}
+                />
+              </Badge>
+            </Tooltip>
+          </div>
+
+          {/* User Profile */}
+          <div style={frameStyle}>
+            <Dropdown
+              menu={{ items: userMenuItems }}
+              placement="bottomRight"
+              arrow
+              trigger={["click"]}
+            >
+              <Space style={{ cursor: "pointer", padding: "4px" }}>
+                <Avatar
+                  src={
+                    <img
+                      src={"https://api.dicebear.com/7.x/miniavs/svg?seed=3"}
+                      alt="avatar"
+                    />
+                  }
+                  size={32}
+                  style={{
+                    border: `2px solid ${colorPrimary}20`,
+                    boxShadow: `0 2px 8px ${colorPrimary}30`,
+                  }}
+                />
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "13px",
+                      fontWeight: 500,
+                      color: colorText,
+                    }}
+                  >
+                    Admin User
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      color: colorTextSecondary,
+                    }}
+                  >
+                    Quản trị viên
+                  </span>
+                </div>
+              </Space>
+            </Dropdown>
+          </div>
+        </Space>
+      </Layout.Header>
+
+      {/* Profile Drawer */}
+      <Drawer
+        title={
+          <Space>
+            <UserOutlined style={{ color: colorPrimary }} />
+            <span>Thông tin cá nhân</span>
+          </Space>
+        }
+        open={profileDrawerVisible}
+        onClose={() => setProfileDrawerVisible(false)}
+        width={480}
+      >
+        {userProfile && (
+          <Form
+            form={profileForm}
+            layout="vertical"
+            onFinish={handleProfileUpdate}
+          >
+            <Card
+              title="Thông tin cơ bản"
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="firstName" label="Tên">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="lastName" label="Họ">
+                    <Input />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Form.Item name="email" label="Email">
+                <Input />
+              </Form.Item>
+              <Form.Item name="phone" label="Số điện thoại">
+                <Input />
+              </Form.Item>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="role" label="Vai trò">
+                    <Input disabled />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="department" label="Bộ phận">
+                    <Input />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+
+            <Card
+              title="Tùy chọn cá nhân"
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Form.Item name={["preferences", "theme"]} label="Giao diện">
+                <Select>
+                  <Select.Option value="light">Sáng</Select.Option>
+                  <Select.Option value="dark">Tối</Select.Option>
+                </Select>
+              </Form.Item>
+              <Form.Item name={["preferences", "language"]} label="Ngôn ngữ">
+                <Select>
+                  <Select.Option value="vi">Tiếng Việt</Select.Option>
+                  <Select.Option value="en">English</Select.Option>
+                </Select>
+              </Form.Item>
+            </Card>
+
+            <Space style={{ width: "100%", justifyContent: "flex-end" }}>
+              <Button onClick={() => setProfileDrawerVisible(false)}>
+                Hủy
+              </Button>
+              <Button type="primary" htmlType="submit" icon={<EditOutlined />}>
+                Cập nhật
+              </Button>
+            </Space>
+          </Form>
+        )}
+      </Drawer>
+
+      {/* Settings Drawer */}
+      <Drawer
+        title={
+          <Space>
+            <SettingOutlined style={{ color: colorPrimary }} />
+            <span>Cài đặt hệ thống</span>
+          </Space>
+        }
+        open={settingsDrawerVisible}
+        onClose={() => setSettingsDrawerVisible(false)}
+        width={560}
+      >
+        {systemSettings && (
+          <Form
+            form={settingsForm}
+            layout="vertical"
+            onFinish={handleSettingsUpdate}
+          >
+            <Card
+              title="Cài đặt chung"
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Form.Item name={["general", "siteName"]} label="Tên website">
+                <Input />
+              </Form.Item>
+              <Form.Item name={["general", "siteDescription"]} label="Mô tả">
+                <Input.TextArea rows={2} />
+              </Form.Item>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name={["general", "timezone"]} label="Múi giờ">
+                    <Select>
+                      <Select.Option value="Asia/Ho_Chi_Minh">
+                        Việt Nam
+                      </Select.Option>
+                      <Select.Option value="UTC">UTC</Select.Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name={["general", "dateFormat"]}
+                    label="Định dạng ngày"
+                  >
+                    <Select>
+                      <Select.Option value="DD/MM/YYYY">
+                        DD/MM/YYYY
+                      </Select.Option>
+                      <Select.Option value="MM/DD/YYYY">
+                        MM/DD/YYYY
+                      </Select.Option>
+                      <Select.Option value="YYYY-MM-DD">
+                        YYYY-MM-DD
+                      </Select.Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+
+            <Card title="Cài đặt API" size="small" style={{ marginBottom: 16 }}>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name={["api", "timeout"]} label="Timeout (ms)">
+                    <Input type="number" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name={["api", "retryAttempts"]}
+                    label="Số lần thử lại"
+                  >
+                    <Input type="number" />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+
+            <Card
+              title="Cài đặt bảo mật"
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name={["security", "sessionTimeout"]}
+                    label="Timeout phiên (ms)"
+                  >
+                    <Input type="number" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name={["security", "passwordMinLength"]}
+                    label="Độ dài mật khẩu tối thiểu"
+                  >
+                    <Input type="number" />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+
+            <Space style={{ width: "100%", justifyContent: "flex-end" }}>
+              <Button onClick={() => setSettingsDrawerVisible(false)}>
+                Hủy
+              </Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+                icon={<SettingOutlined />}
+              >
+                Lưu cài đặt
+              </Button>
+            </Space>
+          </Form>
+        )}
+      </Drawer>
+
+      {/* Notifications Drawer */}
+      <Drawer
+        title={
+          <Space>
+            <BellOutlined style={{ color: colorPrimary }} />
+            <span>Thông báo</span>
+            {unreadCount > 0 && (
+              <Badge
+                count={unreadCount}
+                style={{ backgroundColor: colorPrimary }}
+              />
+            )}
+          </Space>
+        }
+        open={notificationDrawerVisible}
+        onClose={() => setNotificationDrawerVisible(false)}
+        width={400}
+      >
+        <div style={{ marginBottom: 16 }}>
+          <Space>
+            <Button
+              size="small"
+              onClick={() => {
+                notifications.forEach((n) => {
+                  if (!n.read) markNotificationAsRead(n.id);
+                });
               }}
             >
-              <span
-                style={{
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  color: colorText,
-                }}
-              >
-                Admin User
-              </span>
-              <span
-                style={{
-                  fontSize: "12px",
-                  color: colorTextSecondary,
-                }}
-              >
-                Quản trị viên
-              </span>
-            </div>
+              Đánh dấu tất cả đã đọc
+            </Button>
           </Space>
-        </Dropdown>
-      </Space>
-    </Layout.Header>
+        </div>
+
+        <List
+          dataSource={notifications}
+          renderItem={(notification) => (
+            <List.Item
+              style={{
+                padding: "12px",
+                backgroundColor: notification.read
+                  ? "transparent"
+                  : `${colorPrimary}08`,
+                border: `1px solid ${
+                  notification.read ? colorBorder : colorPrimary
+                }30`,
+                borderRadius: 8,
+                marginBottom: 8,
+                cursor: "pointer",
+              }}
+              onClick={() => markNotificationAsRead(notification.id)}
+            >
+              <List.Item.Meta
+                avatar={getNotificationIcon(notification.type)}
+                title={
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <Text strong style={{ fontSize: 13 }}>
+                      {notification.title}
+                    </Text>
+                    <Tag
+                      size="small"
+                      color={getNotificationColor(notification.type)}
+                      style={{ marginLeft: 8 }}
+                    >
+                      {notification.category}
+                    </Tag>
+                  </div>
+                }
+                description={
+                  <div>
+                    <Text style={{ fontSize: 12 }}>{notification.message}</Text>
+                    <br />
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                      {new Date(notification.timestamp).toLocaleString("vi-VN")}
+                    </Text>
+                  </div>
+                }
+              />
+            </List.Item>
+          )}
+        />
+
+        {notifications.length === 0 && (
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <BellOutlined
+              style={{
+                fontSize: 48,
+                color: colorTextSecondary,
+                marginBottom: 16,
+              }}
+            />
+            <br />
+            <Text type="secondary">Không có thông báo nào</Text>
+          </div>
+        )}
+      </Drawer>
+    </>
   );
 };
 
