@@ -212,6 +212,7 @@ const DashboardPage = () => {
   return (
     <div>
       <ApiHealthCheck />
+      <SystemStatusComponent />
 
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
