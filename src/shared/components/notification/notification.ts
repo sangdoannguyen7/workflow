@@ -1,11 +1,5 @@
 import { notification } from "antd";
 import { IconType } from "antd/lib/notification/interface";
-import {
-  CheckCircleOutlined,
-  ExclamationCircleOutlined,
-  InfoCircleOutlined,
-  CloseCircleOutlined,
-} from "@ant-design/icons";
 
 export interface INotification {
   type: IconType;
@@ -17,45 +11,10 @@ export interface INotification {
 
 // Enhanced notification component with better styling
 export function NotificationComponent(notify: INotification) {
-  const getIcon = () => {
-    switch (notify.type) {
-      case "success":
-        return <CheckCircleOutlined style={{ color: "#52c41a" }} />;
-      case "warning":
-        return <ExclamationCircleOutlined style={{ color: "#faad14" }} />;
-      case "error":
-        return <CloseCircleOutlined style={{ color: "#ff4d4f" }} />;
-      case "info":
-      default:
-        return <InfoCircleOutlined style={{ color: "#1890ff" }} />;
-    }
-  };
-
   notification.open({
     type: notify.type,
-    message: (
-      <div
-        style={{
-          fontSize: "16px",
-          fontWeight: 600,
-          marginBottom: "4px",
-        }}
-      >
-        {notify.message}
-      </div>
-    ),
-    description: (
-      <div
-        style={{
-          fontSize: "14px",
-          lineHeight: "1.5",
-          color: "rgba(0, 0, 0, 0.65)",
-        }}
-      >
-        {notify.description}
-      </div>
-    ),
-    icon: getIcon(),
+    message: notify.message,
+    description: notify.description,
     duration: notify.duration || 4.5,
     placement: notify.placement || "topRight",
     style: {
