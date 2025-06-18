@@ -1150,7 +1150,7 @@ const WorkflowBuilderPage: React.FC = () => {
               />
 
               {/* Drop Zone Hint */}
-              {nodes.length === 0 && (
+              {(!nodes || nodes.length === 0) && (
                 <Panel position="top-center">
                   <div
                     style={{
