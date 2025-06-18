@@ -106,6 +106,18 @@ const menuData = [
     permission: "MANAGEMENT",
     description: "MANAGEMENT",
   },
+  {
+    path: "/test",
+    key: "TEST",
+    icon: (
+      <Link to="/test">
+        <ExperimentOutlined />
+      </Link>
+    ),
+    label: "System Test",
+    permission: "TEST",
+    description: "TEST",
+  },
 ];
 
 export default menuData;
