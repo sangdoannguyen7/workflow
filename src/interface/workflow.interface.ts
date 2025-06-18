@@ -31,11 +31,13 @@ export interface INode {
 }
 
 export interface IWorkflow {
+  workflowId?: number;
   workflowCode: string;
   workflowName: string;
   statusCode: string;
   statusName: string;
   description: string | null;
+  search?: string | null;
   nodes: INode[];
 }
 
