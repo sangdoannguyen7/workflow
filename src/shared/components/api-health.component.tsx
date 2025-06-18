@@ -12,10 +12,11 @@ import ApiFallbackService from "../../apis/fallback.service";
 const { Text } = Typography;
 
 const ApiHealthCheck = () => {
-  const [status, setStatus] = useState<"checking" | "online" | "offline">(
-    "checking"
-  );
+  const [status, setStatus] = useState<
+    "checking" | "online" | "offline" | "mock"
+  >("checking");
   const [lastCheck, setLastCheck] = useState<Date | null>(null);
+  const [usingMockData, setUsingMockData] = useState(false);
 
   const checkApiHealth = async () => {
     setStatus("checking");
