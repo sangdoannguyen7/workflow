@@ -40,6 +40,8 @@ const RenderRouter = () => {
           <HeaderComponent />
           <Layout.Content
             style={{
+              margin: "4px 4px 0 4px",
+              padding: "8px",
               borderRadius: 12,
               minHeight: "calc(100vh - 120px)",
               overflow: "auto",
