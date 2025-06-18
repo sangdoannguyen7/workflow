@@ -37,7 +37,7 @@ class WorkflowApi implements IWorkflowApi {
     return response.value;
   }
 
-  async getWorkflowById(id: number): Promise<IWorkflow> {
+  async getWorkflowById(_id: number): Promise<IWorkflow> {
     throw new Error("API does not support getById, use getByCode instead");
   }
 
