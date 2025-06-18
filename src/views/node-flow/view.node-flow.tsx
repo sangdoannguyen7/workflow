@@ -8,8 +8,6 @@ import {
   Col,
   Select,
   Drawer,
-  Form,
-  Input,
   theme,
   Typography,
   List,
@@ -42,7 +40,6 @@ import {
   Connection,
   ReactFlowProvider,
   BackgroundVariant,
-  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -169,7 +166,6 @@ const NodeFlowPage: React.FC = () => {
   const [selectedWorkflow, setSelectedWorkflow] = useState<string>("");
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [loading, setLoading] = useState(false);
   const [nodeCounter, setNodeCounter] = useState(1);
 
   const {
@@ -203,7 +199,6 @@ const NodeFlowPage: React.FC = () => {
   const loadWorkflowDesign = async (code: string) => {
     if (!code) return;
 
-    setLoading(true);
     try {
       const design = await workflowApi.getWorkflowDesign(code);
 
@@ -241,8 +236,6 @@ const NodeFlowPage: React.FC = () => {
       setNodes([]);
       setEdges([]);
       setNodeCounter(1);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -324,7 +317,7 @@ const NodeFlowPage: React.FC = () => {
     setSelectedNode(node);
   }, []);
 
-  const onPaneClick = useCallback(() => {
+  const onPaneClick = useCallback((_event: React.MouseEvent) => {
     setSelectedNode(null);
   }, []);
 
