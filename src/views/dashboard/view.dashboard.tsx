@@ -606,7 +606,7 @@ const DashboardPage = () => {
       </Row>
 
       {/* Charts Section */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+      <Row gutter={[8, 8]} style={{ marginBottom: 8 }}>
         <Col xs={24} lg={16}>
           <Card
             title={
