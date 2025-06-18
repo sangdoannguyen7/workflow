@@ -16,12 +16,9 @@ import CalendarPage from "../views/calendar/view.calendar.tsx";
 import DashboardPage from "../views/dashboard/view.dashboard.tsx";
 import AgentPage from "../views/agent/view.agent.tsx";
 import TemplatePage from "../views/template/view.template.tsx";
-import NodePage from "../views/node/view.node.tsx";
 import WorkflowPage from "../views/workflow/view.workflow.tsx";
 import WorkflowDesignerPage from "../views/workflow/view.workflow-designer.tsx";
-import NodeFlowPage from "../views/node-flow/view.node-flow.tsx";
 import WorkflowBuilderPage from "../views/workflow-builder/view.workflow-builder.tsx";
-import ManagementPage from "../views/management/view.management.tsx";
 
 const RenderRouter = () => {
   const showHelpGuide = () => {
