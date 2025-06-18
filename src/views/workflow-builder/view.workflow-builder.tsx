@@ -398,6 +398,17 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
   );
 };
 
+const AGENT_COLORS: Record<string, string> = {
+  AGT_VALIDATOR: "#52c41a",
+  AGT_DATABASE: "#1890ff",
+  AGT_EMAIL: "#fa8c16",
+  AGT_SECURITY: "#722ed1",
+  AGT_PAYMENT: "#eb2f96",
+  AGT_ETL: "#13c2c2",
+  AGT_ANALYTICS: "#faad14",
+  unknown: "#d9d9d9",
+};
+
 const nodeTypes = {
   workflowNode: WorkflowNode,
 };
@@ -663,7 +674,7 @@ const WorkflowBuilderPage: React.FC = () => {
       NotificationComponent({
         type: "info",
         message: "Thông báo",
-        description: "Tạo workflow mới",
+        description: "T��o workflow mới",
       });
       setNodes([]);
       setEdges([]);
