@@ -25,7 +25,6 @@ import { Node } from "@xyflow/react";
 
 const { Option } = Select;
 const { Text, Title } = Typography;
-const { TabPane } = Tabs;
 const { TextArea } = Input;
 
 interface NodePropertiesPanelProps {
