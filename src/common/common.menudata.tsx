@@ -1,4 +1,5 @@
 import {
+  DashboardOutlined,
   RobotOutlined,
   FileTextOutlined,
   NodeExpandOutlined,
@@ -8,6 +9,18 @@ import {
 import { Link } from "react-router-dom";
 
 const menuData = [
+  {
+    path: "/dashboard",
+    key: "DASHBOARD",
+    icon: (
+      <Link to="/dashboard">
+        <DashboardOutlined />
+      </Link>
+    ),
+    label: "Dashboard",
+    permission: "DASHBOARD",
+    description: "DASHBOARD",
+  },
   {
     path: "/agent",
     key: "AGENT",
