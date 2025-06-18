@@ -49,7 +49,7 @@ const { RangePicker } = DatePicker;
 
 const DashboardPage = () => {
   const [loading, setLoading] = useState(false);
-  const [dateRange, setDateRange] = useState([
+  const [dateRange, setDateRange] = useState<any>([
     dayjs().subtract(7, "days"),
     dayjs(),
   ]);
