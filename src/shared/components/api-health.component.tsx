@@ -113,12 +113,32 @@ const ApiHealthCheck = () => {
     },
   ];
 
+  const getBackgroundColor = () => {
+    switch (status) {
+      case "online":
+        return "#f6ffed";
+      case "offline":
+        return "#fff2f0";
+      case "mock":
+        return "#fff7e6";
+      default:
+        return "#f5f5f5";
+    }
+  };
+
   return (
     <Card
       size="small"
       style={{
         marginBottom: 16,
-        background: status === "offline" ? "#fff2f0" : "#f6ffed",
+        background: getBackgroundColor(),
+        border: `1px solid ${
+          status === "mock"
+            ? "#ffa940"
+            : status === "offline"
+            ? "#ff7875"
+            : "#52c41a"
+        }`,
       }}
     >
       <div
@@ -131,6 +151,7 @@ const ApiHealthCheck = () => {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Badge status={getStatusColor()} />
           <Text strong>{getStatusText()}</Text>
+          {usingMockData && <DatabaseOutlined style={{ color: "#fa8c16" }} />}
           {lastCheck && (
             <Text type="secondary" style={{ fontSize: 12 }}>
               (Last check: {lastCheck.toLocaleTimeString()})
@@ -149,7 +170,26 @@ const ApiHealthCheck = () => {
         </Space>
       </div>
 
-      {status === "offline" && (
+      {usingMockData && (
+        <div
+          style={{
+            marginTop: 8,
+            padding: 8,
+            background: "#ffeaa7",
+            borderRadius: 4,
+            fontSize: 12,
+          }}
+        >
+          <DatabaseOutlined style={{ marginRight: 4 }} />
+          <Text strong>Using Mock Data: </Text>
+          <Text>
+            Application is running with sample data. All operations will work
+            normally for demonstration.
+          </Text>
+        </div>
+      )}
+
+      {(status === "offline" || usingMockData) && (
         <Collapse
           items={debugItems}
           ghost
