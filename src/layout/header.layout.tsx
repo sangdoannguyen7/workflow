@@ -397,36 +397,20 @@ const HeaderLayout = () => {
               arrow
               trigger={["click"]}
             >
-              <Space style={{ cursor: "pointer", padding: "4px 6px" }}>
-                <div style={{ position: "relative" }}>
-                  <Avatar
-                    src={
-                      <img
-                        src={"https://api.dicebear.com/7.x/miniavs/svg?seed=3"}
-                        alt="avatar"
-                      />
-                    }
-                    size={28}
-                    style={{
-                      border: `2px solid ${colorPrimary}`,
-                      boxShadow: `0 2px 8px ${colorPrimary}40`,
-                      transition: "all 0.2s ease",
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: -1,
-                      right: -1,
-                      width: 8,
-                      height: 8,
-                      borderRadius: "50%",
-                      backgroundColor: "#52c41a",
-                      border: "1px solid white",
-                      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
-                    }}
-                  />
-                </div>
+              <Space style={{ cursor: "pointer", padding: "2px 4px" }}>
+                <Avatar
+                  src={
+                    <img
+                      src={"https://api.dicebear.com/7.x/miniavs/svg?seed=3"}
+                      alt="avatar"
+                    />
+                  }
+                  size={24}
+                  style={{
+                    border: `1px solid ${colorPrimary}40`,
+                    transition: "all 0.2s ease",
+                  }}
+                />
                 <div
                   style={{
                     display: "flex",
@@ -439,7 +423,7 @@ const HeaderLayout = () => {
                   <span
                     style={{
                       fontSize: "12px",
-                      fontWeight: 600,
+                      fontWeight: 500,
                       color: colorText,
                     }}
                   >
@@ -449,7 +433,6 @@ const HeaderLayout = () => {
                     style={{
                       fontSize: "10px",
                       color: colorTextSecondary,
-                      opacity: 0.8,
                     }}
                   >
                     Quản trị viên
