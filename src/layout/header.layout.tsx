@@ -407,7 +407,11 @@ const HeaderLayout = () => {
                   }
                   size={24}
                   style={{
-                    border: `1px solid ${colorPrimary}40`,
+                    border: `1px solid ${
+                      isDark
+                        ? "rgba(255, 255, 255, 0.15)"
+                        : "rgba(25, 118, 210, 0.2)"
+                    }`,
                     transition: "all 0.2s ease",
                   }}
                 />
