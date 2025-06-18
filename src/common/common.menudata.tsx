@@ -14,124 +14,11 @@ import {
   FileTextOutlined,
   NodeExpandOutlined,
   ApartmentOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
 const menuData = [
-  // {
-  //   path: '/admin/dashboard',
-  //   key: 'DASHBOARD_ADMIN',
-  //   icon: <Link to='/admin/dashboard'><DashboardOutlined /></Link>,
-  //   label: 'Trang chủ',
-  //   permission: 'DASHBOARD_ADMIN',
-  //   description: 'ADMIN'
-  // },
-  // {
-  //   path: '/admin/orders',
-  //   key: 'BOOKING_ADMIN',
-  //   icon: <Link to='/admin/orders'><ShoppingCartOutlined /></Link>,
-  //   label: 'Quản lý đơn',
-  //   permission: 'BOOKING_ADMIN',
-  //   description: 'ADMIN'
-  // },
-  // {
-  //   path: '/admin/hotels',
-  //   key: 'HOTEL_ADMIN',
-  //   icon: <Link to='/admin/hotels'><BankOutlined /></Link>,
-  //   label: 'Quản lý khách sạn',
-  //   permission: 'HOTEL_ADMIN',
-  //   description: 'ADMIN',
-  //   // children: []
-  // },
-  // {
-  //   path: '/admin/profit',
-  //   key: 'PROFIT_ADMIN',
-  //   icon: <Link to='/admin/profit'><AccountBookOutlined /></Link>,
-  //   label: 'Chiết khấu',
-  //   permission: 'PROFIT_ADMIN',
-  //   description: 'ADMIN'
-  // },
-  // {
-  //   path: '/admin/revenue',
-  //   key: 'REVENUE_ADMIN',
-  //   icon: <Link to='/admin/revenue'><DollarOutlined /></Link>,
-  //   label: 'Doanh thu',
-  //   permission: 'REVENUE_ADMIN',
-  //   description: 'ADMIN',
-  //   // children: []
-  // },
-  // {
-  //   path: '/admin/statistic',
-  //   key: 'STATISTIC_ADMIN',
-  //   icon: <Link to='/admin/statistic'><PieChartOutlined /></Link>,
-  //   label: 'Thống kê',
-  //   permission: 'STATISTIC_ADMIN',
-  //   description: 'ADMIN'
-  // },
-  // {
-  //   path: '/admin/permissions',
-  //   key: 'PERMISSION',
-  //   icon: <Link to='/admin/permissions'><AppstoreOutlined /></Link>,
-  //   label: 'Quản lý quyền',
-  //   permission: 'PERMISSION',
-  //   description: 'ADMIN'
-  // },
-  // {
-  //   path: '/admin/groups',
-  //   key: 'USER_GROUP',
-  //   icon: <Link to='/admin/groups'><UsergroupAddOutlined /></Link>,
-  //   label: 'Nhóm người dùng',
-  //   permission: 'USER_GROUP',
-  //   description: 'ADMIN'
-  // },
-  // {
-  //   path: '/admin/users',
-  //   key: 'USER_ADMIN',
-  //   icon: <Link to='/admin/users'><UserOutlined /></Link>,
-  //   label: 'Quản lý người dùng',
-  //   permission: 'USER_ADMIN',
-  //   description: 'ADMIN'
-  // },
-  // {
-  //   path: '/dashboard',
-  //   key: 'DASHBOARD_HOTEL',
-  //   icon: <Link to='/dashboard'><DashboardOutlined /></Link>,
-  //   label: 'Trang chủ',
-  //   permission: 'DASHBOARD_HOTEL',
-  //   description: 'HOTEL'
-  // },
-  // {
-  //   path: '/orders',
-  //   key: 'BOOKING_HOTEL',
-  //   icon: <Link to='/orders'><ShoppingCartOutlined /></Link>,
-  //   label: 'Quản lý đơn',
-  //   permission: 'BOOKING_HOTEL',
-  //   description: 'HOTEL'
-  // },
-  // {
-  //   path: '/hotels',
-  //   key: 'HOTEL_HOTEL',
-  //   icon: <Link to='/hotels'><BankOutlined /></Link>,
-  //   label: 'Quản lý khách sạn',
-  //   permission: 'HOTEL_HOTEL',
-  //   description: 'HOTEL'
-  // },
-  // {
-  //   path: '/users',
-  //   key: 'USER_HOTEL',
-  //   icon: <Link to='/users'><UsergroupAddOutlined /></Link>,
-  //   label: 'Quản lý người dùng',
-  //   permission: 'USER_HOTEL',
-  //   description: 'HOTEL'
-  // },
-  // {
-  //   path: '/statistic',
-  //   key: 'STATISTIC_HOTEL',
-  //   icon: <Link to='/statistic'><PieChartOutlined /></Link>,
-  //   label: 'Thông kê',
-  //   permission: 'STATISTIC_HOTEL',
-  //   description: 'HOTEL'
-  // },
   {
     path: "/dashboard",
     key: "DASHBOARD",
@@ -144,12 +31,6 @@ const menuData = [
     permission: "DASHBOARD",
     description: "DASHBOARD",
   },
-  // {
-  //     path: '/user',
-  //     key: 'USER',
-  //     icon: <Link to='/user'><UserOutlined /></Link>,
-  //     label: 'Tài khoản',
-  // },
   {
     path: "/account",
     key: "ACCOUNT",
@@ -234,14 +115,6 @@ const menuData = [
     permission: "DASHBOARD",
     description: "DASHBOARD",
   },
-  // {
-  //   path: '/schedule',
-  //   key: 'SCHEDULE',
-  //   icon: <Link to='/schedule'><ScheduleOutlined /></Link>,
-  //   label: 'Lịch trình',
-  //   permission: 'SCHEDULE',
-  //   description: 'SCHEDULE',
-  // },
   {
     path: "/calendar",
     key: "CALENDAR",
@@ -350,15 +223,30 @@ const menuData = [
     permission: "NODE_FLOW",
     description: "NODE_FLOW",
   },
-  // {
-  //   path: '/hotel/list',
-  //   key: 'HOTEL_LIST',
-  //   icon: <Link to='/statistic'><BankOutlined /></Link>,
-  //   label: 'D/S khách sạn',
-  //   permission: 'DASHBOARD',
-  //   description: 'DASHBOARD',
-  //   children: []
-  // },
+  {
+    path: "/workflow-builder",
+    key: "WORKFLOW_BUILDER",
+    icon: (
+      <Link to="/workflow-builder">
+        <ApartmentOutlined />
+      </Link>
+    ),
+    label: "Workflow Builder",
+    permission: "WORKFLOW_BUILDER",
+    description: "WORKFLOW_BUILDER",
+  },
+  {
+    path: "/management",
+    key: "MANAGEMENT",
+    icon: (
+      <Link to="/management">
+        <SettingOutlined />
+      </Link>
+    ),
+    label: "Property Management",
+    permission: "MANAGEMENT",
+    description: "MANAGEMENT",
+  },
 ];
 
 export default menuData;

@@ -35,12 +35,12 @@ const AgentPage: React.FC = () => {
   const [editingAgent, setEditingAgent] = useState<IAgent | null>(null);
   const [form] = Form.useForm();
   const [searchParams, setSearchParams] = useState<IAgentSearchParams>({
-    page: 0,
-    size: 10,
+    current: 1,
+    pageSize: 20,
   });
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 10,
+    pageSize: 20,
     total: 0,
   });
 
@@ -49,23 +49,24 @@ const AgentPage: React.FC = () => {
   } = theme.useToken();
 
   const statusOptions = [
-    { value: "ACTIVE", label: "Hoạt động", color: "green" },
-    { value: "INACTIVE", label: "Không hoạt động", color: "red" },
-    { value: "PENDING", label: "Chờ xử lý", color: "orange" },
+    { value: "ACTIVE", label: "Active", color: "green" },
+    { value: "INACTIVE", label: "Inactive", color: "red" },
+    { value: "PENDING", label: "Pending", color: "orange" },
   ];
 
   const fetchAgents = async (params?: IAgentSearchParams) => {
     setLoading(true);
     try {
       const response = await agentApi.getAgents({ ...searchParams, ...params });
-      setAgents(response.content);
+      setAgents(response.data);
       setPagination({
-        current: response.number + 1,
-        pageSize: response.size,
-        total: response.totalElements,
+        current: response.current,
+        pageSize: response.pageSize,
+        total: response.total,
       });
     } catch (error) {
-      message.error("Không thể tải danh sách agent");
+      console.error("Error fetching agents:", error);
+      message.error("Failed to load agents");
     } finally {
       setLoading(false);
     }
@@ -76,13 +77,17 @@ const AgentPage: React.FC = () => {
   }, []);
 
   const handleSearch = (value: string) => {
-    const newParams = { ...searchParams, search: value, page: 0 };
+    const newParams = { ...searchParams, search: value, current: 1 };
     setSearchParams(newParams);
     fetchAgents(newParams);
   };
 
   const handleTableChange = (page: number, pageSize?: number) => {
-    const newParams = { ...searchParams, page: page - 1, size: pageSize || 10 };
+    const newParams = {
+      ...searchParams,
+      current: page,
+      pageSize: pageSize || 20,
+    };
     setSearchParams(newParams);
     fetchAgents(newParams);
   };
@@ -102,48 +107,57 @@ const AgentPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await agentApi.deleteAgent(id);
-      message.success("Xóa agent thành công");
+      message.success("Agent deleted successfully");
       fetchAgents();
     } catch (error) {
-      message.error("Không thể xóa agent");
+      console.error("Error deleting agent:", error);
+      message.error("Failed to delete agent");
     }
   };
 
   const handleSubmit = async (values: any) => {
     try {
       if (editingAgent) {
-        await agentApi.updateAgent(editingAgent.agentId!, values);
-        message.success("Cập nhật agent thành công");
+        await agentApi.updateAgent(editingAgent.agentId, values);
+        message.success("Agent updated successfully");
       } else {
         await agentApi.createAgent(values);
-        message.success("Tạo agent thành công");
+        message.success("Agent created successfully");
       }
       setModalVisible(false);
       fetchAgents();
     } catch (error) {
-      message.error("Không thể lưu agent");
+      console.error("Error saving agent:", error);
+      message.error("Failed to save agent");
     }
   };
 
   const columns = [
     {
-      title: "Mã Agent",
+      title: "ID",
+      dataIndex: "agentId",
+      key: "agentId",
+      width: 80,
+    },
+    {
+      title: "Agent Code",
       dataIndex: "agentCode",
       key: "agentCode",
       width: 150,
     },
     {
-      title: "Tên Agent",
+      title: "Agent Name",
       dataIndex: "agentName",
       key: "agentName",
       width: 200,
     },
     {
-      title: "Trạng thái",
+      title: "Status",
       dataIndex: "statusCode",
       key: "statusCode",
       width: 120,
       render: (statusCode: string) => {
+        if (!statusCode) return <Tag>N/A</Tag>;
         const status = statusOptions.find((s) => s.value === statusCode);
         return status ? (
           <Tag color={status.color}>{status.label}</Tag>
@@ -153,13 +167,14 @@ const AgentPage: React.FC = () => {
       },
     },
     {
-      title: "Mô tả",
+      title: "Description",
       dataIndex: "description",
       key: "description",
       ellipsis: true,
+      render: (text: string) => text || "N/A",
     },
     {
-      title: "Thao tác",
+      title: "Actions",
       key: "action",
       width: 150,
       render: (_: any, record: IAgent) => (
@@ -171,10 +186,10 @@ const AgentPage: React.FC = () => {
             size="small"
           />
           <Popconfirm
-            title="Bạn có chắc chắn muốn xóa agent này?"
-            onConfirm={() => handleDelete(record.agentId!)}
-            okText="Có"
-            cancelText="Không"
+            title="Are you sure you want to delete this agent?"
+            onConfirm={() => handleDelete(record.agentId)}
+            okText="Yes"
+            cancelText="No"
           >
             <Button type="text" icon={<DeleteOutlined />} danger size="small" />
           </Popconfirm>
@@ -194,18 +209,18 @@ const AgentPage: React.FC = () => {
       <Row gutter={[16, 16]}>
         <Col span={24}>
           <Card
-            title="Quản lý Agent"
+            title="Agent Management"
             extra={
               <Space>
                 <Button icon={<ReloadOutlined />} onClick={() => fetchAgents()}>
-                  Làm mới
+                  Refresh
                 </Button>
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={handleCreate}
                 >
-                  Thêm Agent
+                  Add Agent
                 </Button>
               </Space>
             }
@@ -213,7 +228,7 @@ const AgentPage: React.FC = () => {
             <Row gutter={[16, 16]} style={{ marginBottom: "16px" }}>
               <Col xs={24} sm={12} md={8}>
                 <Search
-                  placeholder="Tìm kiếm agent..."
+                  placeholder="Search agents..."
                   allowClear
                   enterButton={<SearchOutlined />}
                   onSearch={handleSearch}
@@ -233,7 +248,7 @@ const AgentPage: React.FC = () => {
                 showSizeChanger: true,
                 showQuickJumper: true,
                 showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} của ${total} bản ghi`,
+                  `${range[0]}-${range[1]} of ${total} items`,
                 onChange: handleTableChange,
                 onShowSizeChange: handleTableChange,
               }}
@@ -244,7 +259,7 @@ const AgentPage: React.FC = () => {
       </Row>
 
       <Modal
-        title={editingAgent ? "Sửa Agent" : "Thêm Agent"}
+        title={editingAgent ? "Edit Agent" : "Add Agent"}
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         onOk={() => form.submit()}
@@ -255,19 +270,19 @@ const AgentPage: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="agentCode"
-                label="Mã Agent"
-                rules={[{ required: true, message: "Vui lòng nhập mã agent" }]}
+                label="Agent Code"
+                rules={[{ required: true, message: "Please enter agent code" }]}
               >
-                <Input placeholder="Nhập mã agent" />
+                <Input placeholder="Enter agent code" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="agentName"
-                label="Tên Agent"
-                rules={[{ required: true, message: "Vui lòng nhập tên agent" }]}
+                label="Agent Name"
+                rules={[{ required: true, message: "Please enter agent name" }]}
               >
-                <Input placeholder="Nhập tên agent" />
+                <Input placeholder="Enter agent name" />
               </Form.Item>
             </Col>
           </Row>
@@ -276,12 +291,10 @@ const AgentPage: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="statusCode"
-                label="Trạng thái"
-                rules={[
-                  { required: true, message: "Vui lòng chọn trạng thái" },
-                ]}
+                label="Status"
+                rules={[{ required: true, message: "Please select status" }]}
               >
-                <Select placeholder="Chọn trạng thái">
+                <Select placeholder="Select status">
                   {statusOptions.map((option) => (
                     <Option key={option.value} value={option.value}>
                       {option.label}
@@ -291,14 +304,14 @@ const AgentPage: React.FC = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="statusName" label="Tên trạng thái">
-                <Input placeholder="Nhập tên trạng thái" />
+              <Form.Item name="statusName" label="Status Name">
+                <Input placeholder="Enter status name" />
               </Form.Item>
             </Col>
           </Row>
 
-          <Form.Item name="description" label="Mô tả">
-            <Input.TextArea rows={4} placeholder="Nhập mô tả" />
+          <Form.Item name="description" label="Description">
+            <Input.TextArea rows={4} placeholder="Enter description" />
           </Form.Item>
         </Form>
       </Modal>

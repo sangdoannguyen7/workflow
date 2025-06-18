@@ -1,39 +1,18 @@
+import { ApiResponse, CommonSearchParams } from "./common.interface";
+
 export interface ITemplate {
-  templateId?: number;
+  templateId: number;
   templateCode: string;
   templateName: string;
-  typeCode: string;
-  typeName: string;
   agentCode: string;
   agentName: string;
   statusCode: string;
-  statusName: string;
-  templateType: string;
-  description?: string;
-  search?: string;
-  metadata?: string;
-  info?: string;
-  schema?: string;
-  body?: string;
-  rule?: string;
-  configuration?: string;
+  statusName: string | null;
+  description: string | null;
 }
 
-export interface ITemplateSearchParams {
-  page?: number;
-  size?: number;
-  search?: string;
-  statusCode?: string;
-  templateCode?: string;
+export interface ITemplateSearchParams extends CommonSearchParams {
   agentCode?: string;
-  typeCode?: string;
-  templateType?: string;
 }
 
-export interface ITemplateResponse {
-  content: ITemplate[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-}
+export interface ITemplateResponse extends ApiResponse<ITemplate> {}

@@ -14,7 +14,7 @@ import {
   Col,
   Tag,
   theme,
-  Tabs,
+  Empty,
 } from "antd";
 import {
   PlusOutlined,
@@ -22,64 +22,62 @@ import {
   DeleteOutlined,
   SearchOutlined,
   ReloadOutlined,
-  CodeOutlined,
   NodeExpandOutlined,
 } from "@ant-design/icons";
-import { INode, INodeSearchParams } from "../../interface/node.interface";
+import { INode } from "../../interface/workflow.interface";
 import { ITemplate } from "../../interface/template.interface";
 import { IWorkflow } from "../../interface/workflow.interface";
-import { IAgent } from "../../interface/agent.interface";
-import nodeApi from "../../apis/node/api.node";
 import templateApi from "../../apis/template/api.template";
 import workflowApi from "../../apis/workflow/api.workflow";
-import agentApi from "../../apis/agent/api.agent";
 
-const { Search, TextArea } = Input;
+const { Search } = Input;
 const { Option } = Select;
-const { TabPane } = Tabs;
 
 const NodePage: React.FC = () => {
   const [nodes, setNodes] = useState<INode[]>([]);
   const [templates, setTemplates] = useState<ITemplate[]>([]);
   const [workflows, setWorkflows] = useState<IWorkflow[]>([]);
-  const [agents, setAgents] = useState<IAgent[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingNode, setEditingNode] = useState<INode | null>(null);
   const [form] = Form.useForm();
-  const [searchParams, setSearchParams] = useState<INodeSearchParams>({
-    page: 0,
-    size: 10,
-  });
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-    total: 0,
-  });
 
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
   const statusOptions = [
-    { value: "ACTIVE", label: "Hoạt động", color: "green" },
-    { value: "INACTIVE", label: "Không hoạt động", color: "red" },
-    { value: "PROCESSING", label: "Đang xử lý", color: "blue" },
-    { value: "ERROR", label: "Lỗi", color: "red" },
+    { value: "ACTIVE", label: "Active", color: "green" },
+    { value: "INACTIVE", label: "Inactive", color: "red" },
+    { value: "PROCESSING", label: "Processing", color: "blue" },
+    { value: "ERROR", label: "Error", color: "red" },
   ];
 
-  const fetchNodes = async (params?: INodeSearchParams) => {
+  const fetchNodes = async () => {
     setLoading(true);
     try {
-      const response = await nodeApi.getNodes({ ...searchParams, ...params });
-      setNodes(response.content);
-      setPagination({
-        current: response.number + 1,
-        pageSize: response.size,
-        total: response.totalElements,
+      // Get all workflows and extract nodes
+      const workflowResponse = await workflowApi.getWorkflows({
+        pageSize: 1000,
       });
+      const allNodes: INode[] = [];
+
+      workflowResponse.data.forEach((workflow) => {
+        if (workflow.nodes) {
+          workflow.nodes.forEach((node) => {
+            allNodes.push({
+              ...node,
+              workflowCode: workflow.workflowCode,
+              workflowName: workflow.workflowName,
+            });
+          });
+        }
+      });
+
+      setNodes(allNodes);
     } catch (error) {
-      message.error("Không thể tải danh sách node");
+      console.error("Error fetching nodes:", error);
+      message.error("Failed to load nodes");
     } finally {
       setLoading(false);
     }
@@ -87,16 +85,15 @@ const NodePage: React.FC = () => {
 
   const fetchReferenceData = async () => {
     try {
-      const [templatesRes, workflowsRes, agentsRes] = await Promise.all([
-        templateApi.getTemplates({ size: 1000 }),
-        workflowApi.getWorkflows({ size: 1000 }),
-        agentApi.getAgents({ size: 1000 }),
+      const [templatesRes, workflowsRes] = await Promise.all([
+        templateApi.getTemplates({ pageSize: 1000 }),
+        workflowApi.getWorkflows({ pageSize: 1000 }),
       ]);
-      setTemplates(templatesRes.content);
-      setWorkflows(workflowsRes.content);
-      setAgents(agentsRes.content);
+      setTemplates(templatesRes.data);
+      setWorkflows(workflowsRes.data);
     } catch (error) {
-      message.error("Không thể tải dữ liệu tham chiếu");
+      console.error("Error fetching reference data:", error);
+      message.error("Failed to load reference data");
     }
   };
 
@@ -104,18 +101,6 @@ const NodePage: React.FC = () => {
     fetchNodes();
     fetchReferenceData();
   }, []);
-
-  const handleSearch = (value: string) => {
-    const newParams = { ...searchParams, search: value, page: 0 };
-    setSearchParams(newParams);
-    fetchNodes(newParams);
-  };
-
-  const handleTableChange = (page: number, pageSize?: number) => {
-    const newParams = { ...searchParams, page: page - 1, size: pageSize || 10 };
-    setSearchParams(newParams);
-    fetchNodes(newParams);
-  };
 
   const handleCreate = () => {
     setEditingNode(null);
@@ -129,65 +114,33 @@ const NodePage: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await nodeApi.deleteNode(id);
-      message.success("Xóa node thành công");
-      fetchNodes();
-    } catch (error) {
-      message.error("Không thể xóa node");
-    }
-  };
-
   const handleSubmit = async (values: any) => {
     try {
-      const selectedTemplate = templates.find(
-        (t) => t.templateCode === values.templateCode
+      // Note: Node creation/update would need to be implemented in backend
+      // For now, just show success message
+      message.success(
+        "Node operation completed (backend implementation needed)"
       );
-      const selectedWorkflow = workflows.find(
-        (w) => w.workflowCode === values.workflowCode
-      );
-      const selectedAgent = agents.find(
-        (a) => a.agentCode === values.agentCode
-      );
-
-      const nodeData = {
-        ...values,
-        templateName: selectedTemplate?.templateName || "",
-        workflowName: selectedWorkflow?.workflowName || "",
-        agentName: selectedAgent?.agentName || "",
-        statusName:
-          statusOptions.find((s) => s.value === values.statusCode)?.label || "",
-        templateType: selectedTemplate?.templateType || "",
-        typeName: selectedTemplate?.typeName || "",
-      };
-
-      if (editingNode) {
-        await nodeApi.updateNode(editingNode.nodeId!, nodeData);
-        message.success("Cập nhật node thành công");
-      } else {
-        await nodeApi.createNode(nodeData);
-        message.success("Tạo node thành công");
-      }
       setModalVisible(false);
       fetchNodes();
     } catch (error) {
-      message.error("Không thể lưu node");
+      console.error("Error saving node:", error);
+      message.error("Failed to save node");
     }
   };
 
   const columns = [
     {
-      title: "Mã Node",
+      title: "Node Code",
       dataIndex: "nodeCode",
       key: "nodeCode",
-      width: 120,
+      width: 150,
     },
     {
-      title: "Tên Node",
+      title: "Node Name",
       dataIndex: "nodeName",
       key: "nodeName",
-      width: 150,
+      width: 200,
     },
     {
       title: "Template",
@@ -210,7 +163,28 @@ const NodePage: React.FC = () => {
       width: 120,
     },
     {
-      title: "Trạng thái",
+      title: "Type",
+      dataIndex: "templateType",
+      key: "templateType",
+      width: 100,
+      render: (type: string) => (
+        <Tag
+          color={
+            type === "webhook"
+              ? "green"
+              : type === "schedule"
+              ? "blue"
+              : type === "restapi"
+              ? "orange"
+              : "default"
+          }
+        >
+          {type?.toUpperCase() || "N/A"}
+        </Tag>
+      ),
+    },
+    {
+      title: "Status",
       dataIndex: "statusCode",
       key: "statusCode",
       width: 120,
@@ -224,17 +198,9 @@ const NodePage: React.FC = () => {
       },
     },
     {
-      title: "Output",
-      dataIndex: "outputCode",
-      key: "outputCode",
-      width: 100,
-      ellipsis: true,
-    },
-    {
-      title: "Thao tác",
+      title: "Actions",
       key: "action",
-      width: 150,
-      fixed: "right" as const,
+      width: 120,
       render: (_: any, record: INode) => (
         <Space size="small">
           <Button
@@ -243,14 +209,6 @@ const NodePage: React.FC = () => {
             onClick={() => handleEdit(record)}
             size="small"
           />
-          <Popconfirm
-            title="Bạn có chắc chắn muốn xóa node này?"
-            onConfirm={() => handleDelete(record.nodeId!)}
-            okText="Có"
-            cancelText="Không"
-          >
-            <Button type="text" icon={<DeleteOutlined />} danger size="small" />
-          </Popconfirm>
         </Space>
       ),
     },
@@ -270,223 +228,160 @@ const NodePage: React.FC = () => {
             title={
               <Space>
                 <NodeExpandOutlined />
-                Quản lý Node
+                Node Management
               </Space>
             }
             extra={
               <Space>
                 <Button icon={<ReloadOutlined />} onClick={() => fetchNodes()}>
-                  Làm mới
+                  Refresh
                 </Button>
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={handleCreate}
+                  disabled
+                  title="Create nodes through Workflow Builder"
                 >
-                  Thêm Node
+                  Add Node
                 </Button>
               </Space>
             }
           >
             <Row gutter={[16, 16]} style={{ marginBottom: "16px" }}>
-              <Col xs={24} sm={12} md={8}>
-                <Search
-                  placeholder="Tìm kiếm node..."
-                  allowClear
-                  enterButton={<SearchOutlined />}
-                  onSearch={handleSearch}
-                />
+              <Col span={24}>
+                <Space>
+                  <Search
+                    placeholder="Search nodes..."
+                    allowClear
+                    style={{ width: 300 }}
+                  />
+                  <span style={{ color: "#666", fontSize: "14px" }}>
+                    Nodes are created through the Workflow Builder
+                  </span>
+                </Space>
               </Col>
             </Row>
 
-            <Table
-              columns={columns}
-              dataSource={nodes}
-              rowKey="nodeId"
-              loading={loading}
-              pagination={{
-                current: pagination.current,
-                pageSize: pagination.pageSize,
-                total: pagination.total,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} của ${total} bản ghi`,
-                onChange: handleTableChange,
-                onShowSizeChange: handleTableChange,
-              }}
-              scroll={{ x: 1400 }}
-            />
+            {nodes.length > 0 ? (
+              <Table
+                columns={columns}
+                dataSource={nodes}
+                rowKey={(record) => `${record.workflowCode}-${record.nodeCode}`}
+                loading={loading}
+                pagination={{
+                  pageSize: 20,
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  showTotal: (total, range) =>
+                    `${range[0]}-${range[1]} of ${total} items`,
+                }}
+                scroll={{ x: 1200 }}
+              />
+            ) : (
+              <Empty
+                description="No nodes found. Create nodes through the Workflow Builder."
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+              />
+            )}
           </Card>
         </Col>
       </Row>
 
       <Modal
-        title={editingNode ? "Sửa Node" : "Thêm Node"}
+        title={editingNode ? "Edit Node" : "Add Node"}
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         onOk={() => form.submit()}
-        width={900}
-        style={{ top: 20 }}
+        width={800}
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Tabs defaultActiveKey="1">
-            <TabPane tab="Thông tin chính" key="1">
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="nodeCode"
-                    label="Mã Node"
-                    rules={[
-                      { required: true, message: "Vui lòng nhập mã node" },
-                    ]}
-                  >
-                    <Input placeholder="Nhập mã node" />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="nodeName"
-                    label="Tên Node"
-                    rules={[
-                      { required: true, message: "Vui lòng nhập tên node" },
-                    ]}
-                  >
-                    <Input placeholder="Nhập tên node" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="templateCode"
-                    label="Template"
-                    rules={[
-                      { required: true, message: "Vui lòng chọn template" },
-                    ]}
-                  >
-                    <Select placeholder="Chọn template" showSearch>
-                      {templates.map((template) => (
-                        <Option
-                          key={template.templateCode}
-                          value={template.templateCode}
-                        >
-                          {template.templateName} ({template.templateCode})
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="workflowCode"
-                    label="Workflow"
-                    rules={[
-                      { required: true, message: "Vui lòng chọn workflow" },
-                    ]}
-                  >
-                    <Select placeholder="Chọn workflow" showSearch>
-                      {workflows.map((workflow) => (
-                        <Option
-                          key={workflow.workflowCode}
-                          value={workflow.workflowCode}
-                        >
-                          {workflow.workflowName} ({workflow.workflowCode})
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="agentCode"
-                    label="Agent"
-                    rules={[{ required: true, message: "Vui lòng chọn agent" }]}
-                  >
-                    <Select placeholder="Chọn agent" showSearch>
-                      {agents.map((agent) => (
-                        <Option key={agent.agentCode} value={agent.agentCode}>
-                          {agent.agentName} ({agent.agentCode})
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="statusCode"
-                    label="Trạng thái"
-                    rules={[
-                      { required: true, message: "Vui lòng chọn trạng thái" },
-                    ]}
-                  >
-                    <Select placeholder="Chọn trạng thái">
-                      {statusOptions.map((option) => (
-                        <Option key={option.value} value={option.value}>
-                          {option.label}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item name="typeCode" label="Mã loại">
-                    <Input placeholder="Nhập mã loại" />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="outputCode" label="Output Code">
-                    <Input placeholder="Nhập output code" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Form.Item name="description" label="Mô tả">
-                <TextArea rows={3} placeholder="Nhập mô tả" />
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="nodeCode"
+                label="Node Code"
+                rules={[{ required: true, message: "Please enter node code" }]}
+              >
+                <Input placeholder="Enter node code" />
               </Form.Item>
-            </TabPane>
-
-            <TabPane
-              tab={
-                <span>
-                  <CodeOutlined />
-                  Cấu hình
-                </span>
-              }
-              key="2"
-            >
-              <Form.Item name="metadata" label="Metadata">
-                <TextArea rows={4} placeholder="Nhập metadata (JSON)" />
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="nodeName"
+                label="Node Name"
+                rules={[{ required: true, message: "Please enter node name" }]}
+              >
+                <Input placeholder="Enter node name" />
               </Form.Item>
+            </Col>
+          </Row>
 
-              <Form.Item name="schema" label="Schema">
-                <TextArea rows={4} placeholder="Nhập schema (JSON)" />
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="templateCode"
+                label="Template"
+                rules={[{ required: true, message: "Please select template" }]}
+              >
+                <Select placeholder="Select template" showSearch>
+                  {templates.map((template) => (
+                    <Option
+                      key={template.templateCode}
+                      value={template.templateCode}
+                    >
+                      {template.templateName} ({template.templateCode})
+                    </Option>
+                  ))}
+                </Select>
               </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="workflowCode"
+                label="Workflow"
+                rules={[{ required: true, message: "Please select workflow" }]}
+              >
+                <Select placeholder="Select workflow" showSearch>
+                  {workflows.map((workflow) => (
+                    <Option
+                      key={workflow.workflowCode}
+                      value={workflow.workflowCode}
+                    >
+                      {workflow.workflowName}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
 
-              <Form.Item name="body" label="Body">
-                <TextArea rows={4} placeholder="Nhập body template" />
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="statusCode"
+                label="Status"
+                rules={[{ required: true, message: "Please select status" }]}
+              >
+                <Select placeholder="Select status">
+                  {statusOptions.map((option) => (
+                    <Option key={option.value} value={option.value}>
+                      {option.label}
+                    </Option>
+                  ))}
+                </Select>
               </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="outputCode" label="Output Code">
+                <Input placeholder="Enter output code" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-              <Form.Item name="rule" label="Rule">
-                <TextArea rows={4} placeholder="Nhập rule (JSON)" />
-              </Form.Item>
-
-              <Form.Item name="configuration" label="Configuration">
-                <TextArea rows={4} placeholder="Nhập configuration (JSON)" />
-              </Form.Item>
-
-              <Form.Item name="info" label="Info">
-                <TextArea rows={3} placeholder="Nhập thông tin bổ sung" />
-              </Form.Item>
-            </TabPane>
-          </Tabs>
+          <Form.Item name="description" label="Description">
+            <Input.TextArea rows={3} placeholder="Enter description" />
+          </Form.Item>
         </Form>
       </Modal>
     </div>

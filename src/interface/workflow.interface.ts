@@ -1,33 +1,77 @@
-import { INode } from "./node.interface";
+import {
+  ApiResponse,
+  CommonSearchParams,
+  SingleApiResponse,
+} from "./common.interface";
 
-export interface IWorkflow {
-  workflowId?: number;
+export interface INode {
+  nodeId?: number;
+  nodeCode: string;
+  nodeName: string;
+  templateCode: string;
+  templateName: string;
+  typeCode: string;
+  typeName: string;
+  agentCode: string;
+  agentName: string;
   workflowCode: string;
   workflowName: string;
   statusCode: string;
   statusName: string;
-  description?: string;
-  search?: string;
-  nodes?: INode[];
+  templateType: string;
+  description: string | null;
+  search: string | null;
+  metadata: string | null;
+  info: string | null;
+  schema: string | null;
+  body: string | null;
+  rule: string | null;
+  configuration: string | null;
+  outputCode: string | null;
 }
 
-export interface IWorkflowSearchParams {
-  page?: number;
-  size?: number;
-  search?: string;
-  statusCode?: string;
-  workflowCode?: string;
+export interface IWorkflow {
+  workflowCode: string;
+  workflowName: string;
+  statusCode: string;
+  statusName: string;
+  description: string | null;
+  nodes: INode[];
 }
 
-export interface IWorkflowResponse {
-  content: IWorkflow[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
+export interface IWorkflowRequest {
+  workflowName: string;
+  statusCode: string;
+  statusName: string;
+  description: string;
+  nodes: INodeRequest[];
 }
 
-// React Flow related interfaces
+export interface INodeRequest {
+  nodeCode: string;
+  nodeName: string;
+  templateCode: string;
+  templateName: string;
+  typeCode: string;
+  typeName: string;
+  agentCode: string;
+  agentName: string;
+  description: string;
+  search: string;
+  metadata: string;
+  info: string;
+  schema: string;
+  body: string;
+  rule: string;
+  configuration: string;
+  outputCode: string;
+}
+
+export interface IWorkflowSearchParams extends CommonSearchParams {}
+
+export interface IWorkflowResponse extends ApiResponse<IWorkflow> {}
+
+// React Flow interfaces
 export interface IWorkflowNode {
   id: string;
   type?: string;
@@ -38,6 +82,8 @@ export interface IWorkflowNode {
     templateCode?: string;
     agentCode?: string;
     description?: string;
+    templateType?: string;
+    [key: string]: any;
   };
 }
 

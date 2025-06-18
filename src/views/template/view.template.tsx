@@ -14,7 +14,6 @@ import {
   Col,
   Tag,
   theme,
-  Tabs,
 } from "antd";
 import {
   PlusOutlined,
@@ -22,7 +21,6 @@ import {
   DeleteOutlined,
   SearchOutlined,
   ReloadOutlined,
-  CodeOutlined,
 } from "@ant-design/icons";
 import {
   ITemplate,
@@ -32,9 +30,8 @@ import { IAgent } from "../../interface/agent.interface";
 import templateApi from "../../apis/template/api.template";
 import agentApi from "../../apis/agent/api.agent";
 
-const { Search, TextArea } = Input;
+const { Search } = Input;
 const { Option } = Select;
-const { TabPane } = Tabs;
 
 const TemplatePage: React.FC = () => {
   const [templates, setTemplates] = useState<ITemplate[]>([]);
@@ -46,12 +43,12 @@ const TemplatePage: React.FC = () => {
   );
   const [form] = Form.useForm();
   const [searchParams, setSearchParams] = useState<ITemplateSearchParams>({
-    page: 0,
-    size: 10,
+    current: 1,
+    pageSize: 20,
   });
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 10,
+    pageSize: 20,
     total: 0,
   });
 
@@ -60,15 +57,9 @@ const TemplatePage: React.FC = () => {
   } = theme.useToken();
 
   const statusOptions = [
-    { value: "ACTIVE", label: "Hoạt động", color: "green" },
-    { value: "INACTIVE", label: "Không hoạt động", color: "red" },
-    { value: "DRAFT", label: "Bản nháp", color: "orange" },
-  ];
-
-  const templateTypeOptions = [
-    { value: "INPUT", label: "Input Template" },
-    { value: "OUTPUT", label: "Output Template" },
-    { value: "PROCESS", label: "Process Template" },
+    { value: "ACTIVE", label: "Active", color: "green" },
+    { value: "INACTIVE", label: "Inactive", color: "red" },
+    { value: "DRAFT", label: "Draft", color: "orange" },
   ];
 
   const fetchTemplates = async (params?: ITemplateSearchParams) => {
@@ -78,14 +69,15 @@ const TemplatePage: React.FC = () => {
         ...searchParams,
         ...params,
       });
-      setTemplates(response.content);
+      setTemplates(response.data);
       setPagination({
-        current: response.number + 1,
-        pageSize: response.size,
-        total: response.totalElements,
+        current: response.current,
+        pageSize: response.pageSize,
+        total: response.total,
       });
     } catch (error) {
-      message.error("Không thể tải danh sách template");
+      console.error("Error fetching templates:", error);
+      message.error("Failed to load templates");
     } finally {
       setLoading(false);
     }
@@ -93,10 +85,11 @@ const TemplatePage: React.FC = () => {
 
   const fetchAgents = async () => {
     try {
-      const response = await agentApi.getAgents({ size: 1000 });
-      setAgents(response.content);
+      const response = await agentApi.getAgents({ pageSize: 1000 });
+      setAgents(response.data);
     } catch (error) {
-      message.error("Không thể tải danh sách agent");
+      console.error("Error fetching agents:", error);
+      message.error("Failed to load agents");
     }
   };
 
@@ -106,13 +99,27 @@ const TemplatePage: React.FC = () => {
   }, []);
 
   const handleSearch = (value: string) => {
-    const newParams = { ...searchParams, search: value, page: 0 };
+    const newParams = { ...searchParams, search: value, current: 1 };
+    setSearchParams(newParams);
+    fetchTemplates(newParams);
+  };
+
+  const handleAgentFilter = (agentCode: string) => {
+    const newParams = {
+      ...searchParams,
+      agentCode: agentCode || "",
+      current: 1,
+    };
     setSearchParams(newParams);
     fetchTemplates(newParams);
   };
 
   const handleTableChange = (page: number, pageSize?: number) => {
-    const newParams = { ...searchParams, page: page - 1, size: pageSize || 10 };
+    const newParams = {
+      ...searchParams,
+      current: page,
+      pageSize: pageSize || 20,
+    };
     setSearchParams(newParams);
     fetchTemplates(newParams);
   };
@@ -132,10 +139,11 @@ const TemplatePage: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await templateApi.deleteTemplate(id);
-      message.success("Xóa template thành công");
+      message.success("Template deleted successfully");
       fetchTemplates();
     } catch (error) {
-      message.error("Không thể xóa template");
+      console.error("Error deleting template:", error);
+      message.error("Failed to delete template");
     }
   };
 
@@ -153,30 +161,37 @@ const TemplatePage: React.FC = () => {
 
       if (editingTemplate) {
         await templateApi.updateTemplate(
-          editingTemplate.templateId!,
+          editingTemplate.templateId,
           templateData
         );
-        message.success("Cập nhật template thành công");
+        message.success("Template updated successfully");
       } else {
         await templateApi.createTemplate(templateData);
-        message.success("Tạo template thành công");
+        message.success("Template created successfully");
       }
       setModalVisible(false);
       fetchTemplates();
     } catch (error) {
-      message.error("Không thể lưu template");
+      console.error("Error saving template:", error);
+      message.error("Failed to save template");
     }
   };
 
   const columns = [
     {
-      title: "Mã Template",
+      title: "ID",
+      dataIndex: "templateId",
+      key: "templateId",
+      width: 80,
+    },
+    {
+      title: "Template Code",
       dataIndex: "templateCode",
       key: "templateCode",
       width: 150,
     },
     {
-      title: "Tên Template",
+      title: "Template Name",
       dataIndex: "templateName",
       key: "templateName",
       width: 200,
@@ -188,17 +203,7 @@ const TemplatePage: React.FC = () => {
       width: 150,
     },
     {
-      title: "Loại",
-      dataIndex: "templateType",
-      key: "templateType",
-      width: 120,
-      render: (type: string) => {
-        const typeOption = templateTypeOptions.find((t) => t.value === type);
-        return typeOption ? typeOption.label : type;
-      },
-    },
-    {
-      title: "Trạng thái",
+      title: "Status",
       dataIndex: "statusCode",
       key: "statusCode",
       width: 120,
@@ -212,13 +217,14 @@ const TemplatePage: React.FC = () => {
       },
     },
     {
-      title: "Mô tả",
+      title: "Description",
       dataIndex: "description",
       key: "description",
       ellipsis: true,
+      render: (text: string) => text || "N/A",
     },
     {
-      title: "Thao tác",
+      title: "Actions",
       key: "action",
       width: 150,
       render: (_: any, record: ITemplate) => (
@@ -230,10 +236,10 @@ const TemplatePage: React.FC = () => {
             size="small"
           />
           <Popconfirm
-            title="Bạn có chắc chắn muốn xóa template này?"
-            onConfirm={() => handleDelete(record.templateId!)}
-            okText="Có"
-            cancelText="Không"
+            title="Are you sure you want to delete this template?"
+            onConfirm={() => handleDelete(record.templateId)}
+            okText="Yes"
+            cancelText="No"
           >
             <Button type="text" icon={<DeleteOutlined />} danger size="small" />
           </Popconfirm>
@@ -253,21 +259,21 @@ const TemplatePage: React.FC = () => {
       <Row gutter={[16, 16]}>
         <Col span={24}>
           <Card
-            title="Quản lý Template"
+            title="Template Management"
             extra={
               <Space>
                 <Button
                   icon={<ReloadOutlined />}
                   onClick={() => fetchTemplates()}
                 >
-                  Làm mới
+                  Refresh
                 </Button>
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={handleCreate}
                 >
-                  Thêm Template
+                  Add Template
                 </Button>
               </Space>
             }
@@ -275,11 +281,25 @@ const TemplatePage: React.FC = () => {
             <Row gutter={[16, 16]} style={{ marginBottom: "16px" }}>
               <Col xs={24} sm={12} md={8}>
                 <Search
-                  placeholder="Tìm kiếm template..."
+                  placeholder="Search templates..."
                   allowClear
                   enterButton={<SearchOutlined />}
                   onSearch={handleSearch}
                 />
+              </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Select
+                  style={{ width: "100%" }}
+                  placeholder="Filter by agent"
+                  allowClear
+                  onChange={handleAgentFilter}
+                >
+                  {agents.map((agent) => (
+                    <Option key={agent.agentCode} value={agent.agentCode}>
+                      {agent.agentName} ({agent.agentCode})
+                    </Option>
+                  ))}
+                </Select>
               </Col>
             </Row>
 
@@ -295,154 +315,85 @@ const TemplatePage: React.FC = () => {
                 showSizeChanger: true,
                 showQuickJumper: true,
                 showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} của ${total} bản ghi`,
+                  `${range[0]}-${range[1]} of ${total} items`,
                 onChange: handleTableChange,
                 onShowSizeChange: handleTableChange,
               }}
-              scroll={{ x: 1200 }}
+              scroll={{ x: 1000 }}
             />
           </Card>
         </Col>
       </Row>
 
       <Modal
-        title={editingTemplate ? "Sửa Template" : "Thêm Template"}
+        title={editingTemplate ? "Edit Template" : "Add Template"}
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         onOk={() => form.submit()}
-        width={800}
-        style={{ top: 20 }}
+        width={700}
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Tabs defaultActiveKey="1">
-            <TabPane tab="Thông tin chính" key="1">
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="templateCode"
-                    label="Mã Template"
-                    rules={[
-                      { required: true, message: "Vui lòng nhập mã template" },
-                    ]}
-                  >
-                    <Input placeholder="Nhập mã template" />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="templateName"
-                    label="Tên Template"
-                    rules={[
-                      { required: true, message: "Vui lòng nhập tên template" },
-                    ]}
-                  >
-                    <Input placeholder="Nhập tên template" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="agentCode"
-                    label="Agent"
-                    rules={[{ required: true, message: "Vui lòng chọn agent" }]}
-                  >
-                    <Select placeholder="Chọn agent">
-                      {agents.map((agent) => (
-                        <Option key={agent.agentCode} value={agent.agentCode}>
-                          {agent.agentName} ({agent.agentCode})
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="templateType"
-                    label="Loại Template"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn loại template",
-                      },
-                    ]}
-                  >
-                    <Select placeholder="Chọn loại template">
-                      {templateTypeOptions.map((option) => (
-                        <Option key={option.value} value={option.value}>
-                          {option.label}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="statusCode"
-                    label="Trạng thái"
-                    rules={[
-                      { required: true, message: "Vui lòng chọn trạng thái" },
-                    ]}
-                  >
-                    <Select placeholder="Chọn trạng thái">
-                      {statusOptions.map((option) => (
-                        <Option key={option.value} value={option.value}>
-                          {option.label}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="typeCode" label="Mã loại">
-                    <Input placeholder="Nhập mã loại" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              <Form.Item name="description" label="Mô tả">
-                <TextArea rows={3} placeholder="Nhập mô tả" />
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="templateCode"
+                label="Template Code"
+                rules={[
+                  { required: true, message: "Please enter template code" },
+                ]}
+              >
+                <Input placeholder="Enter template code" />
               </Form.Item>
-            </TabPane>
-
-            <TabPane
-              tab={
-                <span>
-                  <CodeOutlined />
-                  Cấu hình
-                </span>
-              }
-              key="2"
-            >
-              <Form.Item name="metadata" label="Metadata">
-                <TextArea rows={4} placeholder="Nhập metadata (JSON)" />
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="templateName"
+                label="Template Name"
+                rules={[
+                  { required: true, message: "Please enter template name" },
+                ]}
+              >
+                <Input placeholder="Enter template name" />
               </Form.Item>
+            </Col>
+          </Row>
 
-              <Form.Item name="schema" label="Schema">
-                <TextArea rows={4} placeholder="Nhập schema (JSON)" />
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="agentCode"
+                label="Agent"
+                rules={[{ required: true, message: "Please select agent" }]}
+              >
+                <Select placeholder="Select agent">
+                  {agents.map((agent) => (
+                    <Option key={agent.agentCode} value={agent.agentCode}>
+                      {agent.agentName} ({agent.agentCode})
+                    </Option>
+                  ))}
+                </Select>
               </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="statusCode"
+                label="Status"
+                rules={[{ required: true, message: "Please select status" }]}
+              >
+                <Select placeholder="Select status">
+                  {statusOptions.map((option) => (
+                    <Option key={option.value} value={option.value}>
+                      {option.label}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
 
-              <Form.Item name="body" label="Body">
-                <TextArea rows={4} placeholder="Nhập body template" />
-              </Form.Item>
-
-              <Form.Item name="rule" label="Rule">
-                <TextArea rows={4} placeholder="Nhập rule (JSON)" />
-              </Form.Item>
-
-              <Form.Item name="configuration" label="Configuration">
-                <TextArea rows={4} placeholder="Nhập configuration (JSON)" />
-              </Form.Item>
-
-              <Form.Item name="info" label="Info">
-                <TextArea rows={3} placeholder="Nhập thông tin bổ sung" />
-              </Form.Item>
-            </TabPane>
-          </Tabs>
+          <Form.Item name="description" label="Description">
+            <Input.TextArea rows={4} placeholder="Enter description" />
+          </Form.Item>
         </Form>
       </Modal>
     </div>

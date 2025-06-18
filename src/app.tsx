@@ -7,8 +7,8 @@ import dayjs from "dayjs";
 import weekday from "dayjs/plugin/weekday";
 import localeData from "dayjs/plugin/localeData";
 
-// Initialize mock data
-import "./mock";
+// Initialize mock data (disabled for real API)
+// import './mock';
 
 dayjs.extend(weekday);
 dayjs.extend(localeData);

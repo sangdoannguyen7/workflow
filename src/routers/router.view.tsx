@@ -16,20 +16,12 @@ import NodePage from "../views/node/view.node.tsx";
 import WorkflowPage from "../views/workflow/view.workflow.tsx";
 import WorkflowDesignerPage from "../views/workflow/view.workflow-designer.tsx";
 import NodeFlowPage from "../views/node-flow/view.node-flow.tsx";
-
-// const Dashboard = lazy(DashBoardPage);
+import WorkflowBuilderPage from "../views/workflow-builder/view.workflow-builder.tsx";
+import ManagementPage from "../views/management/view.management.tsx";
 
 const RenderRouter = () => {
-  // const {
-  //   token: { colorBgContainer },
-  // } = theme.useToken();
-  // const isLogged = true;
-
   return (
-    // <BrowserRouter basename="/manager">
     <BrowserRouter>
-      {/*{*/}
-      {/*  // isLogged &&*/}
       <Layout>
         <SiderLayout />
         <Layout style={{ margin: "-8px -8px" }}>
@@ -37,7 +29,6 @@ const RenderRouter = () => {
           <Layout.Content
             style={{
               margin: "8px 8px 0px 24px",
-              // background: colorBgContainer,
               borderRadius: 8,
             }}
           >
@@ -51,7 +42,6 @@ const RenderRouter = () => {
                 <Route path="/hotel" element={<UserPage />} />
                 <Route path="/room" element={<UserPage />} />
                 <Route path="/order" element={<UserPage />} />
-                {/* <Route path='/schedule' element={<SchedulePage />}/> */}
                 <Route path="/calendar" element={<CalendarPage />} />
                 <Route path="/price" element={<UserPage />} />
                 <Route path="/rating" element={<UserPage />} />
@@ -69,6 +59,11 @@ const RenderRouter = () => {
                   element={<WorkflowDesignerPage />}
                 />
                 <Route path="/node-flow" element={<NodeFlowPage />} />
+                <Route
+                  path="/workflow-builder"
+                  element={<WorkflowBuilderPage />}
+                />
+                <Route path="/management" element={<ManagementPage />} />
               </Route>
               <Route path="*" element={<NotfoundPage />} />
             </Routes>
@@ -76,11 +71,6 @@ const RenderRouter = () => {
           <FooterComponent />
         </Layout>
       </Layout>
-      {/*}*/}
-      {/*{*/}
-      {/*  !isLogged &&*/}
-      {/*  <ForbiddenPage />*/}
-      {/*}*/}
     </BrowserRouter>
   );
 };
