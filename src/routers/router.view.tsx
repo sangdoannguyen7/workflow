@@ -1,6 +1,10 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import SiderLayout from "../layout/sider.layout";
-import { Layout } from "antd";
+import { Layout, FloatButton } from "antd";
+import {
+  QuestionCircleOutlined,
+  CustomerServiceOutlined,
+} from "@ant-design/icons";
 import HeaderComponent from "../layout/header.layout";
 import FooterComponent from "../layout/footer.layout";
 import NotfoundPage from "../views/exception/notfound.view";
@@ -20,16 +24,31 @@ import WorkflowBuilderPage from "../views/workflow-builder/view.workflow-builder
 import ManagementPage from "../views/management/view.management.tsx";
 
 const RenderRouter = () => {
+  const showHelpGuide = () => {
+    // This will be implemented as a tour/guide system
+    console.log("Showing help guide...");
+  };
+
   return (
     <BrowserRouter>
-      <Layout>
+      <Layout style={{ minHeight: "100vh", background: "#f0f2f5" }}>
         <SiderLayout />
-        <Layout style={{ margin: "-8px -8px" }}>
+        <Layout
+          style={{
+            marginLeft: 4,
+            transition: "all 0.2s",
+            background: "transparent",
+          }}
+        >
           <HeaderComponent />
           <Layout.Content
             style={{
-              margin: "8px 8px 0px 24px",
-              borderRadius: 8,
+              margin: "4px 4px 0 4px",
+              padding: "8px",
+              borderRadius: 12,
+              minHeight: "calc(100vh - 120px)",
+              overflow: "auto",
+              background: "transparent",
             }}
           >
             <Routes>
@@ -70,6 +89,20 @@ const RenderRouter = () => {
           <FooterComponent />
         </Layout>
       </Layout>
+
+      {/* Help FloatButton */}
+      <FloatButton.Group
+        trigger="hover"
+        type="primary"
+        style={{ right: 24, bottom: 24 }}
+        icon={<CustomerServiceOutlined />}
+      >
+        <FloatButton
+          icon={<QuestionCircleOutlined />}
+          tooltip="Hướng dẫn sử dụng"
+          onClick={showHelpGuide}
+        />
+      </FloatButton.Group>
     </BrowserRouter>
   );
 };
