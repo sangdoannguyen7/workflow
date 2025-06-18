@@ -842,6 +842,7 @@ const WorkflowBuilderPage: React.FC = () => {
   useEffect(() => {
     fetchWorkflows();
     fetchTemplates();
+    fetchAgents();
   }, []);
 
   useEffect(() => {
