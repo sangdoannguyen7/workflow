@@ -620,7 +620,7 @@ const WorkflowBuilderPage: React.FC = () => {
       NotificationComponent({
         type: "error",
         message: "Lỗi",
-        description: "Không thể tải danh sách agent",
+        description: "Không thể t��i danh sách agent",
       });
     }
   };
