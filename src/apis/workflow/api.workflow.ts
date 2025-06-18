@@ -58,7 +58,10 @@ class WorkflowApi implements IWorkflowApi {
 
   async updateWorkflow(id: any, workflow: any): Promise<any> {
     if (API_CONFIG.USE_MOCK) {
-      const result = await MockAPI.updateWorkflow(id.toString(), workflow);
+      const result = await WorkflowMockAPI.updateWorkflow(
+        id.toString(),
+        workflow
+      );
       return result.data;
     }
 
