@@ -168,7 +168,10 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
     event: DragEvent<HTMLDivElement>,
     template: ITemplate
   ) => {
+    console.log("🚀 Starting drag for template:", template.templateName);
     setIsDragging(true);
+
+    // Set the drag data
     event.dataTransfer.setData(
       "application/reactflow",
       JSON.stringify({
@@ -178,13 +181,8 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
     );
     event.dataTransfer.effectAllowed = "move";
 
-    // Create custom drag image
-    const dragImage = event.currentTarget.cloneNode(true) as HTMLElement;
-    dragImage.style.transform = "rotate(5deg)";
-    dragImage.style.opacity = "0.8";
-    document.body.appendChild(dragImage);
-    event.dataTransfer.setDragImage(dragImage, 0, 0);
-    setTimeout(() => document.body.removeChild(dragImage), 0);
+    // Simple drag image without complex manipulation
+    event.dataTransfer.setDragImage(event.currentTarget, 50, 25);
   };
 
   const onDragEnd = () => {
@@ -305,7 +303,7 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
   );
 };
 
-// Enhanced Custom Node Component
+// Stable Custom Node Component with proper event handling
 const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
   data,
   selected,
@@ -317,20 +315,20 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
   return (
     <div
       style={{
-        padding: "20px",
+        padding: "16px",
         border: selected
-          ? `3px solid ${config?.color || "#1890ff"}`
-          : `2px solid ${config?.borderColor || "#d9d9d9"}`,
-        borderRadius: "16px",
+          ? `2px solid ${config?.color || "#1890ff"}`
+          : `1px solid ${config?.borderColor || "#d9d9d9"}`,
+        borderRadius: "12px",
         background: "#fff",
-        minWidth: "220px",
-        maxWidth: "280px",
+        minWidth: "200px",
+        maxWidth: "250px",
         boxShadow: selected
-          ? `0 12px 28px ${config?.color || "#1890ff"}40`
-          : "0 4px 12px rgba(0,0,0,0.08)",
+          ? `0 8px 20px ${config?.color || "#1890ff"}30`
+          : "0 2px 8px rgba(0,0,0,0.06)",
         position: "relative",
-        transition: "all 0.3s ease",
-        cursor: "pointer",
+        cursor: "move",
+        userSelect: "none",
       }}
     >
       {/* Status indicator */}
@@ -668,55 +666,42 @@ const WorkflowBuilderPage: React.FC = () => {
     [setEdges, isPlaying, colorPrimary, nodes, edges]
   );
 
-  // Enhanced drop handler for template palette
+  // Simplified and reliable drop handler
   const onDrop = useCallback(
     (event: DragEvent<HTMLDivElement>) => {
       event.preventDefault();
+      event.stopPropagation();
 
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
       if (!reactFlowBounds) {
-        console.error("ReactFlow bounds not found");
+        console.log("ReactFlow bounds not available");
         return;
       }
 
       const data = event.dataTransfer.getData("application/reactflow");
       if (!data) {
-        console.error("No drag data found");
+        console.log("No drag data available");
         return;
       }
 
       try {
         const { template } = JSON.parse(data);
         if (!template) {
-          throw new Error("No template in drag data");
+          console.log("No template in drag data");
+          return;
         }
 
-        // Calculate drop position relative to the ReactFlow viewport
-        let position;
-        if (
-          reactFlowInstance &&
-          typeof reactFlowInstance.project === "function"
-        ) {
-          position = reactFlowInstance.project({
-            x: event.clientX - reactFlowBounds.left,
-            y: event.clientY - reactFlowBounds.top,
-          });
-        } else {
-          // Fallback position calculation
-          position = {
-            x: event.clientX - reactFlowBounds.left,
-            y: event.clientY - reactFlowBounds.top,
-          };
-        }
+        // Simple position calculation - no complex projection needed
+        const position = {
+          x: event.clientX - reactFlowBounds.left - 100,
+          y: event.clientY - reactFlowBounds.top - 50,
+        };
 
-        const newNodeId = `node_${nodeCounter}`;
+        const newNodeId = `node_${Date.now()}_${nodeCounter}`;
         const newNode: Node = {
           id: newNodeId,
           type: "workflowNode",
-          position: {
-            x: position.x - 140, // Center the node on cursor
-            y: position.y - 60,
-          },
+          position: position,
           data: {
             label: template.templateName,
             templateCode: template.templateCode,
@@ -724,58 +709,36 @@ const WorkflowBuilderPage: React.FC = () => {
             agentCode: template.agentCode,
             description: template.description,
             template: template,
-            timeout: 30000,
-            retries: 3,
-            priority: "normal",
           },
         };
 
-        setNodes((nds) => [...(nds || []), newNode]);
+        setNodes((nds) => [...nds, newNode]);
         setNodeCounter((prev) => prev + 1);
+
+        console.log("✅ Node added successfully:", newNode.id);
 
         NotificationComponent({
           type: "success",
           message: "Thành công",
           description: `Đã thêm node "${template.templateName}"`,
         });
-
-        console.log("Node added successfully:", newNode);
       } catch (error) {
-        console.error("Drop error:", error);
+        console.error("❌ Drop error:", error);
         NotificationComponent({
           type: "error",
           message: "Lỗi",
-          description: "Không thể thêm node. Vui lòng thử lại.",
+          description: "Không thể thêm node",
         });
       }
     },
-    [nodeCounter, setNodes, reactFlowInstance]
+    [nodeCounter, setNodes]
   );
 
-  const onDragOver = useCallback(
-    (event: DragEvent<HTMLDivElement>) => {
-      event.preventDefault();
-      event.dataTransfer.dropEffect = "move";
-
-      // Add visual feedback for drag over
-      const target = event.currentTarget;
-      if (target) {
-        target.style.backgroundColor = `${colorPrimary}08`;
-      }
-    },
-    [colorPrimary]
-  );
-
-  const onDragLeave = useCallback(
-    (event: DragEvent<HTMLDivElement>) => {
-      // Remove visual feedback when drag leaves
-      const target = event.currentTarget;
-      if (target) {
-        target.style.backgroundColor = colorBgContainer;
-      }
-    },
-    [colorBgContainer]
-  );
+  const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
 
   // Enhanced test workflow functionality with detailed step results
   const runWorkflowTest = async () => {
@@ -1716,33 +1679,30 @@ const WorkflowBuilderPage: React.FC = () => {
               onPaneClick={onPaneClick}
               onDrop={onDrop}
               onDragOver={onDragOver}
-              onDragLeave={onDragLeave}
               onInit={setReactFlowInstance}
               nodeTypes={nodeTypes}
               connectionMode={ConnectionMode.Loose}
-              fitView
+              fitView={false}
               attributionPosition="bottom-left"
               style={{
                 background: colorBgContainer,
+                width: "100%",
+                height: "100%",
               }}
-              defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+              defaultViewport={{ x: 50, y: 50, zoom: 1 }}
               selectNodesOnDrag={false}
-              panOnDrag={[1, 2]} // Only pan with left and right mouse buttons
+              panOnDrag={true}
               elementsSelectable={true}
               nodesDraggable={true}
               nodesConnectable={true}
               edgesFocusable={true}
-              edgesUpdatable={false}
+              edgesUpdatable={true}
               deleteKeyCode={["Backspace", "Delete"]}
-              snapToGrid={true}
-              snapGrid={[20, 20]}
               connectionLineStyle={{
-                strokeWidth: 3,
+                strokeWidth: 2,
                 stroke: colorPrimary,
-                strokeDasharray: "5,5",
               }}
-              minZoom={0.3}
-              maxZoom={2}
+              proOptions={{ hideAttribution: true }}
             >
               <Controls
                 style={{
@@ -1966,7 +1926,7 @@ const WorkflowBuilderPage: React.FC = () => {
                   </Col>
                   <Col span={8}>
                     <Statistic
-                      title="Nodes th��nh công"
+                      title="Nodes thành công"
                       value={testResults.successfulNodes}
                       valueStyle={{ color: colorSuccess, fontSize: 14 }}
                     />
