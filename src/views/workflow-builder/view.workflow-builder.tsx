@@ -76,6 +76,7 @@ import { IWorkflow } from "../../interface/workflow.interface";
 import { IWorkflowDesign } from "../../interface/workflow.interface";
 import templateApi from "../../apis/template/api.template";
 import workflowApi from "../../apis/workflow/api.workflow";
+import { WorkflowMockAPI } from "../../mock/workflow-enhanced.mock";
 import { NotificationComponent } from "../../shared/components/notification/notification";
 
 // Import components
