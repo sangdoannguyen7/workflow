@@ -351,12 +351,12 @@ const DashboardPage = () => {
       {/* Enhanced Filter Section */}
       <Card
         style={{
-          marginBottom: 16,
+          marginBottom: 8,
           borderRadius: borderRadiusLG,
           boxShadow: boxShadowSecondary,
           background: `linear-gradient(135deg, ${colorPrimary}08, ${colorPrimary}03)`,
         }}
-        bodyStyle={{ padding: "20px 24px" }}
+        bodyStyle={{ padding: "8px" }}
       >
         <Row gutter={[24, 16]} align="middle">
           <Col xs={24} sm={12} md={6}>
