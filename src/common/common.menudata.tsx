@@ -5,6 +5,9 @@ import {
   ApartmentOutlined,
   SettingOutlined,
   DashboardOutlined,
+  ThunderboltOutlined,
+  ApiOutlined,
+  ClusterOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
@@ -17,9 +20,9 @@ const menuData = [
         <DashboardOutlined />
       </Link>
     ),
-    label: "Dashboard",
+    label: "Tổng quan",
     permission: "DASHBOARD",
-    description: "DASHBOARD",
+    description: "Dashboard tổng quan hệ thống",
   },
   {
     path: "/agent",
