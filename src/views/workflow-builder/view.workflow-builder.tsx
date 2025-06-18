@@ -540,9 +540,9 @@ const WorkflowBuilderPage: React.FC = () => {
       const mockResults = {
         status: "success",
         executionTime: Math.random() * 5000 + 1000,
-        nodesExecuted: nodes.length,
-        successfulNodes: Math.floor(nodes.length * 0.9),
-        failedNodes: Math.ceil(nodes.length * 0.1),
+        nodesExecuted: (nodes || []).length,
+        successfulNodes: Math.floor((nodes || []).length * 0.9),
+        failedNodes: Math.ceil((nodes || []).length * 0.1),
         logs: [
           {
             timestamp: new Date(),
