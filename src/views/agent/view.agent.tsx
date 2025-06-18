@@ -177,14 +177,19 @@ const AgentPage: React.FC = () => {
       title: "Actions",
       key: "action",
       width: 150,
-      className: "action-column-transparent",
       render: (_: any, record: IAgent) => (
         <div
           style={{
-            background: "rgba(255, 255, 255, 0.9)",
-            backdropFilter: "blur(8px)",
-            padding: "4px",
-            borderRadius: "6px",
+            background: "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(12px)",
+            padding: "6px 8px",
+            borderRadius: "8px",
+            border: "1px solid rgba(25, 118, 210, 0.1)",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+            display: "flex",
+            justifyContent: "center",
+            position: "relative",
+            zIndex: 10,
           }}
         >
           <Space size="small">
@@ -193,6 +198,11 @@ const AgentPage: React.FC = () => {
               icon={<EditOutlined />}
               onClick={() => handleEdit(record)}
               size="small"
+              style={{
+                border: "none",
+                background: "transparent",
+                color: "#1976D2",
+              }}
             />
             <Popconfirm
               title="Are you sure you want to delete this agent?"
@@ -203,8 +213,12 @@ const AgentPage: React.FC = () => {
               <Button
                 type="text"
                 icon={<DeleteOutlined />}
-                danger
                 size="small"
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  color: "#D32F2F",
+                }}
               />
             </Popconfirm>
           </Space>
