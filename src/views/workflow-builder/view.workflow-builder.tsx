@@ -1876,6 +1876,62 @@ const WorkflowBuilderPage: React.FC = () => {
           </div>
         )}
 
+        {/* Create Workflow Modal */}
+        <Modal
+          title="Tạo Workflow Mới"
+          open={createWorkflowModalVisible}
+          onCancel={() => {
+            setCreateWorkflowModalVisible(false);
+            createForm.resetFields();
+          }}
+          footer={null}
+          width={500}
+        >
+          <Form
+            form={createForm}
+            layout="vertical"
+            onFinish={handleCreateNewWorkflow}
+          >
+            <Form.Item
+              name="workflowCode"
+              label="Mã Workflow"
+              rules={[{ required: true, message: "Vui lòng nhập mã workflow" }]}
+            >
+              <Input placeholder="WF_001" />
+            </Form.Item>
+
+            <Form.Item
+              name="workflowName"
+              label="Tên Workflow"
+              rules={[
+                { required: true, message: "Vui lòng nhập tên workflow" },
+              ]}
+            >
+              <Input placeholder="My Workflow" />
+            </Form.Item>
+
+            <Form.Item name="description" label="Mô tả">
+              <Input.TextArea rows={3} placeholder="Mô tả workflow..." />
+            </Form.Item>
+
+            <Form.Item style={{ textAlign: "right", marginBottom: 0 }}>
+              <Space>
+                <Button
+                  onClick={() => {
+                    setCreateWorkflowModalVisible(false);
+                    createForm.resetFields();
+                  }}
+                >
+                  Hủy
+                </Button>
+                <Button type="primary" htmlType="submit">
+                  Tạo Workflow
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Modal>
+
         {/* Enhanced Test Results Drawer */}
         <Drawer
           title={
