@@ -600,13 +600,27 @@ const WorkflowBuilderPage: React.FC = () => {
   // Fetch data functions
   const fetchWorkflows = async () => {
     try {
-      const response = await workflowApi.getWorkflows({ size: 1000 });
-      setWorkflows(response.content);
+      const response = await workflowApi.getWorkflows({ pageSize: 1000 });
+      setWorkflows(response.data || []);
     } catch (error) {
       NotificationComponent({
         type: "error",
         message: "Lỗi",
         description: "Không thể tải danh sách workflow",
+      });
+    }
+  };
+
+  const fetchAgents = async () => {
+    try {
+      const response = await workflowApi.getAgentsForBuilder();
+      // Agents are used implicitly in templates, no need to set state
+      console.log("Agents loaded:", response.data?.length || 0);
+    } catch (error) {
+      NotificationComponent({
+        type: "error",
+        message: "Lỗi",
+        description: "Không thể tải danh sách agent",
       });
     }
   };
