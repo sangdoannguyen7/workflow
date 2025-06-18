@@ -133,8 +133,7 @@ class WorkflowApi implements IWorkflowApi {
     design: IWorkflowDesign
   ): Promise<IWorkflowDesign> {
     if (API_CONFIG.USE_MOCK) {
-      // Just simulate saving and return the design
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await WorkflowMockAPI.saveWorkflowDesign(workflowCode, design);
       return design;
     }
 
