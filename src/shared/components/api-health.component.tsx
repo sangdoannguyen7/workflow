@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import { Card, Badge, Typography, Button, Collapse, Space } from "antd";
-import { ReloadOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import {
+  ReloadOutlined,
+  InfoCircleOutlined,
+  DatabaseOutlined,
+} from "@ant-design/icons";
 import axiosCustom, { IDataRequest } from "../../apis/axiosCustom";
 import { constants } from "../../common/common.constants";
+import ApiFallbackService from "../../apis/fallback.service";
 
 const { Text } = Typography;
 
