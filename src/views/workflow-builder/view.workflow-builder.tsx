@@ -824,7 +824,7 @@ const WorkflowBuilderPage: React.FC = () => {
     } catch (error) {
       NotificationComponent({
         type: "error",
-        message: "Lỗi",
+        message: "L��i",
         description: "Không thể tải danh sách agent",
       });
     }
