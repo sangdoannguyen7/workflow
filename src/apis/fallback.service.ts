@@ -5,8 +5,18 @@ import {
 } from "../mock/enhanced-workflow.mock";
 import { getTestWorkflowDesign } from "../mock/workflow-examples.mock";
 import { getMockNodes, getMockNodesByWorkflow } from "../mock/node.mock";
-import { getMockAgents } from "../mock/agent.mock";
-import { getMockTemplates } from "../mock/template.mock";
+import {
+  getMockAgents,
+  createMockAgent,
+  updateMockAgent,
+  deleteMockAgent,
+} from "../mock/agent.mock";
+import {
+  getMockTemplates,
+  createMockTemplate,
+  updateMockTemplate,
+  deleteMockTemplate,
+} from "../mock/template.mock";
 import { IDataRequest, IDataResponse } from "./axiosCustom";
 
 export class ApiFallbackService {
