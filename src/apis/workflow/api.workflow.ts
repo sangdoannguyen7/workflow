@@ -14,7 +14,7 @@ class WorkflowApi implements IWorkflowApi {
 
   async getWorkflows(params?: IWorkflowSearchParams): Promise<any> {
     if (API_CONFIG.USE_MOCK) {
-      return await MockAPI.getWorkflows(params);
+      return await WorkflowMockAPI.getWorkflows(params);
     }
 
     const request: IDataRequest = {
