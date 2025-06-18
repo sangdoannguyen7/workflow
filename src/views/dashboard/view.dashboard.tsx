@@ -27,10 +27,12 @@ import {
 } from "@ant-design/icons";
 import ApiHealthCheck from "../../shared/components/api-health.component";
 import { useEffect, useState } from "react";
-import { getMockWorkflows } from "../../mock/workflow.mock";
+import { getEnhancedMockWorkflows } from "../../mock/enhanced-workflow.mock";
 import { getMockNodes } from "../../mock/node.mock";
 import { getMockAgents } from "../../mock/agent.mock";
 import { getMockTemplates } from "../../mock/template.mock";
+import WorkflowPerformanceChart from "../../shared/components/charts/workflow-performance.component";
+import WorkflowStatusChart from "../../shared/components/charts/workflow-status.component";
 import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
