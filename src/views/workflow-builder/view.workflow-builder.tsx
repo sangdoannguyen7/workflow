@@ -1813,66 +1813,6 @@ const WorkflowBuilderPage: React.FC = () => {
               )}
             </ReactFlow>
           </div>
-
-          {/* Test Results */}
-          {testResults && (
-            <Card
-              title={
-                <Space>
-                  <CheckCircleOutlined style={{ color: colorSuccess }} />
-                  <span>Kết quả Test</span>
-                </Space>
-              }
-              style={{
-                marginTop: 8,
-                borderRadius: borderRadiusLG,
-                boxShadow: boxShadowSecondary,
-              }}
-              bodyStyle={{ padding: "16px" }}
-            >
-              <Row gutter={[16, 8]}>
-                <Col xs={24} sm={6}>
-                  <Statistic
-                    title="Thời gian thực thi"
-                    value={(testResults.executionTime / 1000).toFixed(2)}
-                    suffix="s"
-                    valueStyle={{ color: colorSuccess }}
-                  />
-                </Col>
-                <Col xs={24} sm={6}>
-                  <Statistic
-                    title="Nodes thành công"
-                    value={testResults.successfulNodes}
-                    suffix={`/${testResults.nodesExecuted}`}
-                    valueStyle={{ color: colorSuccess }}
-                  />
-                </Col>
-                <Col xs={24} sm={6}>
-                  <Statistic
-                    title="Nodes thất bại"
-                    value={testResults.failedNodes}
-                    suffix={`/${testResults.nodesExecuted}`}
-                    valueStyle={{
-                      color:
-                        testResults.failedNodes > 0 ? colorError : colorSuccess,
-                    }}
-                  />
-                </Col>
-                <Col xs={24} sm={6}>
-                  <Progress
-                    type="circle"
-                    size={60}
-                    percent={Math.round(
-                      (testResults.successfulNodes /
-                        testResults.nodesExecuted) *
-                        100
-                    )}
-                    strokeColor={colorSuccess}
-                  />
-                </Col>
-              </Row>
-            </Card>
-          )}
         </div>
 
         {/* Node Properties Panel - Only show when node is selected */}
