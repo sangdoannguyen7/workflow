@@ -618,6 +618,9 @@ const WorkflowBuilderPage: React.FC = () => {
     useState(false);
   const [createWorkflowModalVisible, setCreateWorkflowModalVisible] =
     useState(false);
+  const [agentExpandedState, setAgentExpandedState] = useState<
+    Record<string, boolean>
+  >({});
   const [createForm] = Form.useForm();
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
@@ -1409,7 +1412,7 @@ const WorkflowBuilderPage: React.FC = () => {
   // Initialize ReactFlow properly
   useEffect(() => {
     if (reactFlowInstance) {
-      console.log("✅ ReactFlow instance ready");
+      console.log("�� ReactFlow instance ready");
       reactFlowInstance.fitView({ padding: 0.1 });
     }
   }, [reactFlowInstance]);
@@ -1473,7 +1476,14 @@ const WorkflowBuilderPage: React.FC = () => {
                 ([agent, agentTemplates], index) => {
                   const agentColor = AGENT_COLORS[agent] || colorPrimary;
                   const agentName = agent.replace("AGT_", "").replace("_", " ");
-                  const [isExpanded, setIsExpanded] = React.useState(true);
+                  const isExpanded = agentExpandedState[agent] !== false; // Default to true
+
+                  const toggleExpanded = () => {
+                    setAgentExpandedState((prev) => ({
+                      ...prev,
+                      [agent]: !prev[agent],
+                    }));
+                  };
 
                   return (
                     <div
@@ -1490,7 +1500,7 @@ const WorkflowBuilderPage: React.FC = () => {
                     >
                       {/* Agent Header */}
                       <div
-                        onClick={() => setIsExpanded(!isExpanded)}
+                        onClick={toggleExpanded}
                         style={{
                           display: "flex",
                           alignItems: "center",
@@ -1902,7 +1912,6 @@ const WorkflowBuilderPage: React.FC = () => {
               nodesDraggable={true}
               nodesConnectable={true}
               edgesFocusable={true}
-              edgesUpdatable={true}
               deleteKeyCode={["Backspace", "Delete"]}
               connectionLineStyle={{
                 strokeWidth: 2,
@@ -1983,7 +1992,7 @@ const WorkflowBuilderPage: React.FC = () => {
                     >
                       <strong>Bắt đầu xây dựng workflow của bạn:</strong>
                       <br />
-                      📝 <strong>1.</strong> Kéo template t��� sidebar bên trái
+                      📝 <strong>1.</strong> Kéo template từ sidebar bên trái
                       vào canvas
                       <br />
                       🔗 <strong>2.</strong> Kết nối các node bằng cách kéo từ
@@ -2080,7 +2089,9 @@ const WorkflowBuilderPage: React.FC = () => {
             <Form.Item
               name="workflowCode"
               label="Mã Workflow"
-              rules={[{ required: true, message: "Vui lòng nhập mã workflow" }]}
+              rules={[
+                { required: true, message: "Vui lòng nh���p mã workflow" },
+              ]}
             >
               <Input placeholder="WF_001" />
             </Form.Item>
@@ -2162,7 +2173,7 @@ const WorkflowBuilderPage: React.FC = () => {
                 <Row gutter={[16, 8]}>
                   <Col span={12}>
                     <Statistic
-                      title="Thời gian thực thi"
+                      title="Th���i gian thực thi"
                       value={(testResults.executionTime / 1000).toFixed(2)}
                       suffix="s"
                       valueStyle={{ color: colorSuccess, fontSize: 16 }}
