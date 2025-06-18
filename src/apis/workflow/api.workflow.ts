@@ -132,11 +132,11 @@ class WorkflowApi implements IWorkflowApi {
   async saveWorkflowDesign(
     workflowCode: string,
     design: IWorkflowDesign
-  ): Promise<void> {
+  ): Promise<IWorkflowDesign> {
     if (API_CONFIG.USE_MOCK) {
-      // Just simulate saving
+      // Just simulate saving and return the design
       await new Promise((resolve) => setTimeout(resolve, 500));
-      return;
+      return design;
     }
 
     const request: IDataRequest = {
@@ -145,7 +145,9 @@ class WorkflowApi implements IWorkflowApi {
       params: null,
       data: design,
     };
-    await axiosCustom(request);
+    const response: IDataResponse<SingleApiResponse<IWorkflowDesign>> =
+      await axiosCustom(request);
+    return response.value.data;
   }
 
   // Helper method to generate mock workflow nodes from design
