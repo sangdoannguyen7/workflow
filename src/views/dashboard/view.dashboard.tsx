@@ -25,7 +25,6 @@ import {
   SearchOutlined,
   ArrowDownOutlined,
   ArrowUpOutlined,
-  RobotOutlined,
   ApartmentOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
@@ -33,7 +32,6 @@ import {
   CloseCircleOutlined,
   InfoCircleOutlined,
   SyncOutlined,
-  ThunderboltOutlined,
   TrophyOutlined,
   TeamOutlined,
   EyeOutlined,
@@ -42,12 +40,7 @@ import {
   BarChartOutlined,
   LineChartOutlined,
   PieChartOutlined,
-  ApiOutlined,
-  GlobalOutlined,
-  SafetyCertificateOutlined,
-  RocketOutlined,
   StarFilled,
-  HeartFilled,
 } from "@ant-design/icons";
 import { Column, Pie, Line, Area, Gauge } from "@ant-design/plots";
 import dayjs from "dayjs";
