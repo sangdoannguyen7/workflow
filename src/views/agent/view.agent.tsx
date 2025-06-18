@@ -31,7 +31,7 @@ const { Option } = Select;
 const AgentPage: React.FC = () => {
   const [agents, setAgents] = useState<IAgent[]>([]);
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingAgent, setEditingAgent] = useState<IAgent | null>(null);
   const [form] = Form.useForm();
   const [searchParams, setSearchParams] = useState<IAgentSearchParams>({
