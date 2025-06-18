@@ -487,9 +487,57 @@ const WorkflowBuilderPage: React.FC = () => {
     },
   } = theme.useToken();
 
-  // Handle node connections
+  // Handle node connections with validation rules
   const onConnect = useCallback(
     (params: Connection) => {
+      if (!params.source || !params.target) return;
+
+      // Get source and target nodes
+      const sourceNode = nodes.find((node) => node.id === params.source);
+      const targetNode = nodes.find((node) => node.id === params.target);
+
+      if (!sourceNode || !targetNode) return;
+
+      // Get template configurations
+      const sourceConfig =
+        TEMPLATE_CONFIGS[
+          sourceNode.data.templateType as keyof typeof TEMPLATE_CONFIGS
+        ];
+      const targetConfig =
+        TEMPLATE_CONFIGS[
+          targetNode.data.templateType as keyof typeof TEMPLATE_CONFIGS
+        ];
+
+      // Validate connection rules
+      if (sourceConfig && targetConfig) {
+        const canConnect = sourceConfig.canConnectTo?.includes(
+          targetConfig.category?.toLowerCase() || targetNode.data.templateType
+        );
+
+        if (!canConnect) {
+          NotificationComponent({
+            type: "error",
+            message: "Kết nối không hợp lệ",
+            description: `${sourceConfig.category} không thể kết nối với ${targetConfig.category}`,
+          });
+          return;
+        }
+      }
+
+      // Check for duplicate connections
+      const existingEdge = edges.find(
+        (edge) => edge.source === params.source && edge.target === params.target
+      );
+
+      if (existingEdge) {
+        NotificationComponent({
+          type: "warning",
+          message: "Cảnh báo",
+          description: "Kết nối này đã tồn tại",
+        });
+        return;
+      }
+
       const newEdge = {
         ...params,
         id: `edge-${Date.now()}`,
@@ -507,7 +555,7 @@ const WorkflowBuilderPage: React.FC = () => {
         description: "Đã kết nối nodes thành công",
       });
     },
-    [setEdges, isPlaying, colorPrimary]
+    [setEdges, isPlaying, colorPrimary, nodes, edges]
   );
 
   // Handle drop from template palette
