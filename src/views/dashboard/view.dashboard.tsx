@@ -828,7 +828,7 @@ const DashboardPage = () => {
               height: 280,
               boxShadow: boxShadowSecondary,
             }}
-            bodyStyle={{ padding: "8px", overflow: "hidden" }}
+            bodyStyle={{ padding: "16px", overflow: "hidden" }}
           >
             <Row gutter={[8, 8]}>
               <Col span={12}>
