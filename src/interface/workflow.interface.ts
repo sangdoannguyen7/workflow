@@ -1,8 +1,4 @@
-import {
-  ApiResponse,
-  CommonSearchParams,
-  SingleApiResponse,
-} from "./common.interface";
+import { ApiResponse, CommonSearchParams } from "./common.interface";
 
 export interface INode {
   nodeId?: number;
