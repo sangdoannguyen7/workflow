@@ -1010,7 +1010,20 @@ const WorkflowBuilderPage: React.FC = () => {
   const fetchTemplates = async () => {
     try {
       const response = await WorkflowMockAPI.getTemplatesForBuilder();
-      setTemplates(response.data || []);
+      const templateData = response.data || [];
+      setTemplates(templateData);
+
+      // Initialize agent expanded state (all expanded by default)
+      const agentKeys = [
+        ...new Set(
+          templateData.map((t: ITemplate) => t.agentCode || "unknown")
+        ),
+      ];
+      const initialExpandedState = agentKeys.reduce((acc, agent) => {
+        acc[agent] = true;
+        return acc;
+      }, {} as Record<string, boolean>);
+      setAgentExpandedState(initialExpandedState);
     } catch (error) {
       NotificationComponent({
         type: "error",
@@ -1308,7 +1321,7 @@ const WorkflowBuilderPage: React.FC = () => {
           NotificationComponent({
             type: "success",
             message: "Thành công",
-            description: `Đã nhập workflow với ${importedNodes.length} nodes và ${importedEdges.length} connections`,
+            description: `Đã nhập workflow v���i ${importedNodes.length} nodes và ${importedEdges.length} connections`,
           });
         } catch (error) {
           NotificationComponent({
@@ -1412,7 +1425,7 @@ const WorkflowBuilderPage: React.FC = () => {
   // Initialize ReactFlow properly
   useEffect(() => {
     if (reactFlowInstance) {
-      console.log("�� ReactFlow instance ready");
+      console.log("✅ ReactFlow instance ready");
       reactFlowInstance.fitView({ padding: 0.1 });
     }
   }, [reactFlowInstance]);
@@ -2089,9 +2102,7 @@ const WorkflowBuilderPage: React.FC = () => {
             <Form.Item
               name="workflowCode"
               label="Mã Workflow"
-              rules={[
-                { required: true, message: "Vui lòng nh���p mã workflow" },
-              ]}
+              rules={[{ required: true, message: "Vui lòng nhập mã workflow" }]}
             >
               <Input placeholder="WF_001" />
             </Form.Item>
@@ -2173,7 +2184,7 @@ const WorkflowBuilderPage: React.FC = () => {
                 <Row gutter={[16, 8]}>
                   <Col span={12}>
                     <Statistic
-                      title="Th���i gian thực thi"
+                      title="Thời gian thực thi"
                       value={(testResults.executionTime / 1000).toFixed(2)}
                       suffix="s"
                       valueStyle={{ color: colorSuccess, fontSize: 16 }}
