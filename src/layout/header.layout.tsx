@@ -260,10 +260,12 @@ const HeaderLayout = () => {
 
   const avatarFrameStyle = {
     ...frameStyle,
-    padding: "3px 6px",
+    padding: "4px 8px",
     border: `1px solid ${
       isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(25, 118, 210, 0.15)"
     }`,
+    height: "36px",
+    alignItems: "center",
   };
 
   return (
@@ -397,7 +399,10 @@ const HeaderLayout = () => {
               arrow
               trigger={["click"]}
             >
-              <Space style={{ cursor: "pointer", padding: "2px 4px" }}>
+              <Space
+                style={{ cursor: "pointer", height: "28px", padding: 0 }}
+                size={8}
+              >
                 <Avatar
                   src={
                     <img
@@ -405,7 +410,7 @@ const HeaderLayout = () => {
                       alt="avatar"
                     />
                   }
-                  size={24}
+                  size={22}
                   style={{
                     border: `1px solid ${
                       isDark
@@ -420,23 +425,27 @@ const HeaderLayout = () => {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "flex-start",
-                    lineHeight: 1.2,
-                    marginLeft: 4,
+                    lineHeight: 1.1,
+                    height: "26px",
+                    justifyContent: "center",
                   }}
                 >
                   <span
                     style={{
-                      fontSize: "12px",
+                      fontSize: "11px",
                       fontWeight: 500,
                       color: colorText,
+                      lineHeight: 1,
                     }}
                   >
                     Admin User
                   </span>
                   <span
                     style={{
-                      fontSize: "10px",
+                      fontSize: "9px",
                       color: colorTextSecondary,
+                      lineHeight: 1,
+                      marginTop: "1px",
                     }}
                   >
                     Quản trị viên

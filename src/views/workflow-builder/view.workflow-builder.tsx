@@ -430,34 +430,32 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
         />
       </div>
 
-      {/* Enhanced Connection Handles with better visibility */}
+      {/* Stable, Beautiful Connection Handles */}
       <Handle
         type="target"
         position={Position.Left}
         style={{
-          width: "20px",
-          height: "20px",
+          width: "16px",
+          height: "16px",
           borderRadius: "50%",
-          border: `4px solid ${config?.color || "#1890ff"}`,
+          border: `3px solid ${config?.color || "#1890ff"}`,
           backgroundColor: "#fff",
-          boxShadow: `0 4px 12px rgba(0,0,0,0.15), 0 0 0 2px ${
-            config?.color || "#1890ff"
-          }20`,
+          boxShadow: `0 2px 8px rgba(0,0,0,0.1)`,
           opacity: 1,
-          transition: "all 0.2s ease",
+          transition:
+            "transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease",
           cursor: "crosshair",
+          zIndex: 10,
         }}
         onMouseEnter={(e) => {
-          e.target.style.transform = "scale(1.3)";
-          e.target.style.boxShadow = `0 6px 16px rgba(0,0,0,0.25), 0 0 0 4px ${
+          e.target.style.transform = "scale(1.15)";
+          e.target.style.boxShadow = `0 4px 12px ${
             config?.color || "#1890ff"
-          }40`;
+          }60, 0 0 0 2px ${config?.color || "#1890ff"}30`;
         }}
         onMouseLeave={(e) => {
           e.target.style.transform = "scale(1)";
-          e.target.style.boxShadow = `0 4px 12px rgba(0,0,0,0.15), 0 0 0 2px ${
-            config?.color || "#1890ff"
-          }20`;
+          e.target.style.boxShadow = `0 2px 8px rgba(0,0,0,0.1)`;
         }}
       />
 
@@ -465,29 +463,27 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
         type="source"
         position={Position.Right}
         style={{
-          width: "20px",
-          height: "20px",
+          width: "16px",
+          height: "16px",
           borderRadius: "50%",
-          border: `4px solid ${config?.color || "#1890ff"}`,
+          border: `3px solid ${config?.color || "#1890ff"}`,
           backgroundColor: "#fff",
-          boxShadow: `0 4px 12px rgba(0,0,0,0.15), 0 0 0 2px ${
-            config?.color || "#1890ff"
-          }20`,
+          boxShadow: `0 2px 8px rgba(0,0,0,0.1)`,
           opacity: 1,
-          transition: "all 0.2s ease",
+          transition:
+            "transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease",
           cursor: "crosshair",
+          zIndex: 10,
         }}
         onMouseEnter={(e) => {
-          e.target.style.transform = "scale(1.3)";
-          e.target.style.boxShadow = `0 6px 16px rgba(0,0,0,0.25), 0 0 0 4px ${
+          e.target.style.transform = "scale(1.15)";
+          e.target.style.boxShadow = `0 4px 12px ${
             config?.color || "#1890ff"
-          }40`;
+          }60, 0 0 0 2px ${config?.color || "#1890ff"}30`;
         }}
         onMouseLeave={(e) => {
           e.target.style.transform = "scale(1)";
-          e.target.style.boxShadow = `0 4px 12px rgba(0,0,0,0.15), 0 0 0 2px ${
-            config?.color || "#1890ff"
-          }20`;
+          e.target.style.boxShadow = `0 2px 8px rgba(0,0,0,0.1)`;
         }}
       />
     </div>
@@ -1410,39 +1406,63 @@ const WorkflowBuilderPage: React.FC = () => {
                         alignItems: "center",
                         justifyContent: "space-between",
                         width: "100%",
-                        padding: "4px 0",
+                        padding: "8px 4px",
                       }}
                     >
                       <div
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: "12px",
+                          gap: "10px",
+                          flex: 1,
                         }}
                       >
-                        <Avatar
-                          size={28}
+                        <div
                           style={{
-                            backgroundColor:
-                              AGENT_COLORS[agent] || colorPrimary,
-                            fontSize: "11px",
-                            fontWeight: "bold",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "8px",
+                            background: `linear-gradient(135deg, ${
+                              AGENT_COLORS[agent] || colorPrimary
+                            }, ${AGENT_COLORS[agent] || colorPrimary}cc)`,
+                            boxShadow: `0 2px 8px ${
+                              AGENT_COLORS[agent] || colorPrimary
+                            }40`,
                           }}
                         >
-                          {agent.replace("AGT_", "").charAt(0)}
-                        </Avatar>
-                        <div>
+                          <Text
+                            style={{
+                              fontSize: "12px",
+                              fontWeight: "bold",
+                              color: "#fff",
+                              textAlign: "center",
+                            }}
+                          >
+                            {agent.replace("AGT_", "").charAt(0)}
+                          </Text>
+                        </div>
+                        <div style={{ flex: 1 }}>
                           <Text
                             strong
                             style={{
                               fontSize: "13px",
                               color: AGENT_COLORS[agent] || colorPrimary,
+                              display: "block",
+                              lineHeight: 1.2,
                             }}
                           >
                             {agent.replace("AGT_", "").replace("_", " ")}
                           </Text>
-                          <br />
-                          <Text type="secondary" style={{ fontSize: "10px" }}>
+                          <Text
+                            type="secondary"
+                            style={{
+                              fontSize: "10px",
+                              lineHeight: 1.1,
+                            }}
+                          >
                             {(agentTemplates || []).length} templates
                           </Text>
                         </div>
@@ -1453,6 +1473,11 @@ const WorkflowBuilderPage: React.FC = () => {
                         style={{
                           backgroundColor: AGENT_COLORS[agent] || colorPrimary,
                           fontSize: "9px",
+                          fontWeight: "bold",
+                          minWidth: "20px",
+                          height: "20px",
+                          lineHeight: "18px",
+                          borderRadius: "10px",
                         }}
                       />
                     </div>
