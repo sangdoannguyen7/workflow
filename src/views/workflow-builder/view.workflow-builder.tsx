@@ -513,6 +513,7 @@ const WorkflowBuilderPage: React.FC = () => {
       colorSuccess,
       colorWarning,
       colorError,
+      colorText,
       colorTextSecondary,
       boxShadowSecondary,
     },
