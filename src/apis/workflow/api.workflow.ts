@@ -106,7 +106,7 @@ class WorkflowApi implements IWorkflowApi {
   }
 
   async getWorkflowDesign(workflowCode: string): Promise<IWorkflowDesign> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       setTimeout(() => {
         const design = getMockWorkflowDesign(workflowCode);
         if (design) {
