@@ -673,12 +673,13 @@ const WorkflowBuilderPage: React.FC = () => {
       };
 
       setTestResults(mockResults);
+      setTestResultsDrawerVisible(true);
       NotificationComponent({
-        type: "success",
+        type: mockResults.status === "success" ? "success" : "error",
         message: "Test hoàn thành",
-        description: `Workflow đã được test thành công trong ${(
-          mockResults.executionTime / 1000
-        ).toFixed(2)}s`,
+        description: `Workflow test ${
+          mockResults.status === "success" ? "thành công" : "thất bại"
+        } trong ${(mockResults.executionTime / 1000).toFixed(2)}s`,
       });
     } catch (error) {
       NotificationComponent({
