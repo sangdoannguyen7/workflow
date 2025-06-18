@@ -20,12 +20,12 @@ function App() {
     return {
       algorithm: isDark ? themeAntd.darkAlgorithm : themeAntd.defaultAlgorithm,
       token: {
-        // Color tokens
-        colorPrimary: theme.primaryColor || "#1890ff",
-        colorSuccess: "#52c41a",
-        colorWarning: "#faad14",
-        colorError: "#ff4d4f",
-        colorInfo: "#1890ff",
+        // Color tokens based on user specifications
+        colorPrimary: isDark ? "#90CAF9" : "#1976D2",
+        colorSuccess: isDark ? "#A5D6A7" : "#388E3C",
+        colorWarning: isDark ? "#FFB74D" : "#F57C00",
+        colorError: isDark ? "#EF9A9A" : "#D32F2F",
+        colorInfo: isDark ? "#81D4FA" : "#0288D1",
 
         // Layout tokens
         borderRadius: theme.borderRadius || 8,
@@ -42,30 +42,26 @@ function App() {
         fontSizeLG: theme.compactMode ? 15 : 16,
         fontSizeSM: theme.compactMode ? 11 : 12,
 
-        // Layout background for dark mode
-        colorBgLayout: isDark ? "#000000" : "#f0f2f5",
-        colorBgContainer: isDark ? "#141414" : "#ffffff",
-        colorBgElevated: isDark ? "#1f1f1f" : "#ffffff",
+        // Layout background based on user specifications
+        colorBgLayout: isDark ? "#121212" : "#FFFFFF",
+        colorBgContainer: isDark ? "#1E1E1E" : "#FFFFFF",
+        colorBgElevated: isDark ? "#2C2C2C" : "#F5F5F5",
 
-        // Border colors
-        colorBorder: isDark ? "#424242" : "#d9d9d9",
-        colorBorderSecondary: isDark ? "#303030" : "#f0f0f0",
+        // Border colors based on user specifications
+        colorBorder: isDark ? "#444444" : "#E0E0E0",
+        colorBorderSecondary: isDark ? "#333333" : "#DADADA",
 
-        // Text colors
-        colorText: isDark ? "rgba(255, 255, 255, 0.85)" : "rgba(0, 0, 0, 0.85)",
-        colorTextSecondary: isDark
-          ? "rgba(255, 255, 255, 0.65)"
-          : "rgba(0, 0, 0, 0.65)",
-        colorTextTertiary: isDark
-          ? "rgba(255, 255, 255, 0.45)"
-          : "rgba(0, 0, 0, 0.45)",
+        // Text colors based on user specifications
+        colorText: isDark ? "#FFFFFF" : "#000000",
+        colorTextSecondary: isDark ? "#CCCCCC" : "#666666",
+        colorTextTertiary: isDark ? "#AAAAAA" : "#757575",
 
         // Shadow tokens
         boxShadow: isDark
-          ? "0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)"
+          ? "0 1px 2px 0 rgba(0, 0, 0, 0.6), 0 1px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px 0 rgba(0, 0, 0, 0.4)"
           : "0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)",
         boxShadowSecondary: isDark
-          ? "0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05)"
+          ? "0 6px 16px 0 rgba(0, 0, 0, 0.4), 0 3px 6px -4px rgba(0, 0, 0, 0.6), 0 9px 28px 8px rgba(0, 0, 0, 0.3)"
           : "0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05)",
 
         // Motion tokens
