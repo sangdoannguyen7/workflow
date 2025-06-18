@@ -39,9 +39,7 @@ class WorkflowApi implements IWorkflowApi {
     throw new Error("API does not support getById, use getByCode instead");
   }
 
-  async createWorkflow(
-    workflow: Omit<IWorkflow, "workflowId">
-  ): Promise<IWorkflow> {
+  async createWorkflow(workflow: any): Promise<any> {
     if (API_CONFIG.USE_MOCK) {
       const result = await MockAPI.createWorkflow(workflow);
       return result.data;
