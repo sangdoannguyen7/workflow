@@ -350,6 +350,18 @@ const menuData = [
     permission: "NODE_FLOW",
     description: "NODE_FLOW",
   },
+  {
+    path: "/workflow-builder",
+    key: "WORKFLOW_BUILDER",
+    icon: (
+      <Link to="/workflow-builder">
+        <ApartmentOutlined />
+      </Link>
+    ),
+    label: "Workflow Builder",
+    permission: "WORKFLOW_BUILDER",
+    description: "WORKFLOW_BUILDER",
+  },
   // {
   //   path: '/hotel/list',
   //   key: 'HOTEL_LIST',
