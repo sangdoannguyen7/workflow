@@ -734,7 +734,7 @@ const WorkflowBuilderPage: React.FC = () => {
                 <br />
                 1. Kéo template từ đây vào canvas bên phải
                 <br />
-                2. Kết nối các node bằng cách kéo handle
+                2. Kết nối các node b��ng cách kéo handle
                 <br />
                 <br />
                 <Text strong style={{ color: "#52c41a" }}>
