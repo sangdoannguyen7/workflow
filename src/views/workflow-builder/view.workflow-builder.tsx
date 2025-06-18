@@ -601,7 +601,7 @@ const WorkflowBuilderPage: React.FC = () => {
   // Fetch data functions
   const fetchWorkflows = async () => {
     try {
-      const response = await workflowApi.getWorkflows({ pageSize: 1000 });
+      const response = await WorkflowMockAPI.getWorkflows({ pageSize: 1000 });
       setWorkflows(response.data || []);
     } catch (error) {
       NotificationComponent({
