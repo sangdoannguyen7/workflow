@@ -1,4 +1,5 @@
 import { getMockWorkflows, getMockWorkflowByCode } from "../mock/workflow.mock";
+import { getEnhancedMockWorkflows } from "../mock/enhanced-workflow.mock";
 import { getMockNodes, getMockNodesByWorkflow } from "../mock/node.mock";
 import { getMockAgents } from "../mock/agent.mock";
 import { getMockTemplates } from "../mock/template.mock";
