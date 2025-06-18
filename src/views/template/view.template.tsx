@@ -347,14 +347,7 @@ const TemplatePage: React.FC = () => {
       fixed: "right",
       className: "action-column-transparent",
       render: (_: any, record: ITemplate) => (
-        <div
-          style={{
-            background: "rgba(255, 255, 255, 0.9)",
-            backdropFilter: "blur(8px)",
-            padding: "4px",
-            borderRadius: "6px",
-          }}
-        >
+        <div style={{ background: "rgba(255, 255, 255, 0.9)", backdropFilter: "blur(8px)", padding: "4px", borderRadius: "6px" }}>
           <Space size="small">
             <Tooltip title="Chỉnh sửa">
               <Button
@@ -647,19 +640,26 @@ const TemplatePage: React.FC = () => {
         )}
       </Card>
 
-      {/* Modal Form */}
-      <Modal
+      {/* Drawer Form */}
+      <Drawer
         title={
           <Space>
             <CodeOutlined />
             {editingTemplate ? "Chỉnh sửa Template" : "Thêm Template"}
           </Space>
         }
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        onOk={() => form.submit()}
-        width={900}
-        destroyOnHidden
+        open={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
+        width={720}
+        destroyOnClose
+        extra={
+          <Space>
+            <Button onClick={() => setDrawerVisible(false)}>Hủy</Button>
+            <Button type="primary" onClick={() => form.submit()}>
+              {editingTemplate ? "Cập nhật" : "Tạo mới"}
+            </Button>
+          </Space>
+        }
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Tabs
@@ -691,7 +691,7 @@ const TemplatePage: React.FC = () => {
                       <Col span={12}>
                         <Form.Item
                           name="templateName"
-                          label="Tên Template"
+                          label="T��n Template"
                           rules={[
                             {
                               required: true,
