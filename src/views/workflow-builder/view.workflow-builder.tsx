@@ -799,7 +799,7 @@ const WorkflowBuilderPage: React.FC = () => {
   const clearWorkflow = useCallback(() => {
     Modal.confirm({
       title: "Xóa tất cả workflow?",
-      content: "Thao tác này s��� xóa toàn bộ nodes và connections.",
+      content: "Thao tác này sẽ xóa toàn bộ nodes và connections.",
       onOk: () => {
         setNodes([]);
         setEdges([]);
@@ -814,6 +814,138 @@ const WorkflowBuilderPage: React.FC = () => {
       },
     });
   }, [setNodes, setEdges]);
+
+  // Additional workflow builder functions
+  const handleExportWorkflow = useCallback(() => {
+    if (!selectedWorkflow || !nodes || nodes.length === 0) {
+      NotificationComponent({
+        type: "warning",
+        message: "Cảnh báo",
+        description: "Không có dữ liệu để xuất",
+      });
+      return;
+    }
+
+    const exportData = {
+      workflowCode: selectedWorkflow,
+      nodes: nodes.map((node) => ({
+        id: node.id,
+        type: node.type,
+        position: node.position,
+        data: node.data,
+      })),
+      edges: edges.map((edge) => ({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        type: edge.type,
+      })),
+      metadata: {
+        exportedAt: new Date().toISOString(),
+        version: "1.0.0",
+        nodeCount: nodes.length,
+        edgeCount: edges.length,
+      },
+    };
+
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `workflow-${selectedWorkflow}-${Date.now()}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    NotificationComponent({
+      type: "success",
+      message: "Thành công",
+      description: "Đã xuất workflow thành công",
+    });
+  }, [selectedWorkflow, nodes, edges]);
+
+  const handleImportWorkflow = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const importData = JSON.parse(e.target?.result as string);
+
+          if (!importData.nodes || !importData.edges) {
+            throw new Error("Invalid workflow file format");
+          }
+
+          const importedNodes = importData.nodes.map((node: any) => ({
+            id: node.id,
+            type: node.type || "workflowNode",
+            position: node.position,
+            data: node.data,
+          }));
+
+          const importedEdges = importData.edges.map((edge: any) => ({
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            type: edge.type || "default",
+            animated: isPlaying,
+            style: {
+              stroke: colorPrimary,
+              strokeWidth: 3,
+              strokeDasharray: isPlaying ? "8,8" : undefined,
+            },
+          }));
+
+          setNodes(importedNodes);
+          setEdges(importedEdges);
+
+          // Update node counter
+          const maxNumber = Math.max(
+            0,
+            ...importedNodes.map((node: any) => {
+              const match = node.id.match(/node_(\d+)/);
+              return match ? parseInt(match[1]) : 0;
+            })
+          );
+          setNodeCounter(maxNumber + 1);
+
+          NotificationComponent({
+            type: "success",
+            message: "Thành công",
+            description: `Đã nhập workflow với ${importedNodes.length} nodes và ${importedEdges.length} connections`,
+          });
+        } catch (error) {
+          NotificationComponent({
+            type: "error",
+            message: "Lỗi",
+            description: "File không đúng định dạng hoặc bị lỗi",
+          });
+        }
+      };
+      reader.readAsText(file);
+    },
+    [setNodes, setEdges, isPlaying, colorPrimary]
+  );
+
+  const handleFitView = useCallback(() => {
+    if (reactFlowInstance) {
+      reactFlowInstance.fitView({ padding: 0.2 });
+    }
+  }, [reactFlowInstance]);
+
+  const handleZoomIn = useCallback(() => {
+    if (reactFlowInstance) {
+      reactFlowInstance.zoomIn();
+    }
+  }, [reactFlowInstance]);
+
+  const handleZoomOut = useCallback(() => {
+    if (reactFlowInstance) {
+      reactFlowInstance.zoomOut();
+    }
+  }, [reactFlowInstance]);
 
   const toggleSimulation = useCallback(() => {
     const newIsPlaying = !isPlaying;
@@ -1030,7 +1162,7 @@ const WorkflowBuilderPage: React.FC = () => {
                     </Row>
                   ) : (
                     <Text type="secondary">
-                      Vui l��ng chọn workflow để xem thông tin
+                      Vui lòng chọn workflow để xem thông tin
                     </Text>
                   ),
                 },
