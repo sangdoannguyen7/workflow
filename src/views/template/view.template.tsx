@@ -244,7 +244,7 @@ const TemplatePage: React.FC = () => {
         });
       }
 
-      setModalVisible(false);
+      setDrawerVisible(false);
       actionRef.current?.reload();
     } catch (error) {
       NotificationComponent({
