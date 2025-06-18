@@ -174,7 +174,7 @@ const TemplatePage: React.FC = () => {
       statusCode: "ACTIVE",
       statusName: "Active",
     });
-    setModalVisible(true);
+    setDrawerVisible(true);
   };
 
   const handleEdit = (template: ITemplate) => {
@@ -194,7 +194,7 @@ const TemplatePage: React.FC = () => {
       configuration: template.configuration || "",
       outputCode: template.outputCode || "",
     });
-    setModalVisible(true);
+    setDrawerVisible(true);
   };
 
   const handleSubmit = async (values: any) => {
