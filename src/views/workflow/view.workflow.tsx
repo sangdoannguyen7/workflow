@@ -178,7 +178,7 @@ const WorkflowPage: React.FC = () => {
           description: "Tạo workflow thành công",
         });
       }
-      setModalVisible(false);
+      setDrawerVisible(false);
       actionRef.current?.reload();
     } catch (error) {
       NotificationComponent({
@@ -879,7 +879,7 @@ const WorkflowPage: React.FC = () => {
               }}
             />
             <Title level={4} style={{ color: colorTextSecondary }}>
-              Chưa có kết qu��� test
+              Chưa có kết quả test
             </Title>
             <Text type="secondary">Vui lòng chạy test để xem kết quả</Text>
           </div>
