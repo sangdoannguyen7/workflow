@@ -627,7 +627,7 @@ const WorkflowBuilderPage: React.FC = () => {
 
   const fetchTemplates = async () => {
     try {
-      const response = await workflowApi.getTemplatesForBuilder();
+      const response = await WorkflowMockAPI.getTemplatesForBuilder();
       setTemplates(response.data || []);
     } catch (error) {
       NotificationComponent({
