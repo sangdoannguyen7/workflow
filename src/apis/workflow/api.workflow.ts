@@ -42,9 +42,11 @@ class WorkflowApi implements IWorkflowApi {
     throw new Error("API does not support getById, use getByCode instead");
   }
 
-  async createWorkflow(workflowRequest: IWorkflowRequest): Promise<IWorkflow> {
+  async createWorkflow(
+    workflow: Omit<IWorkflow, "workflowId">
+  ): Promise<IWorkflow> {
     if (API_CONFIG.USE_MOCK) {
-      const result = await MockAPI.createWorkflow(workflowRequest);
+      const result = await MockAPI.createWorkflow(workflow);
       return result.data;
     }
 
@@ -52,45 +54,39 @@ class WorkflowApi implements IWorkflowApi {
       method: "POST",
       uri: this.baseUrl,
       params: null,
-      data: workflowRequest,
+      data: workflow,
     };
     const response: IDataResponse<SingleApiResponse<IWorkflow>> =
       await axiosCustom(request);
     return response.value.data;
   }
 
-  async updateWorkflow(
-    workflowCode: string,
-    workflowRequest: IWorkflowRequest
-  ): Promise<IWorkflow> {
+  async updateWorkflow(id: number, workflow: IWorkflow): Promise<IWorkflow> {
     if (API_CONFIG.USE_MOCK) {
-      const result = await MockAPI.updateWorkflow(
-        workflowCode,
-        workflowRequest
-      );
+      const result = await MockAPI.updateWorkflow(id.toString(), workflow);
       return result.data;
     }
 
     const request: IDataRequest = {
       method: "PUT",
-      uri: `${this.baseUrl}/${workflowCode}`,
+      uri: `${this.baseUrl}/${id}`,
       params: null,
-      data: workflowRequest,
+      data: workflow,
     };
     const response: IDataResponse<SingleApiResponse<IWorkflow>> =
       await axiosCustom(request);
     return response.value.data;
   }
 
-  async deleteWorkflow(workflowCode: string): Promise<void> {
+  async deleteWorkflow(id: number): Promise<void> {
     if (API_CONFIG.USE_MOCK) {
-      await MockAPI.deleteWorkflow(workflowCode);
+      await MockAPI.deleteWorkflow(id.toString());
       return;
     }
 
     const request: IDataRequest = {
       method: "DELETE",
-      uri: `${this.baseUrl}/${workflowCode}`,
+      uri: `${this.baseUrl}/${id}`,
       params: null,
       data: null,
     };
