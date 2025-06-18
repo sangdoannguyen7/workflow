@@ -609,19 +609,26 @@ const WorkflowPage: React.FC = () => {
         />
       </Card>
 
-      {/* Workflow Form Modal */}
-      <Modal
+      {/* Workflow Form Drawer */}
+      <Drawer
         title={
           <Space>
             <ApartmentOutlined />
             {editingWorkflow ? "Chỉnh sửa Workflow" : "Thêm Workflow"}
           </Space>
         }
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        onOk={() => form.submit()}
-        width={800}
-        destroyOnHidden
+        open={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
+        width={600}
+        destroyOnClose
+        extra={
+          <Space>
+            <Button onClick={() => setDrawerVisible(false)}>Hủy</Button>
+            <Button type="primary" onClick={() => form.submit()}>
+              {editingWorkflow ? "Cập nhật" : "Tạo mới"}
+            </Button>
+          </Space>
+        }
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Row gutter={16}>
