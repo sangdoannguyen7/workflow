@@ -824,7 +824,7 @@ const WorkflowBuilderPage: React.FC = () => {
     } catch (error) {
       NotificationComponent({
         type: "error",
-        message: "L��i",
+        message: "Lỗi",
         description: "Không thể tải danh sách agent",
       });
     }
@@ -1607,45 +1607,72 @@ const WorkflowBuilderPage: React.FC = () => {
                 color={`${colorPrimary}20`}
               />
 
-              {/* Drop Zone Hint */}
+              {/* Enhanced Drop Zone Hint */}
               {(!nodes || nodes.length === 0) && (
                 <Panel position="top-center">
                   <div
                     style={{
-                      padding: "32px",
-                      background: colorBgContainer,
+                      padding: "40px",
+                      background: `linear-gradient(135deg, ${colorBgContainer}, ${colorPrimary}08)`,
                       borderRadius: borderRadiusLG,
-                      border: `2px dashed ${colorPrimary}40`,
+                      border: `3px dashed ${colorPrimary}60`,
                       textAlign: "center",
-                      maxWidth: "500px",
-                      boxShadow: boxShadowSecondary,
+                      maxWidth: "600px",
+                      boxShadow: `${boxShadowSecondary}, 0 0 0 1px ${colorPrimary}20`,
+                      animation: "pulse 2s ease-in-out infinite alternate",
                     }}
                   >
-                    <ApartmentOutlined
+                    <DragOutlined
                       style={{
-                        fontSize: "56px",
+                        fontSize: "64px",
                         color: colorPrimary,
-                        marginBottom: "20px",
+                        marginBottom: "24px",
                         display: "block",
+                        opacity: 0.8,
                       }}
                     />
                     <Title
-                      level={3}
-                      style={{ color: colorPrimary, marginBottom: "12px" }}
+                      level={2}
+                      style={{
+                        color: colorPrimary,
+                        marginBottom: "16px",
+                        fontWeight: 600,
+                      }}
                     >
-                      Workflow Builder
+                      🚀 Workflow Builder
                     </Title>
                     <Text
-                      type="secondary"
-                      style={{ fontSize: "15px", lineHeight: 1.6 }}
+                      style={{
+                        fontSize: "16px",
+                        lineHeight: 1.8,
+                        color: colorText,
+                        display: "block",
+                        marginBottom: "20px",
+                      }}
                     >
-                      Kéo thả template từ sidebar để tạo workflow nodes.
+                      <strong>Bắt đầu xây dựng workflow của bạn:</strong>
                       <br />
-                      Kết nối các node bằng cách kéo từ handle này đến handle
-                      khác.
+                      📝 <strong>1.</strong> Kéo template từ sidebar bên trái
+                      vào canvas
                       <br />
-                      Sử dụng nút "Run All Test" để kiểm tra workflow.
+                      🔗 <strong>2.</strong> Kết nối các node bằng cách kéo từ
+                      ⚪ handle này đến ⚪ handle khác
+                      <br />⚡ <strong>3.</strong> Sử dụng nút "Run All Test" để
+                      kiểm tra workflow
                     </Text>
+                    <div
+                      style={{
+                        background: `${colorPrimary}15`,
+                        padding: "12px 20px",
+                        borderRadius: "8px",
+                        border: `1px solid ${colorPrimary}30`,
+                      }}
+                    >
+                      <Text style={{ fontSize: "14px", color: colorPrimary }}>
+                        💡 <strong>Mẹo:</strong> Trigger → Intermediate → Exit
+                        là flow chuẩn
+                      </Text>
+                    </div>
                   </div>
                 </Panel>
               )}
