@@ -1,8 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import SiderLayout from "../layout/sider.layout";
-import { Layout } from "antd";
-import HeaderComponent from "../layout/header.layout";
-import FooterComponent from "../layout/footer.layout";
+import MainLayout from "../layout/main.layout";
 import NotfoundPage from "../views/exception/notfound.view";
 import UserPage from "../views/user/view.user.tsx";
 import GroupPage from "../views/group/view.group.tsx";
@@ -22,26 +19,8 @@ import ManagementPage from "../views/management/view.management.tsx";
 const RenderRouter = () => {
   return (
     <BrowserRouter>
-      <Layout style={{ minHeight: "100vh" }}>
-        <SiderLayout />
-        <Layout
-          style={{
-            marginLeft: "200px", // Space for fixed sidebar
-            minHeight: "100vh",
-          }}
-        >
-          <HeaderComponent />
-          <Layout.Content
-            style={{
-              margin: "16px",
-              padding: "24px",
-              background: "#fff",
-              borderRadius: "8px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
-              minHeight: "calc(100vh - 160px)",
-            }}
-          >
-            <Routes>
+      <MainLayout>
+        <Routes>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/account" element={<UserPage />} />
