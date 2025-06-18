@@ -30,6 +30,10 @@ import {
   Form,
   Switch,
   Spin,
+  Drawer,
+  Timeline,
+  Statistic,
+  Collapse,
 } from "antd";
 import {
   ApartmentOutlined,
@@ -1128,7 +1132,7 @@ const WorkflowBuilderPage: React.FC = () => {
   const clearWorkflow = useCallback(() => {
     Modal.confirm({
       title: "Xóa tất cả workflow?",
-      content: "Thao tác này sẽ xóa toàn b��� nodes và connections.",
+      content: "Thao tác này sẽ xóa toàn bộ nodes và connections.",
       onOk: () => {
         setNodes([]);
         setEdges([]);
