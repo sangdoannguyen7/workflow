@@ -156,7 +156,7 @@ const DashboardPage = () => {
         id: 3,
         type: "info",
         title: "Template mới được tạo",
-        description: 'Template "Payment Notification" đã được th��m',
+        description: 'Template "Payment Notification" đã được thêm',
         time: "1 giờ trước",
         user: "Admin",
         workflow: "PAYMENT_NOTIFY",
@@ -774,7 +774,7 @@ const DashboardPage = () => {
                         <Text strong style={{ fontSize: 13 }}>
                           {item.title}
                         </Text>
-                        <Tag size="small" color="blue">
+                        <Tag color="blue" style={{ fontSize: 11 }}>
                           {item.workflow}
                         </Tag>
                       </div>
