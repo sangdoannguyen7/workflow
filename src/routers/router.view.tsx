@@ -62,7 +62,6 @@ const RenderRouter = () => {
               <Route path="/statistic" element={<UserPage />} />
               <Route path="/agent" element={<AgentPage />} />
               <Route path="/template" element={<TemplatePage />} />
-              <Route path="/node" element={<NodePage />} />
               <Route path="/workflow" element={<WorkflowPage />} />
               <Route
                 path="/workflow-designer"
@@ -72,12 +71,10 @@ const RenderRouter = () => {
                 path="/workflow-designer/:workflowCode"
                 element={<WorkflowDesignerPage />}
               />
-              <Route path="/node-flow" element={<NodeFlowPage />} />
               <Route
                 path="/workflow-builder"
                 element={<WorkflowBuilderPage />}
               />
-              <Route path="/management" element={<ManagementPage />} />
               <Route path="*" element={<NotfoundPage />} />
             </Routes>
           </Layout.Content>
