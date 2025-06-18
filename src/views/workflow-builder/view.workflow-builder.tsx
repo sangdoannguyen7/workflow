@@ -756,7 +756,7 @@ const WorkflowBuilderPage: React.FC = () => {
       setNodes((nds) =>
         (nds || []).map((node) =>
           node.id === nodeId
-            ? { ...node, data: { ...node.data, label: newLabel } }
+            ? { ...node, data: { ...node.data, ...data } }
             : node
         )
       );
