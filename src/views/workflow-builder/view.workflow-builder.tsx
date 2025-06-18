@@ -1306,11 +1306,11 @@ const WorkflowBuilderPage: React.FC = () => {
             bodyStyle={{ padding: "12px 16px" }}
           >
             <Row gutter={[16, 8]} align="middle">
-              <Col xs={24} sm={12} md={8}>
+              <Col xs={24} sm={12} md={10}>
                 <Space>
                   <Text strong>Workflow:</Text>
                   <Select
-                    style={{ minWidth: 200 }}
+                    style={{ minWidth: 180 }}
                     placeholder="Chọn workflow"
                     value={selectedWorkflow}
                     onChange={setSelectedWorkflow}
@@ -1319,6 +1319,14 @@ const WorkflowBuilderPage: React.FC = () => {
                       label: `${w.workflowName} (${w.workflowCode})`,
                     }))}
                   />
+                  <Button
+                    type="dashed"
+                    icon={<PlusOutlined />}
+                    onClick={() => setCreateWorkflowModalVisible(true)}
+                    size="small"
+                  >
+                    Tạo mới
+                  </Button>
                 </Space>
               </Col>
 
