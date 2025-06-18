@@ -216,8 +216,8 @@ const AgentPage: React.FC = () => {
   return (
     <div
       style={{
-        padding: "24px",
-        background: colorBgContainer,
+        padding: "8px",
+        background: "transparent",
         borderRadius: "8px",
       }}
     >
