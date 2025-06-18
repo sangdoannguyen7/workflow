@@ -493,7 +493,7 @@ const WorkflowBuilderPage: React.FC = () => {
     },
   } = theme.useToken();
 
-  // Handle node connections with validation rules
+  // Handle node connections with enhanced validation rules
   const onConnect = useCallback(
     (params: Connection) => {
       if (!params.source || !params.target) return;
@@ -514,20 +514,58 @@ const WorkflowBuilderPage: React.FC = () => {
           targetNode.data.templateType as keyof typeof TEMPLATE_CONFIGS
         ];
 
-      // Validate connection rules
-      if (sourceConfig && targetConfig) {
-        const canConnect = sourceConfig.canConnectTo?.includes(
-          targetConfig.category?.toLowerCase() || targetNode.data.templateType
-        );
+      if (!sourceConfig || !targetConfig) {
+        NotificationComponent({
+          type: "error",
+          message: "Lỗi kết nối",
+          description: "Không thể xác định loại node",
+        });
+        return;
+      }
 
-        if (!canConnect) {
-          NotificationComponent({
-            type: "error",
-            message: "Kết nối không hợp lệ",
-            description: `${sourceConfig.category} không thể kết nối với ${targetConfig.category}`,
-          });
-          return;
+      // Enhanced connection validation rules
+      const sourceCategory = sourceConfig.category;
+      const targetCategory = targetConfig.category;
+
+      let canConnect = false;
+      let errorMessage = "";
+
+      if (sourceCategory === "TRIGGER") {
+        // Trigger nodes can only connect TO intermediate nodes
+        if (targetCategory === "INTERMEDIATE") {
+          canConnect = true;
+        } else if (targetCategory === "EXIT") {
+          errorMessage =
+            "Trigger không thể kết nối trực tiếp với Exit. Hãy sử dụng node Intermediate làm trung gian.";
+        } else if (targetCategory === "TRIGGER") {
+          errorMessage = "Trigger không thể kết nối với Trigger khác.";
         }
+      } else if (sourceCategory === "INTERMEDIATE") {
+        // Intermediate nodes can connect to both intermediate and exit nodes
+        if (targetCategory === "INTERMEDIATE" || targetCategory === "EXIT") {
+          canConnect = true;
+        } else if (targetCategory === "TRIGGER") {
+          errorMessage = "Node Intermediate không thể kết nối với Trigger.";
+        }
+      } else if (sourceCategory === "EXIT") {
+        // Exit nodes can only connect back to trigger nodes (for loops/callbacks)
+        if (targetCategory === "TRIGGER") {
+          canConnect = true;
+        } else {
+          errorMessage =
+            "Exit chỉ có thể kết nối về Trigger (để tạo vòng lặp hoặc callback).";
+        }
+      }
+
+      if (!canConnect) {
+        NotificationComponent({
+          type: "error",
+          message: "Kết nối không hợp lệ",
+          description:
+            errorMessage ||
+            `${sourceCategory} không thể kết nối với ${targetCategory}`,
+        });
+        return;
       }
 
       // Check for duplicate connections
@@ -540,6 +578,16 @@ const WorkflowBuilderPage: React.FC = () => {
           type: "warning",
           message: "Cảnh báo",
           description: "Kết nối này đã tồn tại",
+        });
+        return;
+      }
+
+      // Check for self-connections
+      if (params.source === params.target) {
+        NotificationComponent({
+          type: "error",
+          message: "Kết nối không hợp lệ",
+          description: "Node không thể kết nối với chính nó",
         });
         return;
       }
@@ -558,7 +606,7 @@ const WorkflowBuilderPage: React.FC = () => {
       NotificationComponent({
         type: "success",
         message: "Thành công",
-        description: "Đã kết nối nodes thành công",
+        description: `Đã kết nối ${sourceCategory} với ${targetCategory}`,
       });
     },
     [setEdges, isPlaying, colorPrimary, nodes, edges]

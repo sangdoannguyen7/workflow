@@ -732,39 +732,52 @@ const DashboardPage = () => {
               height: 320,
               boxShadow: boxShadowSecondary,
             }}
-            bodyStyle={{ padding: "12px", overflow: "hidden" }}
+            bodyStyle={{ padding: "16px", overflow: "hidden" }}
           >
-            <div style={{ textAlign: "center" }}>
-              <Gauge {...performanceGaugeConfig} height={200} />
-              <Divider />
-              <Space direction="vertical" size={12} style={{ width: "100%" }}>
-                <div
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  <Text>Total Executions:</Text>
-                  <Text strong>
-                    {dashboardData.stats.totalExecutions.toLocaleString()}
-                  </Text>
-                </div>
-                <div
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  <Text>Active Agents:</Text>
-                  <Text strong style={{ color: colorSuccess }}>
-                    {dashboardData.stats.onlineAgents}/
-                    {dashboardData.stats.totalAgents}
-                  </Text>
-                </div>
-                <Progress
-                  percent={Math.round(
-                    (dashboardData.stats.onlineAgents /
-                      dashboardData.stats.totalAgents) *
-                      100
-                  )}
-                  strokeColor={colorSuccess}
-                  size="small"
-                />
-              </Space>
+            <div style={{ textAlign: "center", height: "100%" }}>
+              <div style={{ height: 160, overflow: "hidden" }}>
+                <Gauge {...performanceGaugeConfig} height={140} />
+              </div>
+              <Divider style={{ margin: "12px 0" }} />
+              <div style={{ height: 90, overflow: "hidden" }}>
+                <Space direction="vertical" size={8} style={{ width: "100%" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      fontSize: 12,
+                    }}
+                  >
+                    <Text style={{ fontSize: 12 }}>Total Executions:</Text>
+                    <Text strong style={{ fontSize: 12 }}>
+                      {dashboardData.stats.totalExecutions.toLocaleString()}
+                    </Text>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      fontSize: 12,
+                    }}
+                  >
+                    <Text style={{ fontSize: 12 }}>Active Agents:</Text>
+                    <Text strong style={{ color: colorSuccess, fontSize: 12 }}>
+                      {dashboardData.stats.onlineAgents}/
+                      {dashboardData.stats.totalAgents}
+                    </Text>
+                  </div>
+                  <Progress
+                    percent={Math.round(
+                      (dashboardData.stats.onlineAgents /
+                        dashboardData.stats.totalAgents) *
+                        100
+                    )}
+                    strokeColor={colorSuccess}
+                    size="small"
+                    style={{ margin: 0 }}
+                  />
+                </Space>
+              </div>
             </div>
           </Card>
         </Col>
@@ -794,81 +807,106 @@ const DashboardPage = () => {
               height: 320,
               boxShadow: boxShadowSecondary,
             }}
-            bodyStyle={{ padding: "12px", overflow: "auto", maxHeight: 280 }}
+            bodyStyle={{ padding: "16px 24px 8px 24px" }}
           >
-            <List
-              size="small"
-              dataSource={dashboardData.recentActivities}
-              renderItem={(item) => (
-                <List.Item
-                  style={{
-                    border: "none",
-                    padding: "12px 0",
-                    borderBottom: `1px solid ${colorBgContainer}`,
-                  }}
-                >
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar
-                        size={36}
-                        icon={getActivityIcon(item.type)}
-                        style={{
-                          backgroundColor: "transparent",
-                          border: `2px solid ${
-                            item.type === "success"
-                              ? colorSuccess
-                              : item.type === "warning"
-                              ? colorWarning
-                              : item.type === "error"
-                              ? colorError
-                              : colorInfo
-                          }20`,
-                        }}
-                      />
-                    }
-                    title={
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Text strong style={{ fontSize: 13 }}>
-                          {item.title}
-                        </Text>
-                        <Tag color="blue" style={{ fontSize: 11 }}>
-                          {item.workflow}
-                        </Tag>
-                      </div>
-                    }
-                    description={
-                      <div>
-                        <Text
-                          style={{ fontSize: 12, color: colorTextSecondary }}
+            <div style={{ height: 240, overflowY: "auto", marginRight: -8 }}>
+              <List
+                size="small"
+                dataSource={dashboardData.recentActivities}
+                renderItem={(item) => (
+                  <List.Item
+                    style={{
+                      border: "none",
+                      padding: "8px 8px 8px 0",
+                      borderBottom: `1px solid ${colorBgContainer}`,
+                      marginBottom: 4,
+                    }}
+                  >
+                    <List.Item.Meta
+                      avatar={
+                        <Avatar
+                          size={32}
+                          icon={getActivityIcon(item.type)}
+                          style={{
+                            backgroundColor: "transparent",
+                            border: `2px solid ${
+                              item.type === "success"
+                                ? colorSuccess
+                                : item.type === "warning"
+                                ? colorWarning
+                                : item.type === "error"
+                                ? colorError
+                                : colorInfo
+                            }20`,
+                          }}
+                        />
+                      }
+                      title={
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                            marginBottom: 2,
+                          }}
                         >
-                          {item.description}
-                        </Text>
-                        <br />
-                        <Space style={{ marginTop: 4 }}>
                           <Text
-                            style={{ fontSize: 11, color: colorTextSecondary }}
+                            strong
+                            style={{
+                              fontSize: 12,
+                              lineHeight: 1.3,
+                              maxWidth: "70%",
+                            }}
                           >
-                            {item.time}
+                            {item.title}
                           </Text>
-                          <Divider type="vertical" />
+                          <Tag color="blue" style={{ fontSize: 10, margin: 0 }}>
+                            {item.workflow}
+                          </Tag>
+                        </div>
+                      }
+                      description={
+                        <div>
                           <Text
-                            style={{ fontSize: 11, color: colorTextSecondary }}
+                            style={{
+                              fontSize: 11,
+                              color: colorTextSecondary,
+                              lineHeight: 1.3,
+                              display: "block",
+                              marginBottom: 2,
+                            }}
                           >
-                            by {item.user}
+                            {item.description}
                           </Text>
-                        </Space>
-                      </div>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
+                          <Space size={4}>
+                            <Text
+                              style={{
+                                fontSize: 10,
+                                color: colorTextSecondary,
+                              }}
+                            >
+                              {item.time}
+                            </Text>
+                            <Divider
+                              type="vertical"
+                              style={{ margin: "0 4px" }}
+                            />
+                            <Text
+                              style={{
+                                fontSize: 10,
+                                color: colorTextSecondary,
+                              }}
+                            >
+                              by {item.user}
+                            </Text>
+                          </Space>
+                        </div>
+                      }
+                    />
+                  </List.Item>
+                )}
+              />
+            </div>
           </Card>
         </Col>
       </Row>
@@ -891,76 +929,104 @@ const DashboardPage = () => {
             }}
             bodyStyle={{ padding: "16px", overflow: "hidden" }}
           >
-            <Row gutter={[8, 8]}>
-              <Col span={12}>
-                <Statistic
-                  title="CPU Usage"
-                  value={23.5}
-                  precision={1}
-                  suffix="%"
-                  valueStyle={{ color: colorSuccess, fontSize: 16 }}
-                />
-                <Progress
-                  percent={23}
-                  strokeColor={colorSuccess}
-                  size="small"
-                />
-              </Col>
-              <Col span={12}>
-                <Statistic
-                  title="Memory Usage"
-                  value={67.2}
-                  precision={1}
-                  suffix="%"
-                  valueStyle={{ color: colorWarning, fontSize: 16 }}
-                />
-                <Progress
-                  percent={67}
-                  strokeColor={colorWarning}
-                  size="small"
-                />
-              </Col>
-              <Col span={12}>
-                <Statistic
-                  title="Disk Usage"
-                  value={34.8}
-                  precision={1}
-                  suffix="%"
-                  valueStyle={{ color: colorPrimary, fontSize: 16 }}
-                />
-                <Progress
-                  percent={35}
-                  strokeColor={colorPrimary}
-                  size="small"
-                />
-              </Col>
-              <Col span={12}>
-                <Statistic
-                  title="Network I/O"
-                  value={156}
-                  suffix="MB/s"
-                  valueStyle={{ color: colorInfo, fontSize: 16 }}
-                />
-                <Progress percent={78} strokeColor={colorInfo} size="small" />
-              </Col>
-            </Row>
-            <Divider style={{ margin: "8px 0" }} />
-            <Space direction="vertical" size={4} style={{ width: "100%" }}>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <Text>Database Connections:</Text>
-                <Text strong>45/100</Text>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <Text>Queue Size:</Text>
-                <Text strong>12</Text>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <Text>Cache Hit Rate:</Text>
-                <Text strong style={{ color: colorSuccess }}>
-                  94.2%
-                </Text>
-              </div>
-            </Space>
+            <div style={{ height: 220, overflow: "hidden" }}>
+              <Row gutter={[8, 6]}>
+                <Col span={12}>
+                  <div style={{ marginBottom: 12 }}>
+                    <Statistic
+                      title={<span style={{ fontSize: 12 }}>CPU Usage</span>}
+                      value={23.5}
+                      precision={1}
+                      suffix="%"
+                      valueStyle={{ color: colorSuccess, fontSize: 14 }}
+                    />
+                    <Progress
+                      percent={23}
+                      strokeColor={colorSuccess}
+                      size="small"
+                      style={{ margin: "2px 0" }}
+                    />
+                  </div>
+                </Col>
+                <Col span={12}>
+                  <div style={{ marginBottom: 12 }}>
+                    <Statistic
+                      title={<span style={{ fontSize: 12 }}>Memory Usage</span>}
+                      value={67.2}
+                      precision={1}
+                      suffix="%"
+                      valueStyle={{ color: colorWarning, fontSize: 14 }}
+                    />
+                    <Progress
+                      percent={67}
+                      strokeColor={colorWarning}
+                      size="small"
+                      style={{ margin: "2px 0" }}
+                    />
+                  </div>
+                </Col>
+                <Col span={12}>
+                  <div style={{ marginBottom: 12 }}>
+                    <Statistic
+                      title={<span style={{ fontSize: 12 }}>Disk Usage</span>}
+                      value={34.8}
+                      precision={1}
+                      suffix="%"
+                      valueStyle={{ color: colorPrimary, fontSize: 14 }}
+                    />
+                    <Progress
+                      percent={35}
+                      strokeColor={colorPrimary}
+                      size="small"
+                      style={{ margin: "2px 0" }}
+                    />
+                  </div>
+                </Col>
+                <Col span={12}>
+                  <div style={{ marginBottom: 12 }}>
+                    <Statistic
+                      title={<span style={{ fontSize: 12 }}>Network I/O</span>}
+                      value={156}
+                      suffix="MB/s"
+                      valueStyle={{ color: colorInfo, fontSize: 14 }}
+                    />
+                    <Progress
+                      percent={78}
+                      strokeColor={colorInfo}
+                      size="small"
+                      style={{ margin: "2px 0" }}
+                    />
+                  </div>
+                </Col>
+              </Row>
+              <Divider style={{ margin: "8px 0" }} />
+              <Space direction="vertical" size={2} style={{ width: "100%" }}>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <Text style={{ fontSize: 12 }}>Database Connections:</Text>
+                  <Text strong style={{ fontSize: 12 }}>
+                    45/100
+                  </Text>
+                </div>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <Text style={{ fontSize: 12 }}>Queue Size:</Text>
+                  <Text strong style={{ fontSize: 12 }}>
+                    12
+                  </Text>
+                </div>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <Text style={{ fontSize: 12 }}>Cache Hit Rate:</Text>
+                  <Text strong style={{ color: colorSuccess, fontSize: 12 }}>
+                    94.2%
+                  </Text>
+                </div>
+              </Space>
+            </div>
           </Card>
         </Col>
 
@@ -977,61 +1043,83 @@ const DashboardPage = () => {
               height: 280,
               boxShadow: boxShadowSecondary,
             }}
-            bodyStyle={{ padding: "16px", overflow: "auto", maxHeight: 240 }}
+            bodyStyle={{ padding: "16px", overflow: "hidden" }}
           >
-            <Timeline
-              mode="left"
-              items={[
-                {
-                  color: colorSuccess,
-                  children: (
-                    <div>
-                      <Text strong>User Registration Completed</Text>
-                      <br />
-                      <Text type="secondary" style={{ fontSize: 11 }}>
-                        2 minutes ago • 45 users processed
-                      </Text>
-                    </div>
-                  ),
-                },
-                {
-                  color: colorWarning,
-                  children: (
-                    <div>
-                      <Text strong>Payment Gateway Slow Response</Text>
-                      <br />
-                      <Text type="secondary" style={{ fontSize: 11 }}>
-                        15 minutes ago • 3.2s avg response time
-                      </Text>
-                    </div>
-                  ),
-                },
-                {
-                  color: colorSuccess,
-                  children: (
-                    <div>
-                      <Text strong>Data Sync Batch Completed</Text>
-                      <br />
-                      <Text type="secondary" style={{ fontSize: 11 }}>
-                        1 hour ago • 1,234 records synchronized
-                      </Text>
-                    </div>
-                  ),
-                },
-                {
-                  color: colorPrimary,
-                  children: (
-                    <div>
-                      <Text strong>System Maintenance Window</Text>
-                      <br />
-                      <Text type="secondary" style={{ fontSize: 11 }}>
-                        3 hours ago • Scheduled maintenance completed
-                      </Text>
-                    </div>
-                  ),
-                },
-              ]}
-            />
+            <div style={{ height: 220, overflowY: "auto", paddingRight: 8 }}>
+              <Timeline
+                mode="left"
+                items={[
+                  {
+                    color: colorSuccess,
+                    children: (
+                      <div style={{ marginBottom: 4 }}>
+                        <Text strong style={{ fontSize: 12, lineHeight: 1.3 }}>
+                          User Registration Completed
+                        </Text>
+                        <br />
+                        <Text
+                          type="secondary"
+                          style={{ fontSize: 10, lineHeight: 1.2 }}
+                        >
+                          2 minutes ago • 45 users processed
+                        </Text>
+                      </div>
+                    ),
+                  },
+                  {
+                    color: colorWarning,
+                    children: (
+                      <div style={{ marginBottom: 4 }}>
+                        <Text strong style={{ fontSize: 12, lineHeight: 1.3 }}>
+                          Payment Gateway Slow Response
+                        </Text>
+                        <br />
+                        <Text
+                          type="secondary"
+                          style={{ fontSize: 10, lineHeight: 1.2 }}
+                        >
+                          15 minutes ago • 3.2s avg response time
+                        </Text>
+                      </div>
+                    ),
+                  },
+                  {
+                    color: colorSuccess,
+                    children: (
+                      <div style={{ marginBottom: 4 }}>
+                        <Text strong style={{ fontSize: 12, lineHeight: 1.3 }}>
+                          Data Sync Batch Completed
+                        </Text>
+                        <br />
+                        <Text
+                          type="secondary"
+                          style={{ fontSize: 10, lineHeight: 1.2 }}
+                        >
+                          1 hour ago • 1,234 records synchronized
+                        </Text>
+                      </div>
+                    ),
+                  },
+                  {
+                    color: colorPrimary,
+                    children: (
+                      <div style={{ marginBottom: 4 }}>
+                        <Text strong style={{ fontSize: 12, lineHeight: 1.3 }}>
+                          System Maintenance Window
+                        </Text>
+                        <br />
+                        <Text
+                          type="secondary"
+                          style={{ fontSize: 10, lineHeight: 1.2 }}
+                        >
+                          3 hours ago • Scheduled maintenance completed
+                        </Text>
+                      </div>
+                    ),
+                  },
+                ]}
+              />
+            </div>
           </Card>
         </Col>
       </Row>
