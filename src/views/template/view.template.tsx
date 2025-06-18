@@ -593,7 +593,7 @@ const TemplatePage: React.FC = () => {
             <div
               style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}
             >
-              <Button.Group>
+              <Space.Compact>
                 <Button
                   icon={<BarsOutlined />}
                   type={viewMode === "table" ? "primary" : "default"}
@@ -608,7 +608,7 @@ const TemplatePage: React.FC = () => {
                 >
                   Thẻ
                 </Button>
-              </Button.Group>
+              </Space.Compact>
             </div>
           </Col>
         </Row>
