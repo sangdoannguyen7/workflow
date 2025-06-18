@@ -1,5 +1,5 @@
 export const constants = {
-  BACKEND_HOST: "http://localhost:8080",
+  BACKEND_HOST: "",
   API_VERSION: "v1",
   // Add other constants as needed
   TIMEOUT: 30000,

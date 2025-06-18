@@ -3,6 +3,8 @@ import {
   ITemplate,
   ITemplateResponse,
   ITemplateSearchParams,
+  ITemplateRequest,
+  ITemplateValueResponse,
 } from "../../interface/template.interface";
 import { ITemplateApi } from "./api.template.interface";
 
@@ -35,29 +37,30 @@ class TemplateApi implements ITemplateApi {
     throw new Error("API does not support getById, use getByCode instead");
   }
 
-  async createTemplate(
-    template: Omit<ITemplate, "templateId">
-  ): Promise<ITemplate> {
+  async createTemplate(templateRequest: ITemplateRequest): Promise<ITemplate> {
     const request: IDataRequest = {
       method: "POST",
       uri: this.baseUrl,
       params: null,
-      data: template,
+      data: templateRequest,
     };
-    const response: IDataResponse<{ data: ITemplate }> = await axiosCustom(
+    const response: IDataResponse<ITemplateValueResponse> = await axiosCustom(
       request
     );
     return response.value.data;
   }
 
-  async updateTemplate(id: number, template: ITemplate): Promise<ITemplate> {
+  async updateTemplate(
+    templateCode: string,
+    templateRequest: ITemplateRequest
+  ): Promise<ITemplate> {
     const request: IDataRequest = {
       method: "PATCH",
-      uri: `${this.baseUrl}/${template.templateCode}`,
+      uri: `${this.baseUrl}/${templateCode}`,
       params: null,
-      data: template,
+      data: templateRequest,
     };
-    const response: IDataResponse<{ data: ITemplate }> = await axiosCustom(
+    const response: IDataResponse<ITemplateValueResponse> = await axiosCustom(
       request
     );
     return response.value.data;
@@ -76,7 +79,7 @@ class TemplateApi implements ITemplateApi {
       params: null,
       data: null,
     };
-    const response: IDataResponse<{ data: ITemplate }> = await axiosCustom(
+    const response: IDataResponse<ITemplateValueResponse> = await axiosCustom(
       request
     );
     return response.value.data;

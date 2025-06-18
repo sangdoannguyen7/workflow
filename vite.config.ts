@@ -6,6 +6,16 @@ export default defineConfig({
   // server: {
   //   port: 3000
   // },
+  server: {
+    proxy: {
+      '/v1': {
+        target: 'http://172.16.5.100:8082',
+        changeOrigin: true,
+        // Không cần rewrite nếu không đổi path
+        // rewrite: (path) => path.replace(/^\/v1/, '/v1')
+      }
+    }
+  },
   plugins: [react()],
   build: {
     rollupOptions: {
