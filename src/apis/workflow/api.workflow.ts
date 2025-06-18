@@ -7,7 +7,7 @@ import {
 } from "../../interface/workflow.interface";
 import { SingleApiResponse } from "../../interface/common.interface";
 import { IWorkflowApi } from "./api.workflow.interface";
-import { MockAPI, API_CONFIG } from "../../config/api.config";
+import { MockAPI, WorkflowMockAPI, API_CONFIG } from "../../config/api.config";
 
 class WorkflowApi implements IWorkflowApi {
   private readonly baseUrl = "/v1/property/workflows";
