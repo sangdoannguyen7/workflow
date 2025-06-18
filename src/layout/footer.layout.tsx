@@ -7,7 +7,6 @@ import {
   Divider,
   Row,
   Col,
-  Card,
   Button,
 } from "antd";
 import {
