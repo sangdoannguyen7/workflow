@@ -338,6 +338,18 @@ const menuData = [
     permission: "WORKFLOW",
     description: "WORKFLOW",
   },
+  {
+    path: "/node-flow",
+    key: "NODE_FLOW",
+    icon: (
+      <Link to="/node-flow">
+        <ApartmentOutlined />
+      </Link>
+    ),
+    label: "Thiết kế Node Flow",
+    permission: "NODE_FLOW",
+    description: "NODE_FLOW",
+  },
   // {
   //   path: '/hotel/list',
   //   key: 'HOTEL_LIST',
