@@ -12,9 +12,7 @@ import { MockAPI, API_CONFIG } from "../../config/api.config";
 class WorkflowApi implements IWorkflowApi {
   private readonly baseUrl = "/v1/property/workflows";
 
-  async getWorkflows(
-    params?: IWorkflowSearchParams
-  ): Promise<IWorkflowResponse> {
+  async getWorkflows(params?: IWorkflowSearchParams): Promise<any> {
     if (API_CONFIG.USE_MOCK) {
       return await MockAPI.getWorkflows(params);
     }
