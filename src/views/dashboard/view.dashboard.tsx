@@ -710,38 +710,76 @@ const DashboardPage = () => {
             </div>
             <div
               style={{
-                marginTop: 8,
+                marginTop: 12,
                 display: "flex",
-                justifyContent: "center",
-                gap: 16,
+                justifyContent: "space-between",
+                alignItems: "center",
+                background: `${colorBgContainer}`,
+                padding: "8px 12px",
+                borderRadius: "8px",
+                border: `1px solid ${colorPrimary}15`,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <div
-                  style={{
-                    width: 12,
-                    height: 3,
-                    background: colorPrimary,
-                    borderRadius: 2,
-                  }}
-                />
-                <Text style={{ fontSize: 12, color: colorTextSecondary }}>
-                  Thành công
-                </Text>
+              <div style={{ display: "flex", gap: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <div
+                    style={{
+                      width: 16,
+                      height: 4,
+                      background: colorPrimary,
+                      borderRadius: 2,
+                      boxShadow: `0 2px 4px ${colorPrimary}30`,
+                    }}
+                  />
+                  <Text
+                    style={{ fontSize: 11, color: colorText, fontWeight: 500 }}
+                  >
+                    Thành công
+                  </Text>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <div
+                    style={{
+                      width: 16,
+                      height: 4,
+                      background: colorError,
+                      borderRadius: 2,
+                      backgroundImage:
+                        "repeating-linear-gradient(90deg, transparent, transparent 3px, #fff 3px, #fff 6px)",
+                      boxShadow: `0 2px 4px ${colorError}30`,
+                    }}
+                  />
+                  <Text
+                    style={{ fontSize: 11, color: colorText, fontWeight: 500 }}
+                  >
+                    Lỗi (với số lượng)
+                  </Text>
+                </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  background: `${colorError}10`,
+                  padding: "2px 6px",
+                  borderRadius: 4,
+                  border: `1px solid ${colorError}20`,
+                }}
+              >
                 <div
                   style={{
-                    width: 12,
-                    height: 2,
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
                     background: colorError,
-                    borderRadius: 2,
-                    backgroundImage:
-                      "repeating-linear-gradient(90deg, transparent, transparent 2px, #fff 2px, #fff 4px)",
+                    animation: "blink 2s ease-in-out infinite",
                   }}
                 />
-                <Text style={{ fontSize: 12, color: colorTextSecondary }}>
-                  Lỗi
+                <Text
+                  style={{ fontSize: 10, color: colorError, fontWeight: 600 }}
+                >
+                  Live Error Tracking
                 </Text>
               </div>
             </div>
