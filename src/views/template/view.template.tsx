@@ -345,17 +345,27 @@ const TemplatePage: React.FC = () => {
       key: "action",
       width: 100,
       fixed: "right",
+      className: "action-column-transparent",
       render: (_: any, record: ITemplate) => (
-        <Space size="small">
-          <Tooltip title="Chỉnh sửa">
-            <Button
-              type="text"
-              icon={<EditOutlined />}
-              onClick={() => handleEdit(record)}
-              size="small"
-            />
-          </Tooltip>
-        </Space>
+        <div
+          style={{
+            background: "rgba(255, 255, 255, 0.9)",
+            backdropFilter: "blur(8px)",
+            padding: "4px",
+            borderRadius: "6px",
+          }}
+        >
+          <Space size="small">
+            <Tooltip title="Chỉnh sửa">
+              <Button
+                type="text"
+                icon={<EditOutlined />}
+                onClick={() => handleEdit(record)}
+                size="small"
+              />
+            </Tooltip>
+          </Space>
+        </div>
       ),
     },
   ];
