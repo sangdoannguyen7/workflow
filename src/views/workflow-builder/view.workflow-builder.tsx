@@ -430,17 +430,34 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
         />
       </div>
 
-      {/* Connection Handles using proper React Flow components */}
+      {/* Enhanced Connection Handles with better visibility */}
       <Handle
         type="target"
         position={Position.Left}
         style={{
-          width: "16px",
-          height: "16px",
+          width: "20px",
+          height: "20px",
           borderRadius: "50%",
-          border: `3px solid ${config?.color || "#666"}`,
+          border: `4px solid ${config?.color || "#1890ff"}`,
           backgroundColor: "#fff",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+          boxShadow: `0 4px 12px rgba(0,0,0,0.15), 0 0 0 2px ${
+            config?.color || "#1890ff"
+          }20`,
+          opacity: 1,
+          transition: "all 0.2s ease",
+          cursor: "crosshair",
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.transform = "scale(1.3)";
+          e.target.style.boxShadow = `0 6px 16px rgba(0,0,0,0.25), 0 0 0 4px ${
+            config?.color || "#1890ff"
+          }40`;
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = "scale(1)";
+          e.target.style.boxShadow = `0 4px 12px rgba(0,0,0,0.15), 0 0 0 2px ${
+            config?.color || "#1890ff"
+          }20`;
         }}
       />
 
@@ -448,12 +465,29 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
         type="source"
         position={Position.Right}
         style={{
-          width: "16px",
-          height: "16px",
+          width: "20px",
+          height: "20px",
           borderRadius: "50%",
-          border: `3px solid ${config?.color || "#666"}`,
+          border: `4px solid ${config?.color || "#1890ff"}`,
           backgroundColor: "#fff",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+          boxShadow: `0 4px 12px rgba(0,0,0,0.15), 0 0 0 2px ${
+            config?.color || "#1890ff"
+          }20`,
+          opacity: 1,
+          transition: "all 0.2s ease",
+          cursor: "crosshair",
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.transform = "scale(1.3)";
+          e.target.style.boxShadow = `0 6px 16px rgba(0,0,0,0.25), 0 0 0 4px ${
+            config?.color || "#1890ff"
+          }40`;
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = "scale(1)";
+          e.target.style.boxShadow = `0 4px 12px rgba(0,0,0,0.15), 0 0 0 2px ${
+            config?.color || "#1890ff"
+          }20`;
         }}
       />
     </div>
@@ -662,13 +696,22 @@ const WorkflowBuilderPage: React.FC = () => {
         }
 
         // Calculate drop position relative to the ReactFlow viewport
-        const position = reactFlowInstance?.project({
-          x: event.clientX - reactFlowBounds.left,
-          y: event.clientY - reactFlowBounds.top,
-        }) || {
-          x: event.clientX - reactFlowBounds.left - 140,
-          y: event.clientY - reactFlowBounds.top - 60,
-        };
+        let position;
+        if (
+          reactFlowInstance &&
+          typeof reactFlowInstance.project === "function"
+        ) {
+          position = reactFlowInstance.project({
+            x: event.clientX - reactFlowBounds.left,
+            y: event.clientY - reactFlowBounds.top,
+          });
+        } else {
+          // Fallback position calculation
+          position = {
+            x: event.clientX - reactFlowBounds.left,
+            y: event.clientY - reactFlowBounds.top,
+          };
+        }
 
         const newNodeId = `node_${nodeCounter}`;
         const newNode: Node = {
@@ -738,7 +781,7 @@ const WorkflowBuilderPage: React.FC = () => {
     [colorBgContainer]
   );
 
-  // Test workflow functionality
+  // Enhanced test workflow functionality with detailed step results
   const runWorkflowTest = async () => {
     if (!selectedWorkflow || !nodes || nodes.length === 0) {
       NotificationComponent({
@@ -751,15 +794,90 @@ const WorkflowBuilderPage: React.FC = () => {
 
     setIsTestRunning(true);
     try {
-      // Mock test execution
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      // Mock test execution with detailed step results
+      const stepResults = [];
+      const totalNodes = (nodes || []).length;
 
-      const mockResults = {
-        status: "success",
-        executionTime: Math.random() * 5000 + 1000,
-        nodesExecuted: (nodes || []).length,
-        successfulNodes: Math.floor((nodes || []).length * 0.9),
-        failedNodes: Math.ceil((nodes || []).length * 0.1),
+      // Simulate step-by-step execution
+      for (let i = 0; i < totalNodes; i++) {
+        const node = nodes[i];
+        await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate processing time
+
+        const stepResult = {
+          nodeId: node.id,
+          nodeName: node.data.label,
+          nodeType: node.data.templateType,
+          agentCode: node.data.agentCode,
+          status: Math.random() > 0.1 ? "success" : "error", // 90% success rate
+          executionTime: Math.random() * 1000 + 200,
+          startTime: new Date(),
+          endTime: new Date(Date.now() + Math.random() * 1000 + 200),
+          input: {
+            data: `Input data for ${node.data.label}`,
+            parameters: node.data.template || {},
+          },
+          output:
+            Math.random() > 0.1
+              ? {
+                  data: `Processed output from ${node.data.label}`,
+                  status: "completed",
+                  recordsProcessed: Math.floor(Math.random() * 1000) + 1,
+                }
+              : {
+                  error: "Processing failed",
+                  details: "Mock error for demonstration",
+                },
+          logs: [
+            {
+              timestamp: new Date(),
+              level: "info",
+              message: `Starting ${node.data.label}`,
+            },
+            {
+              timestamp: new Date(),
+              level: "debug",
+              message: "Processing input data",
+            },
+            Math.random() > 0.1
+              ? {
+                  timestamp: new Date(),
+                  level: "success",
+                  message: "Step completed successfully",
+                }
+              : {
+                  timestamp: new Date(),
+                  level: "error",
+                  message: "Step failed with error",
+                },
+          ],
+        };
+        stepResults.push(stepResult);
+      }
+
+      const successfulSteps = stepResults.filter(
+        (step) => step.status === "success"
+      ).length;
+      const failedSteps = stepResults.filter(
+        (step) => step.status === "error"
+      ).length;
+      const totalExecutionTime = stepResults.reduce(
+        (sum, step) => sum + step.executionTime,
+        0
+      );
+
+      const enhancedResults = {
+        status: failedSteps === 0 ? "success" : "partial",
+        executionTime: totalExecutionTime,
+        nodesExecuted: totalNodes,
+        successfulNodes: successfulSteps,
+        failedNodes: failedSteps,
+        stepResults: stepResults,
+        summary: {
+          throughput: Math.floor(Math.random() * 1000) + 500,
+          averageResponseTime: totalExecutionTime / totalNodes,
+          errorRate: (failedSteps / totalNodes) * 100,
+          peakMemoryUsage: Math.floor(Math.random() * 512) + 256,
+        },
         logs: [
           {
             timestamp: new Date(),
@@ -778,20 +896,25 @@ const WorkflowBuilderPage: React.FC = () => {
           },
           {
             timestamp: new Date(),
-            level: "success",
-            message: "Workflow test completed",
+            level: failedSteps === 0 ? "success" : "warning",
+            message:
+              failedSteps === 0
+                ? "Workflow test completed successfully"
+                : `Workflow completed with ${failedSteps} errors`,
           },
         ],
       };
 
-      setTestResults(mockResults);
+      setTestResults(enhancedResults);
       setTestResultsDrawerVisible(true);
       NotificationComponent({
-        type: mockResults.status === "success" ? "success" : "error",
+        type: enhancedResults.status === "success" ? "success" : "warning",
         message: "Test hoàn thành",
         description: `Workflow test ${
-          mockResults.status === "success" ? "thành công" : "thất bại"
-        } trong ${(mockResults.executionTime / 1000).toFixed(2)}s`,
+          enhancedResults.status === "success"
+            ? "thành công"
+            : `hoàn thành với ${failedSteps} lỗi`
+        } trong ${(enhancedResults.executionTime / 1000).toFixed(2)}s`,
       });
     } catch (error) {
       NotificationComponent({
@@ -1005,7 +1128,7 @@ const WorkflowBuilderPage: React.FC = () => {
   const clearWorkflow = useCallback(() => {
     Modal.confirm({
       title: "Xóa tất cả workflow?",
-      content: "Thao tác này sẽ xóa toàn bộ nodes và connections.",
+      content: "Thao tác này sẽ xóa toàn b��� nodes và connections.",
       onOk: () => {
         setNodes([]);
         setEdges([]);
@@ -1273,25 +1396,21 @@ const WorkflowBuilderPage: React.FC = () => {
               </Text>
             </div>
 
-            <div>
-              {Object.entries(groupedTemplates || {}).map(
-                ([agent, agentTemplates]) => (
-                  <div key={agent} style={{ marginBottom: "20px" }}>
-                    {/* Agent Header */}
+            <Collapse
+              ghost
+              size="small"
+              defaultActiveKey={Object.keys(groupedTemplates || {})}
+              items={Object.entries(groupedTemplates || {}).map(
+                ([agent, agentTemplates]) => ({
+                  key: agent,
+                  label: (
                     <div
                       style={{
-                        background: `linear-gradient(135deg, ${
-                          AGENT_COLORS[agent] || colorPrimary
-                        }15, ${AGENT_COLORS[agent] || colorPrimary}05)`,
-                        border: `1px solid ${
-                          AGENT_COLORS[agent] || colorPrimary
-                        }20`,
-                        borderRadius: "12px",
-                        padding: "12px 16px",
-                        marginBottom: "12px",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
+                        width: "100%",
+                        padding: "4px 0",
                       }}
                     >
                       <div
@@ -1302,11 +1421,11 @@ const WorkflowBuilderPage: React.FC = () => {
                         }}
                       >
                         <Avatar
-                          size={32}
+                          size={28}
                           style={{
                             backgroundColor:
                               AGENT_COLORS[agent] || colorPrimary,
-                            fontSize: "12px",
+                            fontSize: "11px",
                             fontWeight: "bold",
                           }}
                         >
@@ -1316,29 +1435,30 @@ const WorkflowBuilderPage: React.FC = () => {
                           <Text
                             strong
                             style={{
-                              fontSize: "14px",
+                              fontSize: "13px",
                               color: AGENT_COLORS[agent] || colorPrimary,
                             }}
                           >
                             {agent.replace("AGT_", "").replace("_", " ")}
                           </Text>
                           <br />
-                          <Text type="secondary" style={{ fontSize: "11px" }}>
+                          <Text type="secondary" style={{ fontSize: "10px" }}>
                             {(agentTemplates || []).length} templates
                           </Text>
                         </div>
                       </div>
                       <Badge
                         count={(agentTemplates || []).length}
+                        size="small"
                         style={{
                           backgroundColor: AGENT_COLORS[agent] || colorPrimary,
-                          fontSize: "10px",
+                          fontSize: "9px",
                         }}
                       />
                     </div>
-
-                    {/* Agent Templates */}
-                    <div style={{ paddingLeft: "8px" }}>
+                  ),
+                  children: (
+                    <div style={{ paddingLeft: "8px", paddingTop: "8px" }}>
                       {(agentTemplates || []).map((template) => (
                         <DraggableTemplate
                           key={template.templateId}
@@ -1346,10 +1466,20 @@ const WorkflowBuilderPage: React.FC = () => {
                         />
                       ))}
                     </div>
-                  </div>
-                )
+                  ),
+                  style: {
+                    background: `linear-gradient(135deg, ${
+                      AGENT_COLORS[agent] || colorPrimary
+                    }08, ${AGENT_COLORS[agent] || colorPrimary}02)`,
+                    border: `1px solid ${
+                      AGENT_COLORS[agent] || colorPrimary
+                    }15`,
+                    borderRadius: "12px",
+                    marginBottom: "12px",
+                  },
+                })
               )}
-            </div>
+            />
           </Card>
         </div>
 
@@ -1741,13 +1871,374 @@ const WorkflowBuilderPage: React.FC = () => {
           )}
         </div>
 
-        {/* Node Properties Panel */}
-        <NodePropertiesPanel
-          node={selectedNode}
-          onUpdate={updateNodeData}
-          onDelete={deleteSelectedNode}
-          onClose={() => setSelectedNode(null)}
-        />
+        {/* Node Properties Panel - Only show when node is selected */}
+        {selectedNode && (
+          <NodePropertiesPanel
+            node={selectedNode}
+            onUpdate={updateNodeData}
+            onDelete={deleteSelectedNode}
+            onClose={() => setSelectedNode(null)}
+          />
+        )}
+
+        {/* Show helper text when no node selected */}
+        {!selectedNode && (
+          <div
+            style={{
+              position: "fixed",
+              right: "20px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              background: colorBgContainer,
+              border: `2px dashed ${colorPrimary}40`,
+              borderRadius: borderRadiusLG,
+              padding: "20px",
+              textAlign: "center",
+              maxWidth: "200px",
+              boxShadow: boxShadowSecondary,
+              zIndex: 1000,
+            }}
+          >
+            <InfoCircleOutlined
+              style={{
+                fontSize: "24px",
+                color: colorPrimary,
+                marginBottom: "8px",
+              }}
+            />
+            <Text
+              style={{
+                fontSize: "12px",
+                display: "block",
+                marginBottom: "4px",
+              }}
+            >
+              <strong>Chọn một node</strong>
+            </Text>
+            <Text type="secondary" style={{ fontSize: "11px" }}>
+              để xem và chỉnh sửa thuộc tính
+            </Text>
+          </div>
+        )}
+
+        {/* Enhanced Test Results Drawer */}
+        <Drawer
+          title={
+            <Space>
+              <RocketOutlined style={{ color: colorSuccess }} />
+              <span>Kết quả Test Chi Tiết</span>
+              {testResults && (
+                <Tag
+                  color={
+                    testResults.status === "success"
+                      ? "green"
+                      : testResults.status === "partial"
+                      ? "orange"
+                      : "red"
+                  }
+                >
+                  {testResults.status === "success"
+                    ? "Thành công"
+                    : testResults.status === "partial"
+                    ? "Một phần"
+                    : "Thất bại"}
+                </Tag>
+              )}
+            </Space>
+          }
+          open={testResultsDrawerVisible}
+          onClose={() => setTestResultsDrawerVisible(false)}
+          width={600}
+          extra={
+            <Button onClick={() => setTestResultsDrawerVisible(false)}>
+              Đóng
+            </Button>
+          }
+        >
+          {testResults && (
+            <div>
+              {/* Test Summary */}
+              <Card
+                title="Tóm tắt kết quả"
+                size="small"
+                style={{ marginBottom: 16 }}
+              >
+                <Row gutter={[16, 8]}>
+                  <Col span={12}>
+                    <Statistic
+                      title="Thời gian thực thi"
+                      value={(testResults.executionTime / 1000).toFixed(2)}
+                      suffix="s"
+                      valueStyle={{ color: colorSuccess, fontSize: 16 }}
+                    />
+                  </Col>
+                  <Col span={12}>
+                    <Statistic
+                      title="Tỷ lệ thành công"
+                      value={(
+                        (testResults.successfulNodes /
+                          testResults.nodesExecuted) *
+                        100
+                      ).toFixed(1)}
+                      suffix="%"
+                      valueStyle={{
+                        color:
+                          testResults.failedNodes === 0
+                            ? colorSuccess
+                            : colorWarning,
+                        fontSize: 16,
+                      }}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title="Nodes thành công"
+                      value={testResults.successfulNodes}
+                      valueStyle={{ color: colorSuccess, fontSize: 14 }}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title="Nodes thất bại"
+                      value={testResults.failedNodes}
+                      valueStyle={{ color: colorError, fontSize: 14 }}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title="Tổng nodes"
+                      value={testResults.nodesExecuted}
+                      valueStyle={{ color: colorPrimary, fontSize: 14 }}
+                    />
+                  </Col>
+                </Row>
+
+                {testResults.summary && (
+                  <div style={{ marginTop: 16 }}>
+                    <Divider orientation="left" style={{ margin: "12px 0" }}>
+                      Hiệu suất
+                    </Divider>
+                    <Row gutter={[12, 8]}>
+                      <Col span={12}>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          Throughput:
+                        </Text>
+                        <br />
+                        <Text strong>
+                          {testResults.summary.throughput} req/s
+                        </Text>
+                      </Col>
+                      <Col span={12}>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          Avg Response:
+                        </Text>
+                        <br />
+                        <Text strong>
+                          {testResults.summary.averageResponseTime.toFixed(0)}ms
+                        </Text>
+                      </Col>
+                      <Col span={12}>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          Error Rate:
+                        </Text>
+                        <br />
+                        <Text
+                          strong
+                          style={{
+                            color:
+                              testResults.summary.errorRate > 0
+                                ? colorError
+                                : colorSuccess,
+                          }}
+                        >
+                          {testResults.summary.errorRate.toFixed(1)}%
+                        </Text>
+                      </Col>
+                      <Col span={12}>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          Peak Memory:
+                        </Text>
+                        <br />
+                        <Text strong>
+                          {testResults.summary.peakMemoryUsage}MB
+                        </Text>
+                      </Col>
+                    </Row>
+                  </div>
+                )}
+              </Card>
+
+              {/* Step-by-step Results */}
+              {testResults.stepResults && (
+                <Card
+                  title="Chi tiết từng bước"
+                  size="small"
+                  style={{ marginBottom: 16 }}
+                >
+                  <Timeline
+                    items={testResults.stepResults.map((step, index) => ({
+                      color:
+                        step.status === "success" ? colorSuccess : colorError,
+                      children: (
+                        <div key={step.nodeId}>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "flex-start",
+                              marginBottom: 8,
+                            }}
+                          >
+                            <div>
+                              <Text strong style={{ fontSize: 13 }}>
+                                {step.nodeName}
+                              </Text>
+                              <br />
+                              <Tag
+                                size="small"
+                                color={
+                                  AGENT_COLORS[step.agentCode] || colorPrimary
+                                }
+                              >
+                                {step.agentCode}
+                              </Tag>
+                              <Tag
+                                size="small"
+                                color={
+                                  step.status === "success" ? "green" : "red"
+                                }
+                              >
+                                {step.status === "success"
+                                  ? "Thành công"
+                                  : "Thất bại"}
+                              </Tag>
+                            </div>
+                            <Text type="secondary" style={{ fontSize: 11 }}>
+                              {step.executionTime.toFixed(0)}ms
+                            </Text>
+                          </div>
+
+                          <Collapse
+                            ghost
+                            size="small"
+                            items={[
+                              {
+                                key: `details-${index}`,
+                                label: (
+                                  <Text style={{ fontSize: 11 }}>Chi tiết</Text>
+                                ),
+                                children: (
+                                  <div style={{ fontSize: 11 }}>
+                                    <div style={{ marginBottom: 8 }}>
+                                      <Text strong>Input:</Text>
+                                      <div
+                                        style={{
+                                          background: "#f5f5f5",
+                                          padding: 8,
+                                          borderRadius: 4,
+                                          marginTop: 4,
+                                        }}
+                                      >
+                                        <pre
+                                          style={{ margin: 0, fontSize: 10 }}
+                                        >
+                                          {JSON.stringify(step.input, null, 2)}
+                                        </pre>
+                                      </div>
+                                    </div>
+
+                                    <div style={{ marginBottom: 8 }}>
+                                      <Text strong>Output:</Text>
+                                      <div
+                                        style={{
+                                          background:
+                                            step.status === "success"
+                                              ? "#f6ffed"
+                                              : "#fff2f0",
+                                          padding: 8,
+                                          borderRadius: 4,
+                                          marginTop: 4,
+                                          border: `1px solid ${
+                                            step.status === "success"
+                                              ? "#b7eb8f"
+                                              : "#ffccc7"
+                                          }`,
+                                        }}
+                                      >
+                                        <pre
+                                          style={{ margin: 0, fontSize: 10 }}
+                                        >
+                                          {JSON.stringify(step.output, null, 2)}
+                                        </pre>
+                                      </div>
+                                    </div>
+
+                                    <div>
+                                      <Text strong>Logs:</Text>
+                                      {step.logs.map((log, logIndex) => (
+                                        <div
+                                          key={logIndex}
+                                          style={{
+                                            fontSize: 10,
+                                            color:
+                                              log.level === "error"
+                                                ? colorError
+                                                : log.level === "success"
+                                                ? colorSuccess
+                                                : colorText,
+                                            marginTop: 2,
+                                          }}
+                                        >
+                                          [{log.timestamp.toLocaleTimeString()}]{" "}
+                                          {log.level.toUpperCase()}:{" "}
+                                          {log.message}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ),
+                              },
+                            ]}
+                          />
+                        </div>
+                      ),
+                    }))}
+                  />
+                </Card>
+              )}
+
+              {/* Overall Logs */}
+              <Card title="System Logs" size="small">
+                <div
+                  style={{
+                    maxHeight: 200,
+                    overflowY: "auto",
+                    fontFamily: "monospace",
+                    fontSize: 11,
+                  }}
+                >
+                  {testResults.logs.map((log, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        color:
+                          log.level === "error"
+                            ? colorError
+                            : log.level === "success"
+                            ? colorSuccess
+                            : colorText,
+                        marginBottom: 4,
+                      }}
+                    >
+                      [{log.timestamp.toLocaleTimeString()}]{" "}
+                      {log.level.toUpperCase()}: {log.message}
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+          )}
+        </Drawer>
       </div>
     </ReactFlowProvider>
   );
