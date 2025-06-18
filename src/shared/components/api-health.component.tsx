@@ -14,15 +14,34 @@ const ApiHealthCheck = () => {
   const checkApiHealth = async () => {
     setStatus("checking");
     try {
-      const request: IDataRequest = {
-        method: "GET",
-        uri: "/v1/health",
-        params: null,
-        data: null,
-      };
+      // Try multiple endpoints to check API health
+      const healthEndpoints = [
+        "/v1/health",
+        "/v1/status",
+        "/v1/ping",
+        "/v1/users",
+      ];
 
-      await axiosCustom(request);
-      setStatus("online");
+      let connected = false;
+      for (const endpoint of healthEndpoints) {
+        try {
+          const request: IDataRequest = {
+            method: "GET",
+            uri: endpoint,
+            params: null,
+            data: null,
+          };
+
+          await axiosCustom(request);
+          connected = true;
+          break;
+        } catch (error) {
+          // Try next endpoint
+          console.log(`Failed to connect to ${endpoint}:`, error);
+        }
+      }
+
+      setStatus(connected ? "online" : "offline");
     } catch (error) {
       setStatus("offline");
       console.log("API Health check failed:", error);
