@@ -743,9 +743,9 @@ const WorkflowBuilderPage: React.FC = () => {
   const updateNodeData = useCallback(
     (nodeId: string, data: any) => {
       setNodes((nds) =>
-        nds.map((node) =>
+        (nds || []).map((node) =>
           node.id === nodeId
-            ? { ...node, data: { ...node.data, ...data } }
+            ? { ...node, data: { ...node.data, label: newLabel } }
             : node
         )
       );
