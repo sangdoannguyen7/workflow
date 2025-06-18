@@ -17,6 +17,7 @@
     "@heroicons/react": "^2.0.18",
     "@reduxjs/toolkit": "^1.9.5",
     "@types/react-dnd": "^3.0.2",
+    "@xyflow/react": "^12.7.0",
     "antd": "^5.10.2",
     "axios": "^1.5.1",
     "dayjs": "^1.11.10",
