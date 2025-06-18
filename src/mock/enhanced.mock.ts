@@ -367,7 +367,7 @@ export class MockAPI {
     } as any);
   }
 
-  static async getTemplates(params: any = {}) {
+  static async getTemplates(params: any = {}): Promise<any> {
     let filteredData = mockTemplates.filter((template) => {
       if (params.search) {
         return (
@@ -385,41 +385,29 @@ export class MockAPI {
       return true;
     });
 
-    return this.request(
-      "/templates",
-      { method: "GET", params },
-      {
-        success: true,
-        data: filteredData,
-        total: filteredData.length,
-        current: params.current || 1,
-        pageSize: params.pageSize || 20,
-      }
-    );
+    return this.request("/templates", { method: "GET", params }, {
+      success: true,
+      data: filteredData,
+      total: filteredData.length,
+      current: params.current || 1,
+      pageSize: params.pageSize || 20,
+    } as any);
   }
 
-  static async getAgents(params: any = {}) {
-    return this.request(
-      "/agents",
-      { method: "GET", params },
-      {
-        success: true,
-        data: mockAgents,
-        total: mockAgents.length,
-      }
-    );
+  static async getAgents(params: any = {}): Promise<any> {
+    return this.request("/agents", { method: "GET", params }, {
+      success: true,
+      data: mockAgents,
+      total: mockAgents.length,
+    } as any);
   }
 
-  static async getNodes(params: any = {}) {
-    return this.request(
-      "/nodes",
-      { method: "GET", params },
-      {
-        success: true,
-        data: mockNodes,
-        total: mockNodes.length,
-      }
-    );
+  static async getNodes(params: any = {}): Promise<any> {
+    return this.request("/nodes", { method: "GET", params }, {
+      success: true,
+      data: mockNodes,
+      total: mockNodes.length,
+    } as any);
   }
 
   static async getNotifications() {
