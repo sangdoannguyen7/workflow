@@ -83,7 +83,6 @@ import WorkflowToolbar from "./components/WorkflowToolbar";
 import NodePropertiesPanel from "./components/NodePropertiesPanel";
 
 const { Text, Title } = Typography;
-const { Panel: CollapsePanel } = Collapse;
 const { TextArea } = Input;
 
 // Template configurations with enhanced styling
