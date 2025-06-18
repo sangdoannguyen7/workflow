@@ -24,3 +24,6 @@ export const apiLogger = (message: string, data?: any) => {
     console.log(`[API] ${message}`, data || "");
   }
 };
+
+// Re-export MockAPI from enhanced.mock.ts
+export { MockAPI } from "../mock/enhanced.mock";
