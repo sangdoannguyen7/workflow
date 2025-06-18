@@ -469,6 +469,11 @@ const WorkflowBuilderPage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isTestRunning, setIsTestRunning] = useState(false);
   const [testResults, setTestResults] = useState<any>(null);
+  const [testResultsDrawerVisible, setTestResultsDrawerVisible] =
+    useState(false);
+  const [createWorkflowModalVisible, setCreateWorkflowModalVisible] =
+    useState(false);
+  const [createForm] = Form.useForm();
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
 
