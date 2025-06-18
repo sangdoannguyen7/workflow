@@ -1,288 +1,345 @@
 import React, { useState, useEffect } from "react";
 import {
-  Table,
   Card,
+  Table,
   Button,
   Space,
-  Modal,
-  Form,
   Input,
   Select,
+  Tag,
+  Modal,
+  Form,
   message,
-  Popconfirm,
   Row,
   Col,
-  Tag,
-  theme,
+  Typography,
+  Popconfirm,
+  Drawer,
+  Descriptions,
 } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
+  EyeOutlined,
   SearchOutlined,
   ReloadOutlined,
+  RobotOutlined,
 } from "@ant-design/icons";
-import { IAgent, IAgentSearchParams } from "../../interface/agent.interface";
+import type { ColumnsType } from "antd/es/table";
 import agentApi from "../../apis/agent/api.agent";
+import { IAgent } from "../../interface/agent.interface";
 
 const { Search } = Input;
 const { Option } = Select;
+const { Title, Text } = Typography;
+const { TextArea } = Input;
 
 const AgentPage: React.FC = () => {
   const [agents, setAgents] = useState<IAgent[]>([]);
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [selectedAgent, setSelectedAgent] = useState<IAgent | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isDetailVisible, setIsDetailVisible] = useState(false);
   const [editingAgent, setEditingAgent] = useState<IAgent | null>(null);
-  const [form] = Form.useForm();
-  const [searchParams, setSearchParams] = useState<IAgentSearchParams>({
-    current: 1,
-    pageSize: 20,
-  });
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 20,
+    pageSize: 10,
     total: 0,
   });
+  const [form] = Form.useForm();
 
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
-
-  const statusOptions = [
-    { value: "ACTIVE", label: "Active", color: "green" },
-    { value: "INACTIVE", label: "Inactive", color: "red" },
-    { value: "PENDING", label: "Pending", color: "orange" },
-  ];
-
-  const fetchAgents = async (params?: IAgentSearchParams) => {
+  // Load agents
+  const loadAgents = async (params?: any) => {
     setLoading(true);
     try {
-      const response = await agentApi.getAgents({ ...searchParams, ...params });
-      setAgents(response.data);
+      const response = await agentApi.getAgents({
+        ...params,
+        search: searchText,
+        statusCode: statusFilter,
+        current: pagination.current,
+        pageSize: pagination.pageSize,
+      });
+      setAgents(response.content);
       setPagination({
-        current: response.current,
-        pageSize: response.pageSize,
-        total: response.total,
+        ...pagination,
+        total: response.totalElements,
       });
     } catch (error) {
-      console.error("Error fetching agents:", error);
-      message.error("Failed to load agents");
+      message.error("Không thể tải danh sách agent");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchAgents();
-  }, []);
+  // Handle create/update agent
+  const handleSave = async (values: any) => {
+    try {
+      const agentData = {
+        ...values,
+        search:
+          `${values.agentName} ${values.description} ${values.statusName}`.toLowerCase(),
+      };
 
-  const handleSearch = (value: string) => {
-    const newParams = { ...searchParams, search: value, current: 1 };
-    setSearchParams(newParams);
-    fetchAgents(newParams);
+      if (editingAgent) {
+        await agentApi.updateAgent(editingAgent.agentCode, agentData);
+        message.success("Cập nhật agent thành công");
+      } else {
+        await agentApi.createAgent(agentData);
+        message.success("Tạo agent thành công");
+      }
+
+      setIsModalVisible(false);
+      setEditingAgent(null);
+      form.resetFields();
+      loadAgents();
+    } catch (error) {
+      message.error("Lỗi khi lưu agent");
+    }
   };
 
-  const handleTableChange = (page: number, pageSize?: number) => {
-    const newParams = {
-      ...searchParams,
-      current: page,
-      pageSize: pageSize || 20,
-    };
-    setSearchParams(newParams);
-    fetchAgents(newParams);
+  // Handle delete agent
+  const handleDelete = async (agentCode: string) => {
+    try {
+      await agentApi.deleteAgent(agentCode);
+      message.success("Xóa agent thành công");
+      loadAgents();
+    } catch (error) {
+      message.error("Lỗi khi xóa agent");
+    }
   };
 
-  const handleCreate = () => {
+  // Show create modal
+  const showCreateModal = () => {
     setEditingAgent(null);
     form.resetFields();
-    setModalVisible(true);
+    setIsModalVisible(true);
   };
 
-  const handleEdit = (agent: IAgent) => {
+  // Show edit modal
+  const showEditModal = (agent: IAgent) => {
     setEditingAgent(agent);
     form.setFieldsValue(agent);
-    setModalVisible(true);
+    setIsModalVisible(true);
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await agentApi.deleteAgent(id);
-      message.success("Agent deleted successfully");
-      fetchAgents();
-    } catch (error) {
-      console.error("Error deleting agent:", error);
-      message.error("Failed to delete agent");
-    }
+  // Show detail drawer
+  const showDetail = (agent: IAgent) => {
+    setSelectedAgent(agent);
+    setIsDetailVisible(true);
   };
 
-  const handleSubmit = async (values: any) => {
-    try {
-      if (editingAgent) {
-        await agentApi.updateAgent(editingAgent.agentId, values);
-        message.success("Agent updated successfully");
-      } else {
-        await agentApi.createAgent(values);
-        message.success("Agent created successfully");
-      }
-      setModalVisible(false);
-      fetchAgents();
-    } catch (error) {
-      console.error("Error saving agent:", error);
-      message.error("Failed to save agent");
-    }
+  // Handle search
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+    setPagination({ ...pagination, current: 1 });
   };
 
-  const columns = [
-    {
-      title: "ID",
-      dataIndex: "agentId",
-      key: "agentId",
-      width: 80,
-    },
+  // Handle filter change
+  const handleFilterChange = (value: string) => {
+    setStatusFilter(value);
+    setPagination({ ...pagination, current: 1 });
+  };
+
+  // Handle table change
+  const handleTableChange = (paginationInfo: any) => {
+    setPagination({
+      ...pagination,
+      current: paginationInfo.current,
+      pageSize: paginationInfo.pageSize,
+    });
+  };
+
+  // Table columns
+  const columns: ColumnsType<IAgent> = [
     {
       title: "Agent Code",
       dataIndex: "agentCode",
       key: "agentCode",
       width: 150,
+      render: (text) => <Text code>{text}</Text>,
     },
     {
-      title: "Agent Name",
+      title: "Tên Agent",
       dataIndex: "agentName",
       key: "agentName",
-      width: 200,
+      ellipsis: true,
+      render: (text) => (
+        <Space>
+          <RobotOutlined style={{ color: "#1890ff" }} />
+          <Text strong>{text}</Text>
+        </Space>
+      ),
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       dataIndex: "statusCode",
       key: "statusCode",
       width: 120,
-      render: (statusCode: string) => {
-        if (!statusCode) return <Tag>N/A</Tag>;
-        const status = statusOptions.find((s) => s.value === statusCode);
-        return status ? (
-          <Tag color={status.color}>{status.label}</Tag>
-        ) : (
-          <Tag>{statusCode}</Tag>
-        );
+      render: (status, record) => {
+        const color =
+          status === "ACTIVE"
+            ? "green"
+            : status === "INACTIVE"
+            ? "red"
+            : "orange";
+        return <Tag color={color}>{record.statusName}</Tag>;
       },
     },
     {
-      title: "Description",
+      title: "Mô tả",
       dataIndex: "description",
       key: "description",
       ellipsis: true,
-      render: (text: string) => text || "N/A",
+      render: (text) => text || <Text type="secondary">Chưa có mô tả</Text>,
     },
     {
-      title: "Actions",
+      title: "Thao tác",
       key: "action",
-      width: 150,
-      render: (_: any, record: IAgent) => (
-        <Space size="small">
+      width: 200,
+      render: (_, record) => (
+        <Space>
+          <Button
+            type="text"
+            icon={<EyeOutlined />}
+            onClick={() => showDetail(record)}
+            title="Xem chi tiết"
+          />
           <Button
             type="text"
             icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            size="small"
+            onClick={() => showEditModal(record)}
+            title="Chỉnh sửa"
           />
           <Popconfirm
-            title="Are you sure you want to delete this agent?"
-            onConfirm={() => handleDelete(record.agentId)}
-            okText="Yes"
-            cancelText="No"
+            title="Bạn có chắc muốn xóa agent này?"
+            onConfirm={() => handleDelete(record.agentCode)}
+            okText="Xóa"
+            cancelText="Hủy"
           >
-            <Button type="text" icon={<DeleteOutlined />} danger size="small" />
+            <Button type="text" danger icon={<DeleteOutlined />} title="Xóa" />
           </Popconfirm>
         </Space>
       ),
     },
   ];
 
+  useEffect(() => {
+    loadAgents();
+  }, [searchText, statusFilter, pagination.current, pagination.pageSize]);
+
   return (
-    <div
-      style={{
-        padding: "24px",
-        background: colorBgContainer,
-        borderRadius: "8px",
-      }}
-    >
-      <Row gutter={[16, 16]}>
-        <Col span={24}>
-          <Card
-            title="Agent Management"
-            extra={
-              <Space>
-                <Button icon={<ReloadOutlined />} onClick={() => fetchAgents()}>
-                  Refresh
-                </Button>
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={handleCreate}
-                >
-                  Add Agent
-                </Button>
-              </Space>
-            }
-          >
-            <Row gutter={[16, 16]} style={{ marginBottom: "16px" }}>
-              <Col xs={24} sm={12} md={8}>
-                <Search
-                  placeholder="Search agents..."
-                  allowClear
-                  enterButton={<SearchOutlined />}
-                  onSearch={handleSearch}
-                />
-              </Col>
-            </Row>
+    <div style={{ padding: "24px" }}>
+      <Card>
+        <Row gutter={[16, 16]} align="middle" style={{ marginBottom: 16 }}>
+          <Col flex="auto">
+            <Title level={3} style={{ margin: 0 }}>
+              <RobotOutlined /> Quản lý Agent
+            </Title>
+          </Col>
+          <Col>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={showCreateModal}
+            >
+              Tạo Agent
+            </Button>
+          </Col>
+        </Row>
 
-            <Table
-              columns={columns}
-              dataSource={agents}
-              rowKey="agentId"
-              loading={loading}
-              pagination={{
-                current: pagination.current,
-                pageSize: pagination.pageSize,
-                total: pagination.total,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} items`,
-                onChange: handleTableChange,
-                onShowSizeChange: handleTableChange,
-              }}
-              scroll={{ x: 800 }}
+        <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+          <Col xs={24} sm={12} md={8}>
+            <Search
+              placeholder="Tìm kiếm agent..."
+              allowClear
+              onSearch={handleSearch}
+              style={{ width: "100%" }}
             />
-          </Card>
-        </Col>
-      </Row>
+          </Col>
+          <Col xs={24} sm={12} md={8}>
+            <Select
+              placeholder="Lọc theo trạng thái"
+              allowClear
+              style={{ width: "100%" }}
+              onChange={handleFilterChange}
+            >
+              <Option value="">Tất cả</Option>
+              <Option value="ACTIVE">Hoạt động</Option>
+              <Option value="INACTIVE">Không hoạt động</Option>
+              <Option value="DRAFT">Bản nháp</Option>
+            </Select>
+          </Col>
+          <Col xs={24} sm={24} md={8}>
+            <Button icon={<ReloadOutlined />} onClick={() => loadAgents()}>
+              Làm mới
+            </Button>
+          </Col>
+        </Row>
 
+        <Table
+          columns={columns}
+          dataSource={agents}
+          rowKey="agentCode"
+          loading={loading}
+          pagination={{
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total) => `Tổng ${total} agent`,
+          }}
+          onChange={handleTableChange}
+          scroll={{ x: 1000 }}
+        />
+      </Card>
+
+      {/* Create/Edit Modal */}
       <Modal
-        title={editingAgent ? "Edit Agent" : "Add Agent"}
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        onOk={() => form.submit()}
+        title={editingAgent ? "Chỉnh sửa Agent" : "Tạo Agent mới"}
+        open={isModalVisible}
+        onCancel={() => {
+          setIsModalVisible(false);
+          setEditingAgent(null);
+          form.resetFields();
+        }}
+        footer={null}
         width={600}
       >
-        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSave}
+          initialValues={{
+            statusCode: "DRAFT",
+            statusName: "Bản nháp",
+          }}
+        >
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="agentCode"
                 label="Agent Code"
-                rules={[{ required: true, message: "Please enter agent code" }]}
+                rules={[
+                  { required: true, message: "Vui lòng nhập agent code" },
+                ]}
               >
-                <Input placeholder="Enter agent code" />
+                <Input
+                  placeholder="VD: WEBHOOK_AGENT"
+                  disabled={!!editingAgent}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="agentName"
-                label="Agent Name"
-                rules={[{ required: true, message: "Please enter agent name" }]}
+                label="Tên Agent"
+                rules={[{ required: true, message: "Vui lòng nhập tên agent" }]}
               >
-                <Input placeholder="Enter agent name" />
+                <Input placeholder="VD: Webhook Processing Agent" />
               </Form.Item>
             </Col>
           </Row>
@@ -291,30 +348,105 @@ const AgentPage: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="statusCode"
-                label="Status"
-                rules={[{ required: true, message: "Please select status" }]}
+                label="Trạng thái"
+                rules={[
+                  { required: true, message: "Vui lòng chọn trạng thái" },
+                ]}
               >
-                <Select placeholder="Select status">
-                  {statusOptions.map((option) => (
-                    <Option key={option.value} value={option.value}>
-                      {option.label}
-                    </Option>
-                  ))}
+                <Select>
+                  <Option value="ACTIVE">Hoạt động</Option>
+                  <Option value="INACTIVE">Không hoạt động</Option>
+                  <Option value="DRAFT">Bản nháp</Option>
                 </Select>
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="statusName" label="Status Name">
-                <Input placeholder="Enter status name" />
+              <Form.Item
+                name="statusName"
+                label="Tên trạng thái"
+                rules={[
+                  { required: true, message: "Vui lòng nhập tên trạng thái" },
+                ]}
+              >
+                <Input placeholder="VD: Hoạt động" />
               </Form.Item>
             </Col>
           </Row>
 
-          <Form.Item name="description" label="Description">
-            <Input.TextArea rows={4} placeholder="Enter description" />
+          <Form.Item name="description" label="Mô tả">
+            <TextArea rows={4} placeholder="Mô tả chi tiết về agent..." />
+          </Form.Item>
+
+          <Form.Item>
+            <Space>
+              <Button type="primary" htmlType="submit">
+                {editingAgent ? "Cập nhật" : "Tạo mới"}
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsModalVisible(false);
+                  setEditingAgent(null);
+                  form.resetFields();
+                }}
+              >
+                Hủy
+              </Button>
+            </Space>
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* Detail Drawer */}
+      <Drawer
+        title="Chi tiết Agent"
+        placement="right"
+        width={500}
+        open={isDetailVisible}
+        onClose={() => setIsDetailVisible(false)}
+      >
+        {selectedAgent && (
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <Descriptions title="Thông tin cơ bản" bordered column={1}>
+              <Descriptions.Item label="Agent Code">
+                <Text code>{selectedAgent.agentCode}</Text>
+              </Descriptions.Item>
+              <Descriptions.Item label="Tên Agent">
+                <Space>
+                  <RobotOutlined style={{ color: "#1890ff" }} />
+                  <Text strong>{selectedAgent.agentName}</Text>
+                </Space>
+              </Descriptions.Item>
+              <Descriptions.Item label="Trạng thái">
+                <Tag
+                  color={
+                    selectedAgent.statusCode === "ACTIVE" ? "green" : "orange"
+                  }
+                >
+                  {selectedAgent.statusName}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Mô tả">
+                {selectedAgent.description || (
+                  <Text type="secondary">Chưa có mô tả</Text>
+                )}
+              </Descriptions.Item>
+            </Descriptions>
+
+            <Space>
+              <Button
+                type="primary"
+                icon={<EditOutlined />}
+                onClick={() => {
+                  setIsDetailVisible(false);
+                  showEditModal(selectedAgent);
+                }}
+              >
+                Chỉnh sửa
+              </Button>
+            </Space>
+          </Space>
+        )}
+      </Drawer>
     </div>
   );
 };

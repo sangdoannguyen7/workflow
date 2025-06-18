@@ -1,143 +1,89 @@
 import React, { useState, useEffect } from "react";
 import {
-  Table,
   Card,
+  Table,
   Button,
   Space,
-  Modal,
-  Form,
   Input,
   Select,
+  Tag,
+  Modal,
+  Form,
   message,
-  Popconfirm,
   Row,
   Col,
-  Tag,
-  theme,
-  List,
   Typography,
-  Badge,
+  Popconfirm,
+  Drawer,
+  Descriptions,
 } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
+  EyeOutlined,
   SearchOutlined,
   ReloadOutlined,
   ApartmentOutlined,
-  SettingOutlined,
 } from "@ant-design/icons";
-import {
-  IWorkflow,
-  IWorkflowSearchParams,
-} from "../../interface/workflow.interface";
+import type { ColumnsType } from "antd/es/table";
 import workflowApi from "../../apis/workflow/api.workflow";
+import { IWorkflow } from "../../interface/workflow.interface";
 
 const { Search } = Input;
 const { Option } = Select;
-const { Text } = Typography;
+const { Title, Text } = Typography;
 
 const WorkflowPage: React.FC = () => {
   const [workflows, setWorkflows] = useState<IWorkflow[]>([]);
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [selectedWorkflow, setSelectedWorkflow] = useState<IWorkflow | null>(
+    null
+  );
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isDetailVisible, setIsDetailVisible] = useState(false);
   const [editingWorkflow, setEditingWorkflow] = useState<IWorkflow | null>(
     null
   );
-  const [form] = Form.useForm();
-  const [searchParams, setSearchParams] = useState<IWorkflowSearchParams>({
-    current: 1,
-    pageSize: 20,
-  });
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 20,
+    pageSize: 10,
     total: 0,
   });
-  const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
+  const [form] = Form.useForm();
 
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
-
-  const statusOptions = [
-    { value: "ACTIVE", label: "Active", color: "green" },
-    { value: "INACTIVE", label: "Inactive", color: "red" },
-    { value: "DRAFT", label: "Draft", color: "orange" },
-    { value: "PUBLISHED", label: "Published", color: "blue" },
-  ];
-
-  const fetchWorkflows = async (params?: IWorkflowSearchParams) => {
+  // Load workflows
+  const loadWorkflows = async (params?: any) => {
     setLoading(true);
     try {
       const response = await workflowApi.getWorkflows({
-        ...searchParams,
         ...params,
+        search: searchText,
+        statusCode: statusFilter,
+        current: pagination.current,
+        pageSize: pagination.pageSize,
       });
-      setWorkflows(response.data);
+      setWorkflows(response.content);
       setPagination({
-        current: response.current,
-        pageSize: response.pageSize,
-        total: response.total,
+        ...pagination,
+        total: response.totalElements,
       });
     } catch (error) {
-      console.error("Error fetching workflows:", error);
-      message.error("Failed to load workflows");
+      message.error("Không thể tải danh sách workflow");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchWorkflows();
-  }, []);
-
-  const handleSearch = (value: string) => {
-    const newParams = { ...searchParams, search: value, current: 1 };
-    setSearchParams(newParams);
-    fetchWorkflows(newParams);
-  };
-
-  const handleTableChange = (page: number, pageSize?: number) => {
-    const newParams = {
-      ...searchParams,
-      current: page,
-      pageSize: pageSize || 20,
-    };
-    setSearchParams(newParams);
-    fetchWorkflows(newParams);
-  };
-
-  const handleCreate = () => {
-    setEditingWorkflow(null);
-    form.resetFields();
-    setModalVisible(true);
-  };
-
-  const handleEdit = (workflow: IWorkflow) => {
-    setEditingWorkflow(workflow);
-    form.setFieldsValue(workflow);
-    setModalVisible(true);
-  };
-
-  const handleDelete = async (workflowCode: string) => {
-    try {
-      await workflowApi.deleteWorkflow(workflowCode);
-      message.success("Workflow deleted successfully");
-      fetchWorkflows();
-    } catch (error) {
-      console.error("Error deleting workflow:", error);
-      message.error("Failed to delete workflow");
-    }
-  };
-
-  const handleSubmit = async (values: any) => {
+  // Handle create/update workflow
+  const handleSave = async (values: any) => {
     try {
       const workflowData = {
         ...values,
-        statusName:
-          statusOptions.find((s) => s.value === values.statusCode)?.label || "",
-        nodes: [],
+        search:
+          `${values.workflowName} ${values.description} ${values.statusName}`.toLowerCase(),
       };
 
       if (editingWorkflow) {
@@ -145,301 +91,404 @@ const WorkflowPage: React.FC = () => {
           editingWorkflow.workflowCode,
           workflowData
         );
-        message.success("Workflow updated successfully");
+        message.success("Cập nhật workflow thành công");
       } else {
         await workflowApi.createWorkflow(workflowData);
-        message.success("Workflow created successfully");
+        message.success("Tạo workflow thành công");
       }
-      setModalVisible(false);
-      fetchWorkflows();
+
+      setIsModalVisible(false);
+      setEditingWorkflow(null);
+      form.resetFields();
+      loadWorkflows();
     } catch (error) {
-      console.error("Error saving workflow:", error);
-      message.error("Failed to save workflow");
+      message.error("Lỗi khi lưu workflow");
     }
   };
 
-  const onExpand = (expanded: boolean, record: IWorkflow) => {
-    if (expanded) {
-      setExpandedRowKeys((prev) => [...prev, record.workflowCode]);
-    } else {
-      setExpandedRowKeys((prev) =>
-        prev.filter((key) => key !== record.workflowCode)
-      );
+  // Handle delete workflow
+  const handleDelete = async (workflowCode: string) => {
+    try {
+      await workflowApi.deleteWorkflow(workflowCode);
+      message.success("Xóa workflow thành công");
+      loadWorkflows();
+    } catch (error) {
+      message.error("Lỗi khi xóa workflow");
     }
   };
 
-  const expandedRowRender = (record: IWorkflow) => {
-    const nodes = record.nodes || [];
-
-    return (
-      <div
-        style={{ padding: "16px", background: "#fafafa", borderRadius: "6px" }}
-      >
-        <Row gutter={[16, 16]}>
-          <Col span={24}>
-            <Space style={{ marginBottom: "12px" }}>
-              <Text strong>Nodes in Workflow:</Text>
-              <Tag color="blue">{nodes.length} node(s)</Tag>
-            </Space>
-          </Col>
-        </Row>
-
-        {nodes.length > 0 ? (
-          <List
-            grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4 }}
-            dataSource={nodes}
-            renderItem={(node) => (
-              <List.Item>
-                <Card size="small" style={{ borderRadius: "6px" }}>
-                  <Space
-                    direction="vertical"
-                    size={4}
-                    style={{ width: "100%" }}
-                  >
-                    <Text strong>{node.nodeName}</Text>
-                    <Text type="secondary" style={{ fontSize: "12px" }}>
-                      {node.nodeCode}
-                    </Text>
-                    <Text style={{ fontSize: "12px" }}>
-                      Template: {node.templateName}
-                    </Text>
-                    <Text style={{ fontSize: "12px" }}>
-                      Agent: {node.agentName}
-                    </Text>
-                    <Tag
-                      size="small"
-                      color={
-                        statusOptions.find((s) => s.value === node.statusCode)
-                          ?.color || "default"
-                      }
-                    >
-                      {node.statusName}
-                    </Tag>
-                  </Space>
-                </Card>
-              </List.Item>
-            )}
-          />
-        ) : (
-          <Text type="secondary">No nodes in this workflow</Text>
-        )}
-      </div>
-    );
+  // Show create modal
+  const showCreateModal = () => {
+    setEditingWorkflow(null);
+    form.resetFields();
+    setIsModalVisible(true);
   };
 
-  const columns = [
+  // Show edit modal
+  const showEditModal = (workflow: IWorkflow) => {
+    setEditingWorkflow(workflow);
+    form.setFieldsValue(workflow);
+    setIsModalVisible(true);
+  };
+
+  // Show detail drawer
+  const showDetail = (workflow: IWorkflow) => {
+    setSelectedWorkflow(workflow);
+    setIsDetailVisible(true);
+  };
+
+  // Handle search
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+    setPagination({ ...pagination, current: 1 });
+  };
+
+  // Handle filter change
+  const handleFilterChange = (value: string) => {
+    setStatusFilter(value);
+    setPagination({ ...pagination, current: 1 });
+  };
+
+  // Handle table change
+  const handleTableChange = (paginationInfo: any) => {
+    setPagination({
+      ...pagination,
+      current: paginationInfo.current,
+      pageSize: paginationInfo.pageSize,
+    });
+  };
+
+  // Table columns
+  const columns: ColumnsType<IWorkflow> = [
     {
       title: "Workflow Code",
       dataIndex: "workflowCode",
       key: "workflowCode",
-      width: 200,
-      ellipsis: true,
+      width: 150,
+      render: (text) => <Text code>{text}</Text>,
     },
     {
-      title: "Workflow Name",
+      title: "Tên Workflow",
       dataIndex: "workflowName",
       key: "workflowName",
-      width: 250,
+      ellipsis: true,
+      render: (text) => <Text strong>{text}</Text>,
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       dataIndex: "statusCode",
       key: "statusCode",
       width: 120,
-      render: (statusCode: string) => {
-        const status = statusOptions.find((s) => s.value === statusCode);
-        return status ? (
-          <Tag color={status.color}>{status.label}</Tag>
-        ) : (
-          <Tag>{statusCode}</Tag>
-        );
+      render: (status, record) => {
+        const color =
+          status === "ACTIVE"
+            ? "green"
+            : status === "INACTIVE"
+            ? "red"
+            : "orange";
+        return <Tag color={color}>{record.statusName}</Tag>;
       },
     },
     {
-      title: "Nodes",
-      key: "nodeCount",
-      width: 80,
-      render: (_: any, record: IWorkflow) => (
-        <Badge count={record.nodes?.length || 0} color="blue" />
-      ),
-    },
-    {
-      title: "Description",
+      title: "Mô tả",
       dataIndex: "description",
       key: "description",
       ellipsis: true,
-      render: (text: string) => text || "N/A",
+      render: (text) => text || <Text type="secondary">Chưa có mô tả</Text>,
     },
     {
-      title: "Actions",
+      title: "Số Nodes",
+      dataIndex: "nodes",
+      key: "nodeCount",
+      width: 100,
+      render: (nodes) => <Tag>{nodes?.length || 0} nodes</Tag>,
+    },
+    {
+      title: "Thao tác",
       key: "action",
       width: 200,
-      render: (_: any, record: IWorkflow) => (
-        <Space size="small">
+      render: (_, record) => (
+        <Space>
           <Button
             type="text"
-            icon={<ApartmentOutlined />}
-            onClick={() =>
-              window.open(
-                `/management?tab=builder&workflow=${record.workflowCode}`,
-                "_blank"
-              )
-            }
-            size="small"
-            title="Design workflow"
+            icon={<EyeOutlined />}
+            onClick={() => showDetail(record)}
+            title="Xem chi tiết"
           />
           <Button
             type="text"
             icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            size="small"
-            title="Edit"
+            onClick={() => showEditModal(record)}
+            title="Chỉnh sửa"
           />
           <Popconfirm
-            title="Are you sure you want to delete this workflow?"
+            title="Bạn có chắc muốn xóa workflow này?"
             onConfirm={() => handleDelete(record.workflowCode)}
-            okText="Yes"
-            cancelText="No"
+            okText="Xóa"
+            cancelText="Hủy"
           >
-            <Button
-              type="text"
-              icon={<DeleteOutlined />}
-              danger
-              size="small"
-              title="Delete"
-            />
+            <Button type="text" danger icon={<DeleteOutlined />} title="Xóa" />
           </Popconfirm>
         </Space>
       ),
     },
   ];
 
+  useEffect(() => {
+    loadWorkflows();
+  }, [searchText, statusFilter, pagination.current, pagination.pageSize]);
+
   return (
-    <div
-      style={{
-        padding: "24px",
-        background: colorBgContainer,
-        borderRadius: "8px",
-      }}
-    >
-      <Row gutter={[16, 16]}>
-        <Col span={24}>
-          <Card
-            title={
-              <Space>
-                <ApartmentOutlined />
-                Workflow Management
-              </Space>
-            }
-            extra={
-              <Space>
-                <Button
-                  icon={<ReloadOutlined />}
-                  onClick={() => fetchWorkflows()}
-                >
-                  Refresh
-                </Button>
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={handleCreate}
-                >
-                  Add Workflow
-                </Button>
-              </Space>
-            }
-          >
-            <Row gutter={[16, 16]} style={{ marginBottom: "16px" }}>
-              <Col xs={24} sm={12} md={8}>
-                <Search
-                  placeholder="Search workflows..."
-                  allowClear
-                  enterButton={<SearchOutlined />}
-                  onSearch={handleSearch}
-                />
-              </Col>
-            </Row>
+    <div style={{ padding: "24px" }}>
+      <Card>
+        <Row gutter={[16, 16]} align="middle" style={{ marginBottom: 16 }}>
+          <Col flex="auto">
+            <Title level={3} style={{ margin: 0 }}>
+              <ApartmentOutlined /> Quản lý Workflow
+            </Title>
+          </Col>
+          <Col>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={showCreateModal}
+            >
+              Tạo Workflow
+            </Button>
+          </Col>
+        </Row>
 
-            <Table
-              columns={columns}
-              dataSource={workflows}
-              rowKey="workflowCode"
-              loading={loading}
-              expandable={{
-                expandedRowRender,
-                onExpand,
-                expandIcon: ({ expanded, onExpand, record }) => (
-                  <Button
-                    type="text"
-                    icon={<SettingOutlined />}
-                    size="small"
-                    onClick={(e) => onExpand(record, e)}
-                    style={{
-                      transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
-                      transition: "transform 0.2s",
-                    }}
-                  />
-                ),
-              }}
-              pagination={{
-                current: pagination.current,
-                pageSize: pagination.pageSize,
-                total: pagination.total,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} items`,
-                onChange: handleTableChange,
-                onShowSizeChange: handleTableChange,
-              }}
-              scroll={{ x: 1200 }}
+        <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+          <Col xs={24} sm={12} md={8}>
+            <Search
+              placeholder="Tìm kiếm workflow..."
+              allowClear
+              onSearch={handleSearch}
+              style={{ width: "100%" }}
             />
-          </Card>
-        </Col>
-      </Row>
+          </Col>
+          <Col xs={24} sm={12} md={8}>
+            <Select
+              placeholder="Lọc theo trạng thái"
+              allowClear
+              style={{ width: "100%" }}
+              onChange={handleFilterChange}
+            >
+              <Option value="">Tất cả</Option>
+              <Option value="ACTIVE">Hoạt động</Option>
+              <Option value="INACTIVE">Không hoạt động</Option>
+              <Option value="DRAFT">Bản nháp</Option>
+            </Select>
+          </Col>
+          <Col xs={24} sm={24} md={8}>
+            <Space>
+              <Button icon={<ReloadOutlined />} onClick={() => loadWorkflows()}>
+                Làm mới
+              </Button>
+            </Space>
+          </Col>
+        </Row>
 
+        <Table
+          columns={columns}
+          dataSource={workflows}
+          rowKey="workflowCode"
+          loading={loading}
+          pagination={{
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total) => `Tổng ${total} workflow`,
+          }}
+          onChange={handleTableChange}
+          scroll={{ x: 1000 }}
+        />
+      </Card>
+
+      {/* Create/Edit Modal */}
       <Modal
-        title={editingWorkflow ? "Edit Workflow" : "Add Workflow"}
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        onOk={() => form.submit()}
-        width={700}
+        title={editingWorkflow ? "Chỉnh sửa Workflow" : "Tạo Workflow mới"}
+        open={isModalVisible}
+        onCancel={() => {
+          setIsModalVisible(false);
+          setEditingWorkflow(null);
+          form.resetFields();
+        }}
+        footer={null}
+        width={600}
       >
-        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSave}
+          initialValues={{
+            statusCode: "DRAFT",
+            statusName: "Bản nháp",
+          }}
+        >
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                name="workflowName"
-                label="Workflow Name"
+                name="workflowCode"
+                label="Workflow Code"
                 rules={[
-                  { required: true, message: "Please enter workflow name" },
+                  { required: true, message: "Vui lòng nhập workflow code" },
                 ]}
               >
-                <Input placeholder="Enter workflow name" />
+                <Input
+                  placeholder="VD: BOOKING_FLOW"
+                  disabled={!!editingWorkflow}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                name="statusCode"
-                label="Status"
-                rules={[{ required: true, message: "Please select status" }]}
+                name="workflowName"
+                label="Tên Workflow"
+                rules={[
+                  { required: true, message: "Vui lòng nhập tên workflow" },
+                ]}
               >
-                <Select placeholder="Select status">
-                  {statusOptions.map((option) => (
-                    <Option key={option.value} value={option.value}>
-                      {option.label}
-                    </Option>
-                  ))}
-                </Select>
+                <Input placeholder="VD: Quy trình đặt phòng" />
               </Form.Item>
             </Col>
           </Row>
 
-          <Form.Item name="description" label="Description">
-            <Input.TextArea rows={4} placeholder="Enter workflow description" />
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="statusCode"
+                label="Trạng thái"
+                rules={[
+                  { required: true, message: "Vui lòng chọn trạng thái" },
+                ]}
+              >
+                <Select>
+                  <Option value="ACTIVE">Hoạt động</Option>
+                  <Option value="INACTIVE">Không hoạt động</Option>
+                  <Option value="DRAFT">Bản nháp</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="statusName"
+                label="Tên trạng thái"
+                rules={[
+                  { required: true, message: "Vui lòng nhập tên trạng thái" },
+                ]}
+              >
+                <Input placeholder="VD: Hoạt động" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item name="description" label="Mô tả">
+            <Input.TextArea
+              rows={4}
+              placeholder="Mô tả chi tiết về workflow..."
+            />
+          </Form.Item>
+
+          <Form.Item>
+            <Space>
+              <Button type="primary" htmlType="submit">
+                {editingWorkflow ? "Cập nhật" : "Tạo mới"}
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsModalVisible(false);
+                  setEditingWorkflow(null);
+                  form.resetFields();
+                }}
+              >
+                Hủy
+              </Button>
+            </Space>
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* Detail Drawer */}
+      <Drawer
+        title="Chi tiết Workflow"
+        placement="right"
+        width={500}
+        open={isDetailVisible}
+        onClose={() => setIsDetailVisible(false)}
+      >
+        {selectedWorkflow && (
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <Descriptions title="Thông tin cơ bản" bordered column={1}>
+              <Descriptions.Item label="Workflow Code">
+                <Text code>{selectedWorkflow.workflowCode}</Text>
+              </Descriptions.Item>
+              <Descriptions.Item label="Tên Workflow">
+                <Text strong>{selectedWorkflow.workflowName}</Text>
+              </Descriptions.Item>
+              <Descriptions.Item label="Trạng thái">
+                <Tag
+                  color={
+                    selectedWorkflow.statusCode === "ACTIVE"
+                      ? "green"
+                      : "orange"
+                  }
+                >
+                  {selectedWorkflow.statusName}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Mô tả">
+                {selectedWorkflow.description || (
+                  <Text type="secondary">Chưa có mô tả</Text>
+                )}
+              </Descriptions.Item>
+              <Descriptions.Item label="Số Nodes">
+                <Tag>{selectedWorkflow.nodes?.length || 0} nodes</Tag>
+              </Descriptions.Item>
+            </Descriptions>
+
+            {selectedWorkflow.nodes && selectedWorkflow.nodes.length > 0 && (
+              <Card title="Danh sách Nodes" size="small">
+                {selectedWorkflow.nodes.map((node, index) => (
+                  <div key={index} style={{ marginBottom: 8 }}>
+                    <Text strong>{node.nodeName}</Text>
+                    <br />
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      {node.nodeCode} • {node.templateCode}
+                    </Text>
+                  </div>
+                ))}
+              </Card>
+            )}
+
+            <Space>
+              <Button
+                type="primary"
+                icon={<EditOutlined />}
+                onClick={() => {
+                  setIsDetailVisible(false);
+                  showEditModal(selectedWorkflow);
+                }}
+              >
+                Chỉnh sửa
+              </Button>
+              <Button
+                icon={<ApartmentOutlined />}
+                onClick={() => {
+                  window.open(
+                    `/workflow-builder?workflow=${selectedWorkflow.workflowCode}`,
+                    "_blank"
+                  );
+                }}
+              >
+                Thiết kế Workflow
+              </Button>
+            </Space>
+          </Space>
+        )}
+      </Drawer>
     </div>
   );
 };

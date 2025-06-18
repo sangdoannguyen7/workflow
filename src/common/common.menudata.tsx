@@ -1,13 +1,27 @@
 import {
+  DashboardOutlined,
   RobotOutlined,
   FileTextOutlined,
   NodeExpandOutlined,
   ApartmentOutlined,
   SettingOutlined,
+  ExperimentOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
 const menuData = [
+  {
+    path: "/dashboard",
+    key: "DASHBOARD",
+    icon: (
+      <Link to="/dashboard">
+        <DashboardOutlined />
+      </Link>
+    ),
+    label: "Dashboard",
+    permission: "DASHBOARD",
+    description: "DASHBOARD",
+  },
   {
     path: "/agent",
     key: "AGENT",
@@ -91,6 +105,18 @@ const menuData = [
     label: "Property Management",
     permission: "MANAGEMENT",
     description: "MANAGEMENT",
+  },
+  {
+    path: "/test",
+    key: "TEST",
+    icon: (
+      <Link to="/test">
+        <ExperimentOutlined />
+      </Link>
+    ),
+    label: "System Test",
+    permission: "TEST",
+    description: "TEST",
   },
 ];
 

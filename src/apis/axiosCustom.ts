@@ -1,25 +1,26 @@
-import axios, {AxiosRequestConfig} from "axios";
-import {constants} from "../common/common.constants.ts";
+import axios, { AxiosRequestConfig } from "axios";
+import { constants } from "../common/common.constants.ts";
+import ApiFallbackService from "./fallback.service";
 
 const api = axios.create({
   baseURL: constants.BACKEND_HOST,
 });
 
 export interface IDataRequest {
-  method: string,
-  uri: string,
-  params: object | string | null,
-  data: object | null,
-  type?: string | undefined
+  method: string;
+  uri: string;
+  params: object | string | null;
+  data: object | null;
+  type?: string | undefined;
 }
 
 export interface IDataResponse<T> {
-  value: T,
-  data: T[],
-  total: number,
-  totalPage: number,
-  page: number,
-  pageSize: number
+  value: T;
+  data: T[];
+  total: number;
+  totalPage: number;
+  page: number;
+  pageSize: number;
 }
 
 async function refreshToken(): Promise<string | null> {
@@ -41,48 +42,59 @@ async function refreshToken(): Promise<string | null> {
   return "accessTOken";
 }
 
-export async function axiosCustom<IDataResponse>(options: IDataRequest): Promise<IDataResponse> {
+export async function axiosCustom<IDataResponse>(
+  options: IDataRequest
+): Promise<IDataResponse> {
   const responseType = options.type === undefined ? "" : "blob";
   let dataRequest: AxiosRequestConfig = {
     url: options.uri,
     method: options.method,
     headers: {
-      Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
     },
     params: options.params,
     data: options.data,
-    responseType: responseType === "" ? undefined : "blob"
-  }
+    responseType: responseType === "" ? undefined : "blob",
+  };
 
-  try {
-    const response = await api.request<IDataResponse>({
-      url: dataRequest.url,
-      ...dataRequest,
-    });
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const response = error.response;
-      if (response && response.status === 401) {
-        const refreshedToken = await refreshToken(); // Implement your token refresh function
-        if (refreshedToken) {
-
-          dataRequest = {
-            ...dataRequest,
-            headers: {
-              Authorization: `Bearer ${refreshedToken}`
+  return ApiFallbackService.executeFallback(
+    async () => {
+      try {
+        const response = await api.request<IDataResponse>({
+          url: dataRequest.url,
+          ...dataRequest,
+        });
+        return response.data;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const response = error.response;
+          if (response && response.status === 401) {
+            const refreshedToken = await refreshToken();
+            if (refreshedToken) {
+              dataRequest = {
+                ...dataRequest,
+                headers: {
+                  Authorization: `Bearer ${refreshedToken}`,
+                },
+              };
+              const retryResponse = await api.request<IDataResponse>({
+                url: dataRequest.url,
+                ...dataRequest,
+              });
+              return retryResponse.data;
             }
           }
-          const response = await api.request<IDataResponse>({
-            url: dataRequest.url,
-            ...dataRequest,
-          });
-          return response.data;
         }
+        throw error;
       }
+    },
+    () => {
+      // Fallback to mock data
+      return ApiFallbackService.handleWorkflowRequests(
+        options
+      ) as IDataResponse;
     }
-    throw error;
-  }
+  );
 }
 
 export default axiosCustom;

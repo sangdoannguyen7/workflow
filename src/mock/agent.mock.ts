@@ -7,7 +7,8 @@ export const mockAgents: IAgent[] = [
     agentName: "Webhook Processing Agent",
     statusCode: "ACTIVE",
     statusName: "Hoạt động",
-    description: "Agent xử lý các webhook requests từ bên ngoài",
+    description:
+      "Agent chuyên xử lý các webhook requests từ bên ngoài với khả năng validate, transform và route dữ liệu",
     search: "webhook processing agent hoạt động",
   },
   {
@@ -16,7 +17,8 @@ export const mockAgents: IAgent[] = [
     agentName: "Schedule Task Agent",
     statusCode: "ACTIVE",
     statusName: "Hoạt động",
-    description: "Agent thực hiện các tác vụ được lên lịch",
+    description:
+      "Agent thực hiện các tác vụ được lên lịch với cron expression, hỗ trợ timezone và retry mechanism",
     search: "schedule task agent hoạt động",
   },
   {
@@ -25,7 +27,8 @@ export const mockAgents: IAgent[] = [
     agentName: "REST API Agent",
     statusCode: "ACTIVE",
     statusName: "Hoạt động",
-    description: "Agent thực hiện các REST API calls",
+    description:
+      "Agent thực hiện các REST API calls với hỗ trợ authentication, retry logic và response mapping",
     search: "rest api agent hoạt động",
   },
   {
@@ -34,7 +37,8 @@ export const mockAgents: IAgent[] = [
     agentName: "Data Processing Agent",
     statusCode: "INACTIVE",
     statusName: "Không hoạt động",
-    description: "Agent xử lý và biến đổi dữ liệu",
+    description:
+      "Agent xử lý và biến đổi dữ liệu với các functions như filter, map, reduce và validation",
     search: "data processing agent không hoạt động",
   },
   {
@@ -43,8 +47,29 @@ export const mockAgents: IAgent[] = [
     agentName: "Notification Agent",
     statusCode: "ACTIVE",
     statusName: "Hoạt động",
-    description: "Agent gửi thông báo qua email, SMS",
+    description:
+      "Agent gửi thông báo qua nhiều kênh như email, SMS, push notification và webhook",
     search: "notification agent hoạt động",
+  },
+  {
+    agentId: 6,
+    agentCode: "LOGIC_AGENT",
+    agentName: "Logic Processing Agent",
+    statusCode: "ACTIVE",
+    statusName: "Hoạt động",
+    description:
+      "Agent xử lý logic nghiệp vụ, điều kiện, phân nhánh và decision making",
+    search: "logic processing agent hoạt động",
+  },
+  {
+    agentId: 7,
+    agentCode: "FILE_AGENT",
+    agentName: "File Processing Agent",
+    statusCode: "DRAFT",
+    statusName: "Bản nháp",
+    description:
+      "Agent xử lý files như read, write, transform, compress và upload/download",
+    search: "file processing agent bản nháp",
   },
 ];
 
@@ -77,6 +102,8 @@ export const getMockAgents = (params?: any): IAgentResponse => {
     totalPages: Math.ceil(filteredAgents.length / size),
     size: size,
     number: page,
+    first: page === 0,
+    last: end >= filteredAgents.length,
   };
 };
 
@@ -86,4 +113,41 @@ export const getMockAgentById = (id: number): IAgent | undefined => {
 
 export const getMockAgentByCode = (code: string): IAgent | undefined => {
   return mockAgents.find((agent) => agent.agentCode === code);
+};
+
+// CRUD Operations cho Agent
+export const createMockAgent = (agent: Partial<IAgent>): IAgent => {
+  const newId = Math.max(...mockAgents.map((a) => a.agentId || 0)) + 1;
+  const newAgent: IAgent = {
+    agentId: newId,
+    agentCode: agent.agentCode || `AGENT_${newId}`,
+    agentName: agent.agentName || `New Agent ${newId}`,
+    statusCode: agent.statusCode || "DRAFT",
+    statusName: agent.statusName || "Bản nháp",
+    description: agent.description || "New agent description",
+    search:
+      agent.search || `${agent.agentName} ${agent.statusName}`.toLowerCase(),
+  };
+
+  mockAgents.push(newAgent);
+  return newAgent;
+};
+
+export const updateMockAgent = (
+  id: number,
+  updates: Partial<IAgent>
+): IAgent | null => {
+  const index = mockAgents.findIndex((a) => a.agentId === id);
+  if (index === -1) return null;
+
+  mockAgents[index] = { ...mockAgents[index], ...updates };
+  return mockAgents[index];
+};
+
+export const deleteMockAgent = (id: number): boolean => {
+  const index = mockAgents.findIndex((a) => a.agentId === id);
+  if (index === -1) return false;
+
+  mockAgents.splice(index, 1);
+  return true;
 };

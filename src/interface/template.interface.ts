@@ -16,6 +16,7 @@ export interface ITemplate {
   workflowName?: string;
   statusCode: string;
   statusName: string | null;
+  templateType: string; // Added for workflow builder
   description: string | null;
   search?: string | null;
   metadata?: string | null;
