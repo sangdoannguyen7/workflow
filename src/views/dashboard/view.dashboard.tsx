@@ -326,9 +326,10 @@ const DashboardPage = () => {
   return (
     <div
       style={{
-        padding: 16,
+        padding: 24,
         background: "transparent",
-        minHeight: "100%",
+        minHeight: "calc(100vh - 140px)",
+        overflowY: "auto",
       }}
     >
       {/* Alerts */}
