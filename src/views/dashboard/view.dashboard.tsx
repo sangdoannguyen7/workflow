@@ -136,7 +136,7 @@ const DashboardPage = () => {
       {
         id: 1,
         type: "success",
-        title: 'Workflow "Data Sync" hoàn thành',
+        title: 'Workflow "Data Sync" hoàn th��nh',
         description: "Đã xử lý 1,234 records thành công",
         time: "2 phút trước",
         user: "System",
@@ -810,8 +810,171 @@ const DashboardPage = () => {
         </Col>
       </Row>
 
+      {/* System Health and Monitoring */}
+      <Row gutter={[8, 8]} style={{ marginBottom: 8 }}>
+        <Col xs={24} lg={12}>
+          <Card
+            title={
+              <Space>
+                <RocketOutlined style={{ color: colorSuccess }} />
+                <span>Trạng thái hệ thống</span>
+                <Badge dot color={colorSuccess} />
+              </Space>
+            }
+            style={{
+              borderRadius: borderRadiusLG,
+              height: 280,
+              boxShadow: boxShadowSecondary,
+            }}
+            bodyStyle={{ padding: "8px", overflow: "hidden" }}
+          >
+            <Row gutter={[8, 8]}>
+              <Col span={12}>
+                <Statistic
+                  title="CPU Usage"
+                  value={23.5}
+                  precision={1}
+                  suffix="%"
+                  valueStyle={{ color: colorSuccess, fontSize: 16 }}
+                />
+                <Progress
+                  percent={23}
+                  strokeColor={colorSuccess}
+                  size="small"
+                />
+              </Col>
+              <Col span={12}>
+                <Statistic
+                  title="Memory Usage"
+                  value={67.2}
+                  precision={1}
+                  suffix="%"
+                  valueStyle={{ color: colorWarning, fontSize: 16 }}
+                />
+                <Progress
+                  percent={67}
+                  strokeColor={colorWarning}
+                  size="small"
+                />
+              </Col>
+              <Col span={12}>
+                <Statistic
+                  title="Disk Usage"
+                  value={34.8}
+                  precision={1}
+                  suffix="%"
+                  valueStyle={{ color: colorPrimary, fontSize: 16 }}
+                />
+                <Progress
+                  percent={35}
+                  strokeColor={colorPrimary}
+                  size="small"
+                />
+              </Col>
+              <Col span={12}>
+                <Statistic
+                  title="Network I/O"
+                  value={156}
+                  suffix="MB/s"
+                  valueStyle={{ color: colorInfo, fontSize: 16 }}
+                />
+                <Progress percent={78} strokeColor={colorInfo} size="small" />
+              </Col>
+            </Row>
+            <Divider style={{ margin: "8px 0" }} />
+            <Space direction="vertical" size={4} style={{ width: "100%" }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <Text>Database Connections:</Text>
+                <Text strong>45/100</Text>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <Text>Queue Size:</Text>
+                <Text strong>12</Text>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <Text>Cache Hit Rate:</Text>
+                <Text strong style={{ color: colorSuccess }}>
+                  94.2%
+                </Text>
+              </div>
+            </Space>
+          </Card>
+        </Col>
+
+        <Col xs={24} lg={12}>
+          <Card
+            title={
+              <Space>
+                <LineChartOutlined style={{ color: colorPrimary }} />
+                <span>Workflow Execution Timeline</span>
+              </Space>
+            }
+            style={{
+              borderRadius: borderRadiusLG,
+              height: 280,
+              boxShadow: boxShadowSecondary,
+            }}
+            bodyStyle={{ padding: "8px", overflow: "hidden" }}
+          >
+            <Timeline
+              mode="left"
+              items={[
+                {
+                  color: colorSuccess,
+                  children: (
+                    <div>
+                      <Text strong>User Registration Completed</Text>
+                      <br />
+                      <Text type="secondary" style={{ fontSize: 11 }}>
+                        2 minutes ago • 45 users processed
+                      </Text>
+                    </div>
+                  ),
+                },
+                {
+                  color: colorWarning,
+                  children: (
+                    <div>
+                      <Text strong>Payment Gateway Slow Response</Text>
+                      <br />
+                      <Text type="secondary" style={{ fontSize: 11 }}>
+                        15 minutes ago • 3.2s avg response time
+                      </Text>
+                    </div>
+                  ),
+                },
+                {
+                  color: colorSuccess,
+                  children: (
+                    <div>
+                      <Text strong>Data Sync Batch Completed</Text>
+                      <br />
+                      <Text type="secondary" style={{ fontSize: 11 }}>
+                        1 hour ago • 1,234 records synchronized
+                      </Text>
+                    </div>
+                  ),
+                },
+                {
+                  color: colorPrimary,
+                  children: (
+                    <div>
+                      <Text strong>System Maintenance Window</Text>
+                      <br />
+                      <Text type="secondary" style={{ fontSize: 11 }}>
+                        3 hours ago • Scheduled maintenance completed
+                      </Text>
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          </Card>
+        </Col>
+      </Row>
+
       {/* Top Workflows */}
-      <Row gutter={[16, 16]}>
+      <Row gutter={[8, 8]}>
         <Col span={24}>
           <Card
             title={
