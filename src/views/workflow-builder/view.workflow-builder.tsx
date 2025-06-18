@@ -795,7 +795,7 @@ const WorkflowBuilderPage: React.FC = () => {
     setIsPlaying(newIsPlaying);
 
     setEdges((eds) =>
-      eds.map((edge) => ({
+      (eds || []).map((edge) => ({
         ...edge,
         animated: newIsPlaying,
         style: {
