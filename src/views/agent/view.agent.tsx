@@ -176,7 +176,7 @@ const AgentPage: React.FC = () => {
     {
       title: "Actions",
       key: "action",
-      width: 150,
+      width: 100,
       render: (_: any, record: IAgent) => (
         <div
           style={{
