@@ -55,7 +55,7 @@ const TemplatePage: React.FC = () => {
   const [templates, setTemplates] = useState<ITemplate[]>([]);
   const [agents, setAgents] = useState<IAgent[]>([]);
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<ITemplate | null>(
     null
   );
