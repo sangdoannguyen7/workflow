@@ -4,7 +4,7 @@ export const API_CONFIG = {
   USE_MOCK: true,
 
   // Base URL for real API
-  BASE_URL: process.env.REACT_APP_API_URL || "http://localhost:8080/api",
+  BASE_URL: import.meta.env.VITE_API_URL || "http://localhost:8080/api",
 
   // Mock delay to simulate network latency
   MOCK_DELAY: 1000,
