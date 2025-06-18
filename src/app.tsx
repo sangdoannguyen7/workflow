@@ -11,6 +11,18 @@ import localeData from "dayjs/plugin/localeData";
 dayjs.extend(weekday);
 dayjs.extend(localeData);
 
+// App content component that has access to notification API
+const AppContent = () => {
+  const { notification } = AntApp.useApp();
+
+  // Set global notification API for legacy components
+  React.useEffect(() => {
+    setGlobalNotificationApi(notification);
+  }, [notification]);
+
+  return <RenderRouter />;
+};
+
 function App() {
   const theme = useSelector((state: IState) => state.getTheme);
 
