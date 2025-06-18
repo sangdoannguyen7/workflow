@@ -614,8 +614,7 @@ const WorkflowBuilderPage: React.FC = () => {
 
   const fetchAgents = async () => {
     try {
-      const response = await workflowApi.getAgentsForBuilder();
-      // Agents are used implicitly in templates, no need to set state
+      const response = await WorkflowMockAPI.getAgentsForBuilder();
       console.log("Agents loaded:", response.data?.length || 0);
     } catch (error) {
       NotificationComponent({
