@@ -29,7 +29,7 @@ import {
   Input,
   Form,
   Switch,
-  Spin,
+  Spin
 } from "antd";
 import {
   ApartmentOutlined,
@@ -49,7 +49,7 @@ import {
   RocketOutlined,
   SettingOutlined,
   EyeOutlined,
-  ThunderboltOutlined,
+  ThunderboltOutlined
 } from "@ant-design/icons";
 import {
   ReactFlow,
@@ -148,13 +148,11 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
         transition: "all 0.3s ease",
         userSelect: "none",
         position: "relative",
-        overflow: "hidden",
+        overflow: "hidden"
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = "translateY(-4px)";
-        e.currentTarget.style.boxShadow = `0 8px 24px ${
-          config?.color || "#ccc"
-        }40`;
+        e.currentTarget.style.boxShadow = `0 8px 24px ${config?.color || "#ccc"}40`;
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = "translateY(0)";
@@ -178,9 +176,7 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
         {template.templateType?.toUpperCase()}
       </div>
 
-      <div
-        style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}
-      >
+      <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
         <div
           style={{
             color: config?.color || "#666",
@@ -208,26 +204,18 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
             color: "#666",
             display: "block",
             lineHeight: 1.4,
-            marginBottom: "10px",
+            marginBottom: "10px"
           }}
         >
           {template.description.length > 80
             ? `${template.description.substring(0, 80)}...`
-            : template.description}
+            : template.description
+          }
         </Text>
       )}
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Tag
-          size="small"
-          color={template.statusCode === "ACTIVE" ? "green" : "orange"}
-        >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Tag size="small" color={template.statusCode === "ACTIVE" ? "green" : "orange"}>
           {template.statusName}
         </Tag>
         <Text style={{ fontSize: 11, color: "#999" }}>
@@ -278,16 +266,14 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
           padding: "6px 10px",
           fontSize: "10px",
           fontWeight: "bold",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
         }}
       >
         {data.templateType?.toUpperCase()}
       </div>
 
       {/* Node Header */}
-      <div
-        style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}
-      >
+      <div style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
         <div
           style={{
             color: config?.color || "#666",
@@ -304,7 +290,7 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
               fontSize: "15px",
               color: config?.color || "#666",
               display: "block",
-              lineHeight: 1.2,
+              lineHeight: 1.2
             }}
           >
             {data.label}
@@ -326,7 +312,7 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
             marginBottom: "12px",
             background: "#f8f9fa",
             padding: "8px",
-            borderRadius: "8px",
+            borderRadius: "8px"
           }}
         >
           {data.description.length > 100
@@ -347,9 +333,7 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
         }}
       >
         <Space size="small">
-          <Tag size="small" color={config?.color}>
-            Agent
-          </Tag>
+          <Tag size="small" color={config?.color}>Agent</Tag>
           <Text style={{ fontSize: 11 }}>{data.agentCode}</Text>
         </Space>
         <div
@@ -358,7 +342,7 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
             height: "10px",
             borderRadius: "50%",
             backgroundColor: selected ? config?.color : "#ccc",
-            boxShadow: selected ? `0 0 8px ${config?.color}60` : "none",
+            boxShadow: selected ? `0 0 8px ${config?.color}60` : "none"
           }}
         />
       </div>
@@ -375,7 +359,7 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
           borderRadius: "50%",
           border: `3px solid ${config?.color || "#666"}`,
           backgroundColor: "#fff",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
         }}
         className="react-flow__handle react-flow__handle-left"
       />
@@ -391,7 +375,7 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
           borderRadius: "50%",
           border: `3px solid ${config?.color || "#666"}`,
           backgroundColor: "#fff",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
         }}
         className="react-flow__handle react-flow__handle-right"
       />
@@ -409,17 +393,14 @@ const WorkflowBuilderPage: React.FC = () => {
   const [workflows, setWorkflows] = useState<IWorkflow[]>([]);
   const [templates, setTemplates] = useState<ITemplate[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<string>("");
-  const [currentWorkflow, setCurrentWorkflow] = useState<IWorkflow | null>(
-    null
-  );
+  const [currentWorkflow, setCurrentWorkflow] = useState<IWorkflow | null>(null);
   const [paletteVisible, setPaletteVisible] = useState(true);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [nodeCounter, setNodeCounter] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isTestRunning, setIsTestRunning] = useState(false);
   const [testResults, setTestResults] = useState<any>(null);
-  const [reactFlowInstance, setReactFlowInstance] =
-    useState<ReactFlowInstance | null>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
@@ -432,7 +413,7 @@ const WorkflowBuilderPage: React.FC = () => {
       colorWarning,
       colorError,
       colorTextSecondary,
-      boxShadowSecondary,
+      boxShadowSecondary
     },
   } = theme.useToken();
 
@@ -451,9 +432,9 @@ const WorkflowBuilderPage: React.FC = () => {
       };
       setEdges((eds) => addEdge(newEdge, eds));
       NotificationComponent({
-        type: "success",
-        message: "Thành công",
-        description: "Đã kết nối nodes thành công",
+        type: 'success',
+        message: 'Thành công',
+        description: 'Đã kết nối nodes thành công'
       });
     },
     [setEdges, isPlaying, colorPrimary]
@@ -502,15 +483,15 @@ const WorkflowBuilderPage: React.FC = () => {
         setNodes((nds) => nds.concat(newNode));
         setNodeCounter((prev) => prev + 1);
         NotificationComponent({
-          type: "success",
-          message: "Thành công",
-          description: `Đã thêm node "${template.templateName}"`,
+          type: 'success',
+          message: 'Thành công',
+          description: `Đã thêm node "${template.templateName}"`
         });
       } catch (error) {
         NotificationComponent({
-          type: "error",
-          message: "Lỗi",
-          description: "Không thể thêm node",
+          type: 'error',
+          message: 'Lỗi',
+          description: 'Không thể thêm node'
         });
       }
     },
@@ -526,9 +507,9 @@ const WorkflowBuilderPage: React.FC = () => {
   const runWorkflowTest = async () => {
     if (!selectedWorkflow || nodes.length === 0) {
       NotificationComponent({
-        type: "warning",
-        message: "Cảnh báo",
-        description: "Vui lòng chọn workflow và thêm ít nhất một node",
+        type: 'warning',
+        message: 'Cảnh báo',
+        description: 'Vui lòng chọn workflow và thêm ít nhất một node'
       });
       return;
     }
@@ -536,51 +517,33 @@ const WorkflowBuilderPage: React.FC = () => {
     setIsTestRunning(true);
     try {
       // Mock test execution
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
       const mockResults = {
-        status: "success",
+        status: 'success',
         executionTime: Math.random() * 5000 + 1000,
         nodesExecuted: nodes.length,
         successfulNodes: Math.floor(nodes.length * 0.9),
         failedNodes: Math.ceil(nodes.length * 0.1),
         logs: [
-          {
-            timestamp: new Date(),
-            level: "info",
-            message: "Workflow test started",
-          },
-          {
-            timestamp: new Date(),
-            level: "success",
-            message: "Node validation passed",
-          },
-          {
-            timestamp: new Date(),
-            level: "info",
-            message: "Executing node sequence",
-          },
-          {
-            timestamp: new Date(),
-            level: "success",
-            message: "Workflow test completed",
-          },
-        ],
+          { timestamp: new Date(), level: 'info', message: 'Workflow test started' },
+          { timestamp: new Date(), level: 'success', message: 'Node validation passed' },
+          { timestamp: new Date(), level: 'info', message: 'Executing node sequence' },
+          { timestamp: new Date(), level: 'success', message: 'Workflow test completed' }
+        ]
       };
 
       setTestResults(mockResults);
       NotificationComponent({
-        type: "success",
-        message: "Test hoàn thành",
-        description: `Workflow đã được test thành công trong ${(
-          mockResults.executionTime / 1000
-        ).toFixed(2)}s`,
+        type: 'success',
+        message: 'Test hoàn thành',
+        description: `Workflow đã được test thành công trong ${(mockResults.executionTime / 1000).toFixed(2)}s`
       });
     } catch (error) {
       NotificationComponent({
-        type: "error",
-        message: "Test thất bại",
-        description: "Có lỗi xảy ra trong quá trình test workflow",
+        type: 'error',
+        message: 'Test thất bại',
+        description: 'Có lỗi xảy ra trong quá trình test workflow'
       });
     } finally {
       setIsTestRunning(false);
@@ -594,9 +557,9 @@ const WorkflowBuilderPage: React.FC = () => {
       setWorkflows(response.content);
     } catch (error) {
       NotificationComponent({
-        type: "error",
-        message: "Lỗi",
-        description: "Không thể tải danh sách workflow",
+        type: 'error',
+        message: 'Lỗi',
+        description: 'Không thể tải danh sách workflow'
       });
     }
   };
@@ -607,9 +570,9 @@ const WorkflowBuilderPage: React.FC = () => {
       setTemplates(response.content);
     } catch (error) {
       NotificationComponent({
-        type: "error",
-        message: "Lỗi",
-        description: "Không thể tải danh sách template",
+        type: 'error',
+        message: 'Lỗi',
+        description: 'Không thể tải danh sách template'
       });
     }
   };
@@ -620,7 +583,7 @@ const WorkflowBuilderPage: React.FC = () => {
 
     try {
       const design = await workflowApi.getWorkflowDesign(code);
-      const workflow = workflows.find((w) => w.workflowCode === code);
+      const workflow = workflows.find(w => w.workflowCode === code);
       setCurrentWorkflow(workflow || null);
 
       const flowNodes: Node[] = design.nodes.map((node) => ({
@@ -656,22 +619,20 @@ const WorkflowBuilderPage: React.FC = () => {
       setNodeCounter(maxNumber + 1);
 
       NotificationComponent({
-        type: "success",
-        message: "Thành công",
-        description: "Tải workflow thành công",
+        type: 'success',
+        message: 'Thành công',
+        description: 'Tải workflow thành công'
       });
     } catch (error) {
       NotificationComponent({
-        type: "info",
-        message: "Thông báo",
-        description: "Tạo workflow mới",
+        type: 'info',
+        message: 'Thông báo',
+        description: 'Tạo workflow mới'
       });
       setNodes([]);
       setEdges([]);
       setNodeCounter(1);
-      setCurrentWorkflow(
-        workflows.find((w) => w.workflowCode === code) || null
-      );
+      setCurrentWorkflow(workflows.find(w => w.workflowCode === code) || null);
     }
   };
 
@@ -679,9 +640,9 @@ const WorkflowBuilderPage: React.FC = () => {
   const saveWorkflowDesign = async () => {
     if (!selectedWorkflow) {
       NotificationComponent({
-        type: "warning",
-        message: "Cảnh báo",
-        description: "Vui lòng chọn workflow",
+        type: 'warning',
+        message: 'Cảnh báo',
+        description: 'Vui lòng chọn workflow'
       });
       return;
     }
@@ -704,15 +665,15 @@ const WorkflowBuilderPage: React.FC = () => {
 
       await workflowApi.saveWorkflowDesign(selectedWorkflow, design);
       NotificationComponent({
-        type: "success",
-        message: "Thành công",
-        description: "Lưu workflow thành công",
+        type: 'success',
+        message: 'Thành công',
+        description: 'Lưu workflow thành công'
       });
     } catch (error) {
       NotificationComponent({
-        type: "error",
-        message: "Lỗi",
-        description: "Không thể lưu workflow",
+        type: 'error',
+        message: 'Lỗi',
+        description: 'Không thể lưu workflow'
       });
     }
   };
@@ -765,9 +726,9 @@ const WorkflowBuilderPage: React.FC = () => {
       );
       setSelectedNode(null);
       NotificationComponent({
-        type: "success",
-        message: "Thành công",
-        description: "Đã xóa node",
+        type: 'success',
+        message: 'Thành công',
+        description: 'Đã xóa node'
       });
     }
   }, [selectedNode, setNodes, setEdges]);
@@ -783,9 +744,9 @@ const WorkflowBuilderPage: React.FC = () => {
         setNodeCounter(1);
         setTestResults(null);
         NotificationComponent({
-          type: "success",
-          message: "Thành công",
-          description: "Đã xóa toàn bộ workflow",
+          type: 'success',
+          message: 'Thành công',
+          description: 'Đã xóa toàn bộ workflow'
         });
       },
     });
@@ -807,11 +768,9 @@ const WorkflowBuilderPage: React.FC = () => {
     );
 
     NotificationComponent({
-      type: "info",
-      message: "Thông báo",
-      description: newIsPlaying
-        ? "Bắt đầu mô phỏng workflow"
-        : "Dừng mô phỏng workflow",
+      type: 'info',
+      message: 'Thông báo',
+      description: newIsPlaying ? 'Bắt đầu mô phỏng workflow' : 'Dừng mô phỏng workflow'
     });
   }, [isPlaying, setEdges]);
 
@@ -828,24 +787,18 @@ const WorkflowBuilderPage: React.FC = () => {
 
   return (
     <ReactFlowProvider>
-      <div
-        style={{ height: "100vh", display: "flex", background: "transparent" }}
-      >
+      <div style={{ height: "100vh", display: "flex", background: 'transparent' }}>
         {/* Template Palette Sidebar */}
         <div
           style={{
             width: paletteVisible ? "350px" : "0px",
             transition: "width 0.3s ease",
-            borderRight: paletteVisible
-              ? `1px solid ${colorPrimary}20`
-              : "none",
+            borderRight: paletteVisible ? `1px solid ${colorPrimary}20` : "none",
             background: colorBgContainer,
-            borderRadius: paletteVisible
-              ? `${borderRadiusLG}px 0 0 ${borderRadiusLG}px`
-              : 0,
+            borderRadius: paletteVisible ? `${borderRadiusLG}px 0 0 ${borderRadiusLG}px` : 0,
             boxShadow: paletteVisible ? boxShadowSecondary : "none",
             overflow: "hidden",
-            margin: "4px 0 4px 4px",
+            margin: "4px 0 4px 4px"
           }}
         >
           <Card
@@ -860,7 +813,7 @@ const WorkflowBuilderPage: React.FC = () => {
             style={{
               height: "100%",
               border: "none",
-              borderRadius: borderRadiusLG,
+              borderRadius: borderRadiusLG
             }}
             bodyStyle={{
               padding: "16px",
@@ -905,7 +858,7 @@ const WorkflowBuilderPage: React.FC = () => {
                       key={template.templateId}
                       template={template}
                     />
-                  )),
+                  ))
                 })
               )}
             />
@@ -920,60 +873,49 @@ const WorkflowBuilderPage: React.FC = () => {
             style={{
               margin: "4px 4px 8px 4px",
               borderRadius: borderRadiusLG,
-              boxShadow: boxShadowSecondary,
+              boxShadow: boxShadowSecondary
             }}
             bodyStyle={{ padding: "12px 16px" }}
           >
-            <Collapse size="small" ghost>
-              <CollapsePanel
-                key="workflow-info"
-                header={
-                  <Space>
-                    <InfoCircleOutlined style={{ color: colorPrimary }} />
-                    <Text strong>Thông tin Workflow</Text>
-                    {currentWorkflow && (
-                      <Tag
-                        color={
-                          currentWorkflow.statusCode === "ACTIVE"
-                            ? "green"
-                            : "orange"
-                        }
-                      >
-                        {currentWorkflow.statusName}
-                      </Tag>
-                    )}
-                  </Space>
-                }
-              >
+            <Collapse
+              size="small"
+              ghost
+              items={[
+                {
+                  key: "workflow-info",
+                  label: (
+                    <Space>
+                      <InfoCircleOutlined style={{ color: colorPrimary }} />
+                      <Text strong>Thông tin Workflow</Text>
+                      {currentWorkflow && (
+                        <Tag color={currentWorkflow.statusCode === 'ACTIVE' ? 'green' : 'orange'}>
+                          {currentWorkflow.statusName}
+                        </Tag>
+                      )}
+                    </Space>
+                  ),
+                  children: (
                 {currentWorkflow ? (
                   <Row gutter={[16, 8]}>
                     <Col xs={24} sm={12} md={8}>
                       <div>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          Mã Workflow:
-                        </Text>
+                        <Text type="secondary" style={{ fontSize: 12 }}>Mã Workflow:</Text>
                         <br />
                         <Text strong>{currentWorkflow.workflowCode}</Text>
                       </div>
                     </Col>
                     <Col xs={24} sm={12} md={8}>
                       <div>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          Tên Workflow:
-                        </Text>
+                        <Text type="secondary" style={{ fontSize: 12 }}>Tên Workflow:</Text>
                         <br />
                         <Text strong>{currentWorkflow.workflowName}</Text>
                       </div>
                     </Col>
                     <Col xs={24} sm={12} md={8}>
                       <div>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          Mô tả:
-                        </Text>
+                        <Text type="secondary" style={{ fontSize: 12 }}>Mô tả:</Text>
                         <br />
-                        <Text>
-                          {currentWorkflow.description || "Không có mô tả"}
-                        </Text>
+                        <Text>{currentWorkflow.description || 'Không có mô tả'}</Text>
                       </div>
                     </Col>
                     <Col xs={24} sm={12} md={6}>
@@ -994,9 +936,7 @@ const WorkflowBuilderPage: React.FC = () => {
                     </Col>
                   </Row>
                 ) : (
-                  <Text type="secondary">
-                    Vui lòng chọn workflow để xem thông tin
-                  </Text>
+                  <Text type="secondary">Vui lòng chọn workflow để xem thông tin</Text>
                 )}
               </CollapsePanel>
             </Collapse>
@@ -1007,7 +947,7 @@ const WorkflowBuilderPage: React.FC = () => {
             style={{
               marginBottom: 8,
               borderRadius: borderRadiusLG,
-              boxShadow: boxShadowSecondary,
+              boxShadow: boxShadowSecondary
             }}
             bodyStyle={{ padding: "12px 16px" }}
           >
@@ -1020,9 +960,9 @@ const WorkflowBuilderPage: React.FC = () => {
                     placeholder="Chọn workflow"
                     value={selectedWorkflow}
                     onChange={setSelectedWorkflow}
-                    options={workflows.map((w) => ({
+                    options={workflows.map(w => ({
                       value: w.workflowCode,
-                      label: `${w.workflowName} (${w.workflowCode})`,
+                      label: `${w.workflowName} (${w.workflowCode})`
                     }))}
                   />
                 </Space>
@@ -1038,13 +978,7 @@ const WorkflowBuilderPage: React.FC = () => {
                     Lưu
                   </Button>
                   <Button
-                    icon={
-                      isPlaying ? (
-                        <PauseCircleOutlined />
-                      ) : (
-                        <PlayCircleOutlined />
-                      )
-                    }
+                    icon={isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
                     onClick={toggleSimulation}
                     type={isPlaying ? "primary" : "default"}
                   >
@@ -1054,7 +988,7 @@ const WorkflowBuilderPage: React.FC = () => {
               </Col>
 
               <Col xs={24} sm={24} md={8}>
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <Space>
                     <Button
                       icon={<ThunderboltOutlined />}
@@ -1064,10 +998,10 @@ const WorkflowBuilderPage: React.FC = () => {
                       style={{
                         background: `${colorSuccess}10`,
                         borderColor: colorSuccess,
-                        color: colorSuccess,
+                        color: colorSuccess
                       }}
                     >
-                      {isTestRunning ? "Đang test..." : "Run All Test"}
+                      {isTestRunning ? 'Đang test...' : 'Run All Test'}
                     </Button>
                     <Button
                       icon={<EyeOutlined />}
@@ -1087,8 +1021,8 @@ const WorkflowBuilderPage: React.FC = () => {
             style={{
               flex: 1,
               borderRadius: borderRadiusLG,
-              overflow: "hidden",
-              boxShadow: boxShadowSecondary,
+              overflow: 'hidden',
+              boxShadow: boxShadowSecondary
             }}
           >
             <ReactFlow
@@ -1115,7 +1049,7 @@ const WorkflowBuilderPage: React.FC = () => {
                 style={{
                   background: colorBgContainer,
                   border: `1px solid ${colorPrimary}20`,
-                  borderRadius: 8,
+                  borderRadius: 8
                 }}
               />
               <MiniMap
@@ -1129,7 +1063,7 @@ const WorkflowBuilderPage: React.FC = () => {
                 style={{
                   backgroundColor: colorBgContainer,
                   border: `1px solid ${colorPrimary}20`,
-                  borderRadius: 8,
+                  borderRadius: 8
                 }}
               />
               <Background
@@ -1161,20 +1095,13 @@ const WorkflowBuilderPage: React.FC = () => {
                         display: "block",
                       }}
                     />
-                    <Title
-                      level={3}
-                      style={{ color: colorPrimary, marginBottom: "12px" }}
-                    >
+                    <Title level={3} style={{ color: colorPrimary, marginBottom: "12px" }}>
                       Workflow Builder
                     </Title>
-                    <Text
-                      type="secondary"
-                      style={{ fontSize: "15px", lineHeight: 1.6 }}
-                    >
+                    <Text type="secondary" style={{ fontSize: "15px", lineHeight: 1.6 }}>
                       Kéo thả template từ sidebar để tạo workflow nodes.
                       <br />
-                      Kết nối các node bằng cách kéo từ handle này đến handle
-                      khác.
+                      Kết nối các node bằng cách kéo từ handle này đến handle khác.
                       <br />
                       Sử dụng nút "Run All Test" để kiểm tra workflow.
                     </Text>
@@ -1196,7 +1123,7 @@ const WorkflowBuilderPage: React.FC = () => {
               style={{
                 marginTop: 8,
                 borderRadius: borderRadiusLG,
-                boxShadow: boxShadowSecondary,
+                boxShadow: boxShadowSecondary
               }}
               bodyStyle={{ padding: "16px" }}
             >
@@ -1222,21 +1149,14 @@ const WorkflowBuilderPage: React.FC = () => {
                     title="Nodes thất bại"
                     value={testResults.failedNodes}
                     suffix={`/${testResults.nodesExecuted}`}
-                    valueStyle={{
-                      color:
-                        testResults.failedNodes > 0 ? colorError : colorSuccess,
-                    }}
+                    valueStyle={{ color: testResults.failedNodes > 0 ? colorError : colorSuccess }}
                   />
                 </Col>
                 <Col xs={24} sm={6}>
                   <Progress
                     type="circle"
                     size={60}
-                    percent={Math.round(
-                      (testResults.successfulNodes /
-                        testResults.nodesExecuted) *
-                        100
-                    )}
+                    percent={Math.round((testResults.successfulNodes / testResults.nodesExecuted) * 100)}
                     strokeColor={colorSuccess}
                   />
                 </Col>
