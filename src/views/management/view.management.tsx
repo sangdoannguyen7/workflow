@@ -13,7 +13,7 @@ import AgentPage from "../agent/view.agent";
 import TemplatePage from "../template/view.template";
 import NodePage from "../node/view.node";
 import WorkflowPage from "../workflow/view.workflow";
-import WorkflowBuilderPage from "../workflow-builder/view.workflow-builder";
+import WorkflowBuilderEnhanced from "../workflow-builder/view.workflow-builder-enhanced";
 
 const { TabPane } = Tabs;
 
@@ -73,7 +73,7 @@ const ManagementPage: React.FC = () => {
           Workflow Builder
         </span>
       ),
-      children: <WorkflowBuilderPage />,
+      children: <WorkflowBuilderEnhanced />,
     },
   ];
 

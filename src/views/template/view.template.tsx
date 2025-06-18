@@ -14,6 +14,8 @@ import {
   Col,
   Tag,
   theme,
+  Tabs,
+  Spin,
 } from "antd";
 import {
   PlusOutlined,
@@ -21,17 +23,20 @@ import {
   DeleteOutlined,
   SearchOutlined,
   ReloadOutlined,
+  CodeOutlined,
 } from "@ant-design/icons";
 import {
   ITemplate,
   ITemplateSearchParams,
+  ITemplateRequest,
 } from "../../interface/template.interface";
 import { IAgent } from "../../interface/agent.interface";
 import templateApi from "../../apis/template/api.template";
 import agentApi from "../../apis/agent/api.agent";
 
-const { Search } = Input;
+const { Search, TextArea } = Input;
 const { Option } = Select;
+const { TabPane } = Tabs;
 
 const TemplatePage: React.FC = () => {
   const [templates, setTemplates] = useState<ITemplate[]>([]);
@@ -62,22 +67,43 @@ const TemplatePage: React.FC = () => {
     { value: "DRAFT", label: "Draft", color: "orange" },
   ];
 
+  const typeOptions = [
+    { value: "webhook", label: "Webhook" },
+    { value: "schedule", label: "Schedule" },
+    { value: "restapi", label: "REST API" },
+    { value: "process", label: "Process" },
+  ];
+
   const fetchTemplates = async (params?: ITemplateSearchParams) => {
     setLoading(true);
     try {
+      console.log("Fetching templates with params:", {
+        ...searchParams,
+        ...params,
+      });
       const response = await templateApi.getTemplates({
         ...searchParams,
         ...params,
       });
-      setTemplates(response.data);
-      setPagination({
-        current: response.current,
-        pageSize: response.pageSize,
-        total: response.total,
-      });
+      console.log("Templates response:", response);
+
+      if (response.success && response.data) {
+        setTemplates(response.data);
+        setPagination({
+          current: response.current,
+          pageSize: response.pageSize,
+          total: response.total,
+        });
+      } else {
+        console.warn("Invalid response format:", response);
+        setTemplates([]);
+      }
     } catch (error) {
       console.error("Error fetching templates:", error);
-      message.error("Failed to load templates");
+      message.error(
+        "Failed to load templates. Please check the API connection."
+      );
+      setTemplates([]);
     } finally {
       setLoading(false);
     }
@@ -85,11 +111,20 @@ const TemplatePage: React.FC = () => {
 
   const fetchAgents = async () => {
     try {
+      console.log("Fetching agents...");
       const response = await agentApi.getAgents({ pageSize: 1000 });
-      setAgents(response.data);
+      console.log("Agents response:", response);
+
+      if (response.success && response.data) {
+        setAgents(response.data);
+      } else {
+        console.warn("Invalid agents response format:", response);
+        setAgents([]);
+      }
     } catch (error) {
       console.error("Error fetching agents:", error);
       message.error("Failed to load agents");
+      setAgents([]);
     }
   };
 
@@ -127,63 +162,93 @@ const TemplatePage: React.FC = () => {
   const handleCreate = () => {
     setEditingTemplate(null);
     form.resetFields();
+    // Set default values
+    form.setFieldsValue({
+      statusCode: "ACTIVE",
+      statusName: "Active",
+    });
     setModalVisible(true);
   };
 
   const handleEdit = (template: ITemplate) => {
     setEditingTemplate(template);
-    form.setFieldsValue(template);
+    form.setFieldsValue({
+      ...template,
+      // Ensure all fields are populated
+      typeCode: template.typeCode || "",
+      typeName: template.typeName || "",
+      workflowCode: template.workflowCode || "",
+      workflowName: template.workflowName || "",
+      description: template.description || "",
+      metadata: template.metadata || "",
+      info: template.info || "",
+      schema: template.schema || "",
+      body: template.body || "",
+      rule: template.rule || "",
+      configuration: template.configuration || "",
+      outputCode: template.outputCode || "",
+    });
     setModalVisible(true);
-  };
-
-  const handleDelete = async (id: number) => {
-    try {
-      await templateApi.deleteTemplate(id);
-      message.success("Template deleted successfully");
-      fetchTemplates();
-    } catch (error) {
-      console.error("Error deleting template:", error);
-      message.error("Failed to delete template");
-    }
   };
 
   const handleSubmit = async (values: any) => {
     try {
+      console.log("Submitting template:", values);
+
       const selectedAgent = agents.find(
         (a) => a.agentCode === values.agentCode
       );
-      const templateData = {
-        ...values,
+      const templateRequest: ITemplateRequest = {
+        templateName: values.templateName,
+        typeCode: values.typeCode || "",
+        typeName: values.typeName || "",
+        agentCode: values.agentCode,
         agentName: selectedAgent?.agentName || "",
+        workflowCode: values.workflowCode || "",
+        workflowName: values.workflowName || "",
+        statusCode: values.statusCode,
         statusName:
           statusOptions.find((s) => s.value === values.statusCode)?.label || "",
+        description: values.description || "",
+        search:
+          `${values.templateName} ${values.agentCode} ${values.typeCode}`.toLowerCase(),
+        metadata: values.metadata || "",
+        info: values.info || "",
+        schema: values.schema || "",
+        body: values.body || "",
+        rule: values.rule || "",
+        configuration: values.configuration || "",
+        outputCode: values.outputCode || "",
       };
 
+      let result;
       if (editingTemplate) {
-        await templateApi.updateTemplate(
-          editingTemplate.templateId,
-          templateData
+        console.log(
+          "Updating template:",
+          editingTemplate.templateCode,
+          templateRequest
+        );
+        result = await templateApi.updateTemplate(
+          editingTemplate.templateCode,
+          templateRequest
         );
         message.success("Template updated successfully");
       } else {
-        await templateApi.createTemplate(templateData);
+        console.log("Creating template:", templateRequest);
+        result = await templateApi.createTemplate(templateRequest);
         message.success("Template created successfully");
       }
+
+      console.log("Template operation result:", result);
       setModalVisible(false);
       fetchTemplates();
     } catch (error) {
       console.error("Error saving template:", error);
-      message.error("Failed to save template");
+      message.error("Failed to save template. Please check the form data.");
     }
   };
 
   const columns = [
-    {
-      title: "ID",
-      dataIndex: "templateId",
-      key: "templateId",
-      width: 80,
-    },
     {
       title: "Template Code",
       dataIndex: "templateCode",
@@ -197,10 +262,29 @@ const TemplatePage: React.FC = () => {
       width: 200,
     },
     {
+      title: "Type",
+      dataIndex: "typeCode",
+      key: "typeCode",
+      width: 120,
+      render: (typeCode: string) => {
+        if (!typeCode) return <Tag>N/A</Tag>;
+        const color =
+          typeCode === "webhook"
+            ? "green"
+            : typeCode === "schedule"
+            ? "blue"
+            : typeCode === "restapi"
+            ? "orange"
+            : "default";
+        return <Tag color={color}>{typeCode.toUpperCase()}</Tag>;
+      },
+    },
+    {
       title: "Agent",
       dataIndex: "agentName",
       key: "agentName",
       width: 150,
+      render: (text: string) => text || "N/A",
     },
     {
       title: "Status",
@@ -226,7 +310,7 @@ const TemplatePage: React.FC = () => {
     {
       title: "Actions",
       key: "action",
-      width: 150,
+      width: 120,
       render: (_: any, record: ITemplate) => (
         <Space size="small">
           <Button
@@ -235,14 +319,6 @@ const TemplatePage: React.FC = () => {
             onClick={() => handleEdit(record)}
             size="small"
           />
-          <Popconfirm
-            title="Are you sure you want to delete this template?"
-            onConfirm={() => handleDelete(record.templateId)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="text" icon={<DeleteOutlined />} danger size="small" />
-          </Popconfirm>
         </Space>
       ),
     },
@@ -265,6 +341,7 @@ const TemplatePage: React.FC = () => {
                 <Button
                   icon={<ReloadOutlined />}
                   onClick={() => fetchTemplates()}
+                  loading={loading}
                 >
                   Refresh
                 </Button>
@@ -303,24 +380,25 @@ const TemplatePage: React.FC = () => {
               </Col>
             </Row>
 
-            <Table
-              columns={columns}
-              dataSource={templates}
-              rowKey="templateId"
-              loading={loading}
-              pagination={{
-                current: pagination.current,
-                pageSize: pagination.pageSize,
-                total: pagination.total,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} items`,
-                onChange: handleTableChange,
-                onShowSizeChange: handleTableChange,
-              }}
-              scroll={{ x: 1000 }}
-            />
+            <Spin spinning={loading}>
+              <Table
+                columns={columns}
+                dataSource={templates}
+                rowKey="templateCode"
+                pagination={{
+                  current: pagination.current,
+                  pageSize: pagination.pageSize,
+                  total: pagination.total,
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  showTotal: (total, range) =>
+                    `${range[0]}-${range[1]} of ${total} items`,
+                  onChange: handleTableChange,
+                  onShowSizeChange: handleTableChange,
+                }}
+                scroll={{ x: 1200 }}
+              />
+            </Spin>
           </Card>
         </Col>
       </Row>
@@ -330,70 +408,150 @@ const TemplatePage: React.FC = () => {
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         onOk={() => form.submit()}
-        width={700}
+        width={800}
+        destroyOnClose
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="templateCode"
-                label="Template Code"
-                rules={[
-                  { required: true, message: "Please enter template code" },
-                ]}
-              >
-                <Input placeholder="Enter template code" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="templateName"
-                label="Template Name"
-                rules={[
-                  { required: true, message: "Please enter template name" },
-                ]}
-              >
-                <Input placeholder="Enter template name" />
-              </Form.Item>
-            </Col>
-          </Row>
+          <Tabs defaultActiveKey="1">
+            <TabPane tab="Basic Info" key="1">
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="templateCode"
+                    label="Template Code"
+                    rules={[
+                      { required: true, message: "Please enter template code" },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Enter template code"
+                      disabled={!!editingTemplate}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="templateName"
+                    label="Template Name"
+                    rules={[
+                      { required: true, message: "Please enter template name" },
+                    ]}
+                  >
+                    <Input placeholder="Enter template name" />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="agentCode"
-                label="Agent"
-                rules={[{ required: true, message: "Please select agent" }]}
-              >
-                <Select placeholder="Select agent">
-                  {agents.map((agent) => (
-                    <Option key={agent.agentCode} value={agent.agentCode}>
-                      {agent.agentName} ({agent.agentCode})
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="statusCode"
-                label="Status"
-                rules={[{ required: true, message: "Please select status" }]}
-              >
-                <Select placeholder="Select status">
-                  {statusOptions.map((option) => (
-                    <Option key={option.value} value={option.value}>
-                      {option.label}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="typeCode" label="Type">
+                    <Select placeholder="Select type">
+                      {typeOptions.map((option) => (
+                        <Option key={option.value} value={option.value}>
+                          {option.label}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="typeName" label="Type Name">
+                    <Input placeholder="Enter type name" />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-          <Form.Item name="description" label="Description">
-            <Input.TextArea rows={4} placeholder="Enter description" />
-          </Form.Item>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    name="agentCode"
+                    label="Agent"
+                    rules={[{ required: true, message: "Please select agent" }]}
+                  >
+                    <Select placeholder="Select agent">
+                      {agents.map((agent) => (
+                        <Option key={agent.agentCode} value={agent.agentCode}>
+                          {agent.agentName} ({agent.agentCode})
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="statusCode"
+                    label="Status"
+                    rules={[
+                      { required: true, message: "Please select status" },
+                    ]}
+                  >
+                    <Select placeholder="Select status">
+                      {statusOptions.map((option) => (
+                        <Option key={option.value} value={option.value}>
+                          {option.label}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name="workflowCode" label="Workflow Code">
+                    <Input placeholder="Enter workflow code" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="workflowName" label="Workflow Name">
+                    <Input placeholder="Enter workflow name" />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item name="description" label="Description">
+                <TextArea rows={3} placeholder="Enter description" />
+              </Form.Item>
+            </TabPane>
+
+            <TabPane
+              tab={
+                <span>
+                  <CodeOutlined />
+                  Configuration
+                </span>
+              }
+              key="2"
+            >
+              <Form.Item name="metadata" label="Metadata">
+                <TextArea rows={3} placeholder="Enter metadata (JSON)" />
+              </Form.Item>
+
+              <Form.Item name="info" label="Info">
+                <TextArea rows={3} placeholder="Enter info (JSON)" />
+              </Form.Item>
+
+              <Form.Item name="schema" label="Schema">
+                <TextArea rows={3} placeholder="Enter schema (JSON)" />
+              </Form.Item>
+
+              <Form.Item name="body" label="Body">
+                <TextArea rows={3} placeholder="Enter body template" />
+              </Form.Item>
+
+              <Form.Item name="rule" label="Rule">
+                <TextArea rows={3} placeholder="Enter rule (JSON)" />
+              </Form.Item>
+
+              <Form.Item name="configuration" label="Configuration">
+                <TextArea rows={3} placeholder="Enter configuration (JSON)" />
+              </Form.Item>
+
+              <Form.Item name="outputCode" label="Output Code">
+                <Input placeholder="Enter output code" />
+              </Form.Item>
+            </TabPane>
+          </Tabs>
         </Form>
       </Modal>
     </div>

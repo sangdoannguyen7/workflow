@@ -21,6 +21,7 @@ import {
   Input,
   Badge,
   Tooltip,
+  Spin,
 } from "antd";
 import {
   ApartmentOutlined,
@@ -90,16 +91,30 @@ const TEMPLATE_CONFIGS = {
     borderColor: "#ffd591",
     type: "restapi",
   },
+  process: {
+    icon: <SettingOutlined />,
+    color: "#722ed1",
+    bgColor: "#f9f0ff",
+    borderColor: "#d3adf7",
+    type: "process",
+  },
 };
 
-// Get template type from template name/code
+// Get template type from template
 const getTemplateType = (template: ITemplate): string => {
+  // First check typeCode field
+  if (template.typeCode) {
+    return template.typeCode.toLowerCase();
+  }
+
+  // Fallback to code/name analysis
   const code = template.templateCode.toLowerCase();
   const name = template.templateName.toLowerCase();
 
   if (code.includes("webhook") || name.includes("webhook")) return "webhook";
   if (code.includes("schedule") || name.includes("schedule")) return "schedule";
   if (code.includes("api") || name.includes("api")) return "restapi";
+  if (code.includes("process") || name.includes("process")) return "process";
 
   return "restapi"; // default
 };
@@ -108,7 +123,8 @@ const getTemplateType = (template: ITemplate): string => {
 const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
   const templateType = getTemplateType(template);
   const config =
-    TEMPLATE_CONFIGS[templateType as keyof typeof TEMPLATE_CONFIGS];
+    TEMPLATE_CONFIGS[templateType as keyof typeof TEMPLATE_CONFIGS] ||
+    TEMPLATE_CONFIGS.restapi;
 
   const onDragStart = (
     event: DragEvent<HTMLDivElement>,
@@ -118,6 +134,8 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
       ...template,
       templateType: templateType,
     };
+
+    console.log("Dragging template:", templateData);
 
     event.dataTransfer.setData(
       "application/reactflow",
@@ -134,20 +152,18 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
       draggable
       onDragStart={(event) => onDragStart(event, template)}
       style={{
-        border: `2px solid ${config?.borderColor || "#d9d9d9"}`,
+        border: `2px solid ${config.borderColor}`,
         borderRadius: "8px",
         padding: "12px",
         marginBottom: "8px",
         cursor: "grab",
-        backgroundColor: config?.bgColor || "#fafafa",
+        backgroundColor: config.bgColor,
         transition: "all 0.2s ease",
         userSelect: "none",
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = "translateY(-2px)";
-        e.currentTarget.style.boxShadow = `0 4px 12px ${
-          config?.color || "#ccc"
-        }30`;
+        e.currentTarget.style.boxShadow = `0 4px 12px ${config.color}30`;
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = "translateY(0)";
@@ -159,17 +175,14 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
       >
         <div
           style={{
-            color: config?.color || "#666",
+            color: config.color,
             marginRight: "8px",
             fontSize: "16px",
           }}
         >
-          {config?.icon}
+          {config.icon}
         </div>
-        <Text
-          strong
-          style={{ color: config?.color || "#666", fontSize: "13px" }}
-        >
+        <Text strong style={{ color: config.color, fontSize: "13px" }}>
           {template.templateName}
         </Text>
       </div>
@@ -177,8 +190,13 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
         {template.templateCode}
       </Text>
       <Text style={{ fontSize: "10px", color: "#999", lineHeight: "1.2" }}>
-        {template.description}
+        {template.description || "No description"}
       </Text>
+      <div style={{ marginTop: "6px" }}>
+        <Tag color={config.color} size="small">
+          {templateType.toUpperCase()}
+        </Tag>
+      </div>
     </div>
   );
 };
@@ -189,7 +207,8 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
   selected,
 }) => {
   const config =
-    TEMPLATE_CONFIGS[data.templateType as keyof typeof TEMPLATE_CONFIGS];
+    TEMPLATE_CONFIGS[data.templateType as keyof typeof TEMPLATE_CONFIGS] ||
+    TEMPLATE_CONFIGS.restapi;
 
   return (
     <>
@@ -197,7 +216,7 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
         type="target"
         position={Position.Left}
         style={{
-          background: config?.color || "#666",
+          background: config.color,
           width: "10px",
           height: "10px",
           border: "2px solid #fff",
@@ -208,20 +227,37 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
         style={{
           padding: "12px 16px",
           border: selected
-            ? `3px solid ${config?.color || "#1890ff"}`
-            : `2px solid ${config?.borderColor || "#d9d9d9"}`,
+            ? `3px solid ${config.color}`
+            : `2px solid ${config.borderColor}`,
           borderRadius: "8px",
           background: "#fff",
           minWidth: "180px",
           maxWidth: "220px",
           boxShadow: selected
-            ? `0 4px 12px ${config?.color || "#1890ff"}40`
+            ? `0 4px 12px ${config.color}40`
             : "0 2px 8px rgba(0,0,0,0.1)",
           position: "relative",
           transition: "all 0.2s ease",
           cursor: "pointer",
         }}
       >
+        {/* Type Badge */}
+        <div
+          style={{
+            position: "absolute",
+            top: "-8px",
+            right: "-8px",
+            background: config.color,
+            color: "white",
+            borderRadius: "12px",
+            padding: "2px 6px",
+            fontSize: "9px",
+            fontWeight: "bold",
+          }}
+        >
+          {data.templateType?.toUpperCase()}
+        </div>
+
         {/* Node Header */}
         <div
           style={{
@@ -232,18 +268,18 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
         >
           <div
             style={{
-              color: config?.color || "#666",
+              color: config.color,
               marginRight: "6px",
               fontSize: "14px",
             }}
           >
-            {config?.icon}
+            {config.icon}
           </div>
           <Text
             strong
             style={{
               fontSize: "12px",
-              color: config?.color || "#666",
+              color: config.color,
               lineHeight: "1.2",
             }}
           >
@@ -283,7 +319,7 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
         type="source"
         position={Position.Right}
         style={{
-          background: config?.color || "#666",
+          background: config.color,
           width: "10px",
           height: "10px",
           border: "2px solid #fff",
@@ -309,6 +345,7 @@ const WorkflowBuilderEnhanced: React.FC = () => {
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -320,6 +357,7 @@ const WorkflowBuilderEnhanced: React.FC = () => {
   // Handle node connections
   const onConnect = useCallback(
     (params: Connection) => {
+      console.log("Connecting nodes:", params);
       const newEdge = {
         ...params,
         id: `edge-${Date.now()}`,
@@ -340,14 +378,23 @@ const WorkflowBuilderEnhanced: React.FC = () => {
     (event: DragEvent<HTMLDivElement>) => {
       event.preventDefault();
 
+      console.log("Drop event triggered");
+
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-      if (!reactFlowBounds || !reactFlowInstance) return;
+      if (!reactFlowBounds || !reactFlowInstance) {
+        console.log("Missing bounds or flow instance");
+        return;
+      }
 
       const data = event.dataTransfer.getData("application/reactflow");
-      if (!data) return;
+      if (!data) {
+        console.log("No drag data found");
+        return;
+      }
 
       try {
         const { template } = JSON.parse(data);
+        console.log("Dropped template:", template);
 
         // Convert screen coordinates to flow coordinates
         const position = reactFlowInstance.project({
@@ -366,7 +413,7 @@ const WorkflowBuilderEnhanced: React.FC = () => {
           data: {
             label: template.templateName,
             templateCode: template.templateCode,
-            templateType: template.templateType,
+            templateType: getTemplateType(template),
             agentCode: template.agentCode,
             description: template.description,
             template: template,
@@ -376,10 +423,16 @@ const WorkflowBuilderEnhanced: React.FC = () => {
               retries: 3,
               priority: "normal",
               properties: {},
+              metadata: template.metadata || "",
+              schema: template.schema || "",
+              body: template.body || "",
+              rule: template.rule || "",
+              configuration: template.configuration || "",
             }),
           },
         };
 
+        console.log("Creating new node:", newNode);
         setNodes((nds) => nds.concat(newNode));
         setNodeCounter((prev) => prev + 1);
         message.success(`Added node "${template.templateName}"`);
@@ -399,21 +452,39 @@ const WorkflowBuilderEnhanced: React.FC = () => {
   // Fetch data
   const fetchWorkflows = async () => {
     try {
+      console.log("Fetching workflows...");
       const response = await workflowApi.getWorkflows({ pageSize: 100 });
-      setWorkflows(response.content);
+      console.log("Workflows response:", response);
+
+      if (response.success && response.data) {
+        setWorkflows(response.data);
+      } else {
+        console.warn("Invalid workflows response:", response);
+        setWorkflows([]);
+      }
     } catch (error) {
       console.error("Error fetching workflows:", error);
       message.error("Failed to load workflows");
+      setWorkflows([]);
     }
   };
 
   const fetchTemplates = async () => {
     try {
+      console.log("Fetching templates...");
       const response = await templateApi.getTemplates({ pageSize: 100 });
-      setTemplates(response.content);
+      console.log("Templates response:", response);
+
+      if (response.success && response.data) {
+        setTemplates(response.data);
+      } else {
+        console.warn("Invalid templates response:", response);
+        setTemplates([]);
+      }
     } catch (error) {
       console.error("Error fetching templates:", error);
       message.error("Failed to load templates");
+      setTemplates([]);
     }
   };
 
@@ -424,30 +495,58 @@ const WorkflowBuilderEnhanced: React.FC = () => {
       return;
     }
 
+    if (nodes.length === 0) {
+      message.error("Please add some nodes to the workflow");
+      return;
+    }
+
+    setLoading(true);
     try {
+      console.log("Saving workflow:", selectedWorkflow);
+      console.log("Current nodes:", nodes);
+      console.log("Current edges:", edges);
+
       // Convert nodes to workflow format
       const workflowNodes = nodes.map((node) => ({
         nodeCode: node.id,
         nodeName: node.data.label,
         templateCode: node.data.templateCode,
         templateName: node.data.template?.templateName || node.data.label,
-        typeCode: node.data.templateType || "DEFAULT",
-        typeName: node.data.templateType || "Default",
+        typeCode: node.data.templateType || "restapi",
+        typeName: node.data.templateType || "restapi",
         agentCode: node.data.agentCode,
         agentName: node.data.template?.agentName || "Default Agent",
         description: node.data.description || "",
         search: `${node.data.label} ${node.data.templateCode}`.toLowerCase(),
-        metadata: JSON.stringify({ position: node.position }),
-        info: node.data.info || JSON.stringify({}),
-        schema: "",
-        body: "",
+        metadata: JSON.stringify({
+          position: node.position,
+          nodeType: node.data.templateType,
+          originalTemplate: node.data.template,
+        }),
+        info:
+          node.data.info ||
+          JSON.stringify({
+            timeout: 30000,
+            retries: 3,
+            priority: "normal",
+          }),
+        schema: node.data.template?.schema || "",
+        body: node.data.template?.body || "",
         rule: JSON.stringify({
           edges: edges.filter(
             (e) => e.source === node.id || e.target === node.id
           ),
+          nodeConnections: {
+            inputs: edges
+              .filter((e) => e.target === node.id)
+              .map((e) => e.source),
+            outputs: edges
+              .filter((e) => e.source === node.id)
+              .map((e) => e.target),
+          },
         }),
-        configuration: "",
-        outputCode: "",
+        configuration: node.data.template?.configuration || "",
+        outputCode: node.data.template?.outputCode || "",
       }));
 
       const workflow = workflows.find(
@@ -462,12 +561,15 @@ const WorkflowBuilderEnhanced: React.FC = () => {
           nodes: workflowNodes,
         };
 
+        console.log("Workflow request:", workflowRequest);
         await workflowApi.updateWorkflow(selectedWorkflow, workflowRequest);
         message.success("Workflow saved successfully");
       }
     } catch (error) {
       console.error("Save error:", error);
       message.error("Failed to save workflow");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -475,8 +577,11 @@ const WorkflowBuilderEnhanced: React.FC = () => {
   const loadWorkflow = async (workflowCode: string) => {
     if (!workflowCode) return;
 
+    setLoading(true);
     try {
+      console.log("Loading workflow:", workflowCode);
       const workflow = await workflowApi.getWorkflowByCode(workflowCode);
+      console.log("Loaded workflow:", workflow);
 
       if (workflow.nodes && workflow.nodes.length > 0) {
         const flowNodes: Node[] = workflow.nodes.map((node, index) => {
@@ -494,7 +599,7 @@ const WorkflowBuilderEnhanced: React.FC = () => {
               }
             }
           } catch (e) {
-            console.warn("Failed to parse node metadata");
+            console.warn("Failed to parse node metadata:", e);
           }
 
           return {
@@ -504,7 +609,7 @@ const WorkflowBuilderEnhanced: React.FC = () => {
             data: {
               label: node.nodeName,
               templateCode: node.templateCode,
-              templateType: node.typeCode?.toLowerCase() || "restapi",
+              templateType: node.typeCode || "restapi",
               agentCode: node.agentCode,
               description: node.description,
               info: node.info || JSON.stringify({}),
@@ -533,7 +638,7 @@ const WorkflowBuilderEnhanced: React.FC = () => {
               }
             }
           } catch (e) {
-            console.warn("Failed to parse node rule");
+            console.warn("Failed to parse node rule:", e);
           }
         });
 
@@ -562,6 +667,8 @@ const WorkflowBuilderEnhanced: React.FC = () => {
       setNodes([]);
       setEdges([]);
       setNodeCounter(1);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -686,39 +793,52 @@ const WorkflowBuilderEnhanced: React.FC = () => {
                 </Text>
               </div>
 
-              <Collapse
-                defaultActiveKey={Object.keys(groupedTemplates)}
-                ghost
-                size="small"
-              >
-                {Object.entries(groupedTemplates).map(
-                  ([type, templateList]) => (
-                    <CollapsePanel
-                      key={type}
-                      header={
-                        <Space>
-                          {
-                            TEMPLATE_CONFIGS[
-                              type as keyof typeof TEMPLATE_CONFIGS
-                            ]?.icon
-                          }
-                          <Text strong style={{ fontSize: "12px" }}>
-                            {type.toUpperCase()}
-                          </Text>
-                          <Badge count={templateList.length} size="small" />
-                        </Space>
+              <Spin spinning={loading}>
+                {Object.keys(groupedTemplates).length > 0 ? (
+                  <Collapse
+                    defaultActiveKey={Object.keys(groupedTemplates)}
+                    ghost
+                    size="small"
+                  >
+                    {Object.entries(groupedTemplates).map(
+                      ([type, templateList]) => {
+                        const config =
+                          TEMPLATE_CONFIGS[
+                            type as keyof typeof TEMPLATE_CONFIGS
+                          ] || TEMPLATE_CONFIGS.restapi;
+                        return (
+                          <CollapsePanel
+                            key={type}
+                            header={
+                              <Space>
+                                {config.icon}
+                                <Text strong style={{ fontSize: "12px" }}>
+                                  {type.toUpperCase()}
+                                </Text>
+                                <Badge
+                                  count={templateList.length}
+                                  size="small"
+                                />
+                              </Space>
+                            }
+                          >
+                            {templateList.map((template) => (
+                              <DraggableTemplate
+                                key={template.templateCode}
+                                template={template}
+                              />
+                            ))}
+                          </CollapsePanel>
+                        );
                       }
-                    >
-                      {templateList.map((template) => (
-                        <DraggableTemplate
-                          key={template.templateId}
-                          template={template}
-                        />
-                      ))}
-                    </CollapsePanel>
-                  )
+                    )}
+                  </Collapse>
+                ) : (
+                  <div style={{ textAlign: "center", padding: "20px" }}>
+                    <Text type="secondary">No templates available</Text>
+                  </div>
                 )}
-              </Collapse>
+              </Spin>
             </Card>
           </div>
         )}
@@ -801,7 +921,8 @@ const WorkflowBuilderEnhanced: React.FC = () => {
                     type="primary"
                     icon={<SaveOutlined />}
                     onClick={saveWorkflow}
-                    disabled={!selectedWorkflow}
+                    disabled={!selectedWorkflow || nodes.length === 0}
+                    loading={loading}
                     size="small"
                   >
                     Save
@@ -924,8 +1045,17 @@ const WorkflowBuilderEnhanced: React.FC = () => {
                   <Text>{selectedNode.data.templateCode}</Text>
                 </div>
                 <div>
-                  <Text strong>Type:</Text>{" "}
-                  <Text>{selectedNode.data.templateType}</Text>
+                  <Text strong>Type:</Text>
+                  <Tag
+                    color={
+                      TEMPLATE_CONFIGS[
+                        selectedNode.data
+                          .templateType as keyof typeof TEMPLATE_CONFIGS
+                      ]?.color || "default"
+                    }
+                  >
+                    {selectedNode.data.templateType?.toUpperCase()}
+                  </Tag>
                 </div>
                 <div>
                   <Text strong>Agent:</Text>{" "}
