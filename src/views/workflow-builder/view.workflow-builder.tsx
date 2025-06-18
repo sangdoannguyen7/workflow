@@ -50,6 +50,7 @@ import {
   SettingOutlined,
   EyeOutlined,
   ThunderboltOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import {
   ReactFlow,
