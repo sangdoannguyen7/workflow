@@ -261,7 +261,6 @@ const TemplatePage: React.FC = () => {
       dataIndex: "templateCode",
       key: "templateCode",
       width: 150,
-      fixed: "left",
       copyable: true,
     },
     {
