@@ -285,7 +285,6 @@ const WorkflowPage: React.FC = () => {
       dataIndex: "workflowCode",
       key: "workflowCode",
       width: 180,
-      fixed: "left",
       copyable: true,
       ellipsis: true,
     },
