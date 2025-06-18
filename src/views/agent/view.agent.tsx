@@ -273,63 +273,60 @@ const AgentPage: React.FC = () => {
         </Col>
       </Row>
 
-      <Modal
+      <Drawer
         title={editingAgent ? "Edit Agent" : "Add Agent"}
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        onOk={() => form.submit()}
-        width={600}
+        open={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
+        width={480}
+        extra={
+          <Space>
+            <Button onClick={() => setDrawerVisible(false)}>Cancel</Button>
+            <Button type="primary" onClick={() => form.submit()}>
+              {editingAgent ? "Update" : "Create"}
+            </Button>
+          </Space>
+        }
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="agentCode"
-                label="Agent Code"
-                rules={[{ required: true, message: "Please enter agent code" }]}
-              >
-                <Input placeholder="Enter agent code" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="agentName"
-                label="Agent Name"
-                rules={[{ required: true, message: "Please enter agent name" }]}
-              >
-                <Input placeholder="Enter agent name" />
-              </Form.Item>
-            </Col>
-          </Row>
+          <Form.Item
+            name="agentCode"
+            label="Agent Code"
+            rules={[{ required: true, message: "Please enter agent code" }]}
+          >
+            <Input placeholder="Enter agent code" />
+          </Form.Item>
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="statusCode"
-                label="Status"
-                rules={[{ required: true, message: "Please select status" }]}
-              >
-                <Select placeholder="Select status">
-                  {statusOptions.map((option) => (
-                    <Option key={option.value} value={option.value}>
-                      {option.label}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="statusName" label="Status Name">
-                <Input placeholder="Enter status name" />
-              </Form.Item>
-            </Col>
-          </Row>
+          <Form.Item
+            name="agentName"
+            label="Agent Name"
+            rules={[{ required: true, message: "Please enter agent name" }]}
+          >
+            <Input placeholder="Enter agent name" />
+          </Form.Item>
+
+          <Form.Item
+            name="statusCode"
+            label="Status"
+            rules={[{ required: true, message: "Please select status" }]}
+          >
+            <Select placeholder="Select status">
+              {statusOptions.map((option) => (
+                <Option key={option.value} value={option.value}>
+                  {option.label}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item name="statusName" label="Status Name">
+            <Input placeholder="Enter status name" />
+          </Form.Item>
 
           <Form.Item name="description" label="Description">
             <Input.TextArea rows={4} placeholder="Enter description" />
           </Form.Item>
         </Form>
-      </Modal>
+      </Drawer>
     </div>
   );
 };
