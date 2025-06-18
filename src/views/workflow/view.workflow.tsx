@@ -14,9 +14,9 @@ import {
   Col,
   Tag,
   theme,
-  Collapse,
   List,
   Typography,
+  Badge,
 } from "antd";
 import {
   PlusOutlined,
@@ -26,20 +26,15 @@ import {
   ReloadOutlined,
   ApartmentOutlined,
   SettingOutlined,
-  NodeExpandOutlined,
 } from "@ant-design/icons";
-import { Link } from "react-router-dom";
 import {
   IWorkflow,
   IWorkflowSearchParams,
 } from "../../interface/workflow.interface";
-import { INode } from "../../interface/node.interface";
 import workflowApi from "../../apis/workflow/api.workflow";
-import nodeApi from "../../apis/node/api.node";
 
-const { Search, TextArea } = Input;
+const { Search } = Input;
 const { Option } = Select;
-const { Panel } = Collapse;
 const { Text } = Typography;
 
 const WorkflowPage: React.FC = () => {
@@ -51,28 +46,25 @@ const WorkflowPage: React.FC = () => {
   );
   const [form] = Form.useForm();
   const [searchParams, setSearchParams] = useState<IWorkflowSearchParams>({
-    page: 0,
-    size: 10,
+    current: 1,
+    pageSize: 20,
   });
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 10,
+    pageSize: 20,
     total: 0,
   });
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
-  const [workflowNodes, setWorkflowNodes] = useState<{
-    [key: string]: INode[];
-  }>({});
 
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
   const statusOptions = [
-    { value: "ACTIVE", label: "Hoạt động", color: "green" },
-    { value: "INACTIVE", label: "Không hoạt động", color: "red" },
-    { value: "DRAFT", label: "Bản nháp", color: "orange" },
-    { value: "PUBLISHED", label: "Đã xuất bản", color: "blue" },
+    { value: "ACTIVE", label: "Active", color: "green" },
+    { value: "INACTIVE", label: "Inactive", color: "red" },
+    { value: "DRAFT", label: "Draft", color: "orange" },
+    { value: "PUBLISHED", label: "Published", color: "blue" },
   ];
 
   const fetchWorkflows = async (params?: IWorkflowSearchParams) => {
@@ -82,30 +74,17 @@ const WorkflowPage: React.FC = () => {
         ...searchParams,
         ...params,
       });
-      setWorkflows(response.content);
+      setWorkflows(response.data);
       setPagination({
-        current: response.number + 1,
-        pageSize: response.size,
-        total: response.totalElements,
+        current: response.current,
+        pageSize: response.pageSize,
+        total: response.total,
       });
     } catch (error) {
-      message.error("Không thể tải danh sách workflow");
+      console.error("Error fetching workflows:", error);
+      message.error("Failed to load workflows");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchWorkflowNodes = async (workflowCode: string) => {
-    if (workflowNodes[workflowCode]) return;
-
-    try {
-      const nodes = await nodeApi.getNodesByWorkflow(workflowCode);
-      setWorkflowNodes((prev) => ({
-        ...prev,
-        [workflowCode]: nodes,
-      }));
-    } catch (error) {
-      message.error("Không thể tải danh sách node của workflow");
     }
   };
 
@@ -114,13 +93,17 @@ const WorkflowPage: React.FC = () => {
   }, []);
 
   const handleSearch = (value: string) => {
-    const newParams = { ...searchParams, search: value, page: 0 };
+    const newParams = { ...searchParams, search: value, current: 1 };
     setSearchParams(newParams);
     fetchWorkflows(newParams);
   };
 
   const handleTableChange = (page: number, pageSize?: number) => {
-    const newParams = { ...searchParams, page: page - 1, size: pageSize || 10 };
+    const newParams = {
+      ...searchParams,
+      current: page,
+      pageSize: pageSize || 20,
+    };
     setSearchParams(newParams);
     fetchWorkflows(newParams);
   };
@@ -137,13 +120,14 @@ const WorkflowPage: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (workflowCode: string) => {
     try {
-      await workflowApi.deleteWorkflow(id);
-      message.success("Xóa workflow thành công");
+      await workflowApi.deleteWorkflow(workflowCode);
+      message.success("Workflow deleted successfully");
       fetchWorkflows();
     } catch (error) {
-      message.error("Không thể xóa workflow");
+      console.error("Error deleting workflow:", error);
+      message.error("Failed to delete workflow");
     }
   };
 
@@ -153,29 +137,30 @@ const WorkflowPage: React.FC = () => {
         ...values,
         statusName:
           statusOptions.find((s) => s.value === values.statusCode)?.label || "",
+        nodes: [],
       };
 
       if (editingWorkflow) {
         await workflowApi.updateWorkflow(
-          editingWorkflow.workflowId!,
+          editingWorkflow.workflowCode,
           workflowData
         );
-        message.success("Cập nhật workflow thành công");
+        message.success("Workflow updated successfully");
       } else {
         await workflowApi.createWorkflow(workflowData);
-        message.success("Tạo workflow thành công");
+        message.success("Workflow created successfully");
       }
       setModalVisible(false);
       fetchWorkflows();
     } catch (error) {
-      message.error("Không thể lưu workflow");
+      console.error("Error saving workflow:", error);
+      message.error("Failed to save workflow");
     }
   };
 
   const onExpand = (expanded: boolean, record: IWorkflow) => {
     if (expanded) {
       setExpandedRowKeys((prev) => [...prev, record.workflowCode]);
-      fetchWorkflowNodes(record.workflowCode);
     } else {
       setExpandedRowKeys((prev) =>
         prev.filter((key) => key !== record.workflowCode)
@@ -184,7 +169,7 @@ const WorkflowPage: React.FC = () => {
   };
 
   const expandedRowRender = (record: IWorkflow) => {
-    const nodes = workflowNodes[record.workflowCode] || [];
+    const nodes = record.nodes || [];
 
     return (
       <div
@@ -193,7 +178,7 @@ const WorkflowPage: React.FC = () => {
         <Row gutter={[16, 16]}>
           <Col span={24}>
             <Space style={{ marginBottom: "12px" }}>
-              <Text strong>Danh sách Node trong Workflow:</Text>
+              <Text strong>Nodes in Workflow:</Text>
               <Tag color="blue">{nodes.length} node(s)</Tag>
             </Space>
           </Col>
@@ -236,7 +221,7 @@ const WorkflowPage: React.FC = () => {
             )}
           />
         ) : (
-          <Text type="secondary">Chưa có node nào trong workflow này</Text>
+          <Text type="secondary">No nodes in this workflow</Text>
         )}
       </div>
     );
@@ -244,19 +229,20 @@ const WorkflowPage: React.FC = () => {
 
   const columns = [
     {
-      title: "Mã Workflow",
+      title: "Workflow Code",
       dataIndex: "workflowCode",
       key: "workflowCode",
-      width: 150,
+      width: 200,
+      ellipsis: true,
     },
     {
-      title: "Tên Workflow",
+      title: "Workflow Name",
       dataIndex: "workflowName",
       key: "workflowName",
       width: 250,
     },
     {
-      title: "Trạng thái",
+      title: "Status",
       dataIndex: "statusCode",
       key: "statusCode",
       width: 120,
@@ -270,13 +256,22 @@ const WorkflowPage: React.FC = () => {
       },
     },
     {
-      title: "Mô tả",
+      title: "Nodes",
+      key: "nodeCount",
+      width: 80,
+      render: (_: any, record: IWorkflow) => (
+        <Badge count={record.nodes?.length || 0} color="blue" />
+      ),
+    },
+    {
+      title: "Description",
       dataIndex: "description",
       key: "description",
       ellipsis: true,
+      render: (text: string) => text || "N/A",
     },
     {
-      title: "Thao tác",
+      title: "Actions",
       key: "action",
       width: 200,
       render: (_: any, record: IWorkflow) => (
@@ -285,30 +280,33 @@ const WorkflowPage: React.FC = () => {
             type="text"
             icon={<ApartmentOutlined />}
             onClick={() =>
-              window.open(`/workflow-designer/${record.workflowCode}`, "_blank")
+              window.open(
+                `/management?tab=builder&workflow=${record.workflowCode}`,
+                "_blank"
+              )
             }
             size="small"
-            title="Thiết kế workflow"
+            title="Design workflow"
           />
           <Button
             type="text"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
             size="small"
-            title="Chỉnh sửa"
+            title="Edit"
           />
           <Popconfirm
-            title="Bạn có chắc chắn muốn xóa workflow này?"
-            onConfirm={() => handleDelete(record.workflowId!)}
-            okText="Có"
-            cancelText="Không"
+            title="Are you sure you want to delete this workflow?"
+            onConfirm={() => handleDelete(record.workflowCode)}
+            okText="Yes"
+            cancelText="No"
           >
             <Button
               type="text"
               icon={<DeleteOutlined />}
               danger
               size="small"
-              title="Xóa"
+              title="Delete"
             />
           </Popconfirm>
         </Space>
@@ -330,26 +328,23 @@ const WorkflowPage: React.FC = () => {
             title={
               <Space>
                 <ApartmentOutlined />
-                Quản lý Workflow
+                Workflow Management
               </Space>
             }
             extra={
               <Space>
-                <Link to="/workflow-designer">
-                  <Button icon={<SettingOutlined />}>Thiết kế Workflow</Button>
-                </Link>
                 <Button
                   icon={<ReloadOutlined />}
                   onClick={() => fetchWorkflows()}
                 >
-                  Làm mới
+                  Refresh
                 </Button>
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={handleCreate}
                 >
-                  Thêm Workflow
+                  Add Workflow
                 </Button>
               </Space>
             }
@@ -357,7 +352,7 @@ const WorkflowPage: React.FC = () => {
             <Row gutter={[16, 16]} style={{ marginBottom: "16px" }}>
               <Col xs={24} sm={12} md={8}>
                 <Search
-                  placeholder="Tìm kiếm workflow..."
+                  placeholder="Search workflows..."
                   allowClear
                   enterButton={<SearchOutlined />}
                   onSearch={handleSearch}
@@ -368,7 +363,7 @@ const WorkflowPage: React.FC = () => {
             <Table
               columns={columns}
               dataSource={workflows}
-              rowKey="workflowId"
+              rowKey="workflowCode"
               loading={loading}
               expandable={{
                 expandedRowRender,
@@ -376,7 +371,7 @@ const WorkflowPage: React.FC = () => {
                 expandIcon: ({ expanded, onExpand, record }) => (
                   <Button
                     type="text"
-                    icon={<NodeExpandOutlined />}
+                    icon={<SettingOutlined />}
                     size="small"
                     onClick={(e) => onExpand(record, e)}
                     style={{
@@ -393,18 +388,18 @@ const WorkflowPage: React.FC = () => {
                 showSizeChanger: true,
                 showQuickJumper: true,
                 showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} của ${total} bản ghi`,
+                  `${range[0]}-${range[1]} of ${total} items`,
                 onChange: handleTableChange,
                 onShowSizeChange: handleTableChange,
               }}
-              scroll={{ x: 1000 }}
+              scroll={{ x: 1200 }}
             />
           </Card>
         </Col>
       </Row>
 
       <Modal
-        title={editingWorkflow ? "Sửa Workflow" : "Thêm Workflow"}
+        title={editingWorkflow ? "Edit Workflow" : "Add Workflow"}
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         onOk={() => form.submit()}
@@ -414,38 +409,22 @@ const WorkflowPage: React.FC = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                name="workflowCode"
-                label="Mã Workflow"
-                rules={[
-                  { required: true, message: "Vui lòng nhập mã workflow" },
-                ]}
-              >
-                <Input placeholder="Nhập mã workflow" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
                 name="workflowName"
-                label="Tên Workflow"
+                label="Workflow Name"
                 rules={[
-                  { required: true, message: "Vui lòng nhập tên workflow" },
+                  { required: true, message: "Please enter workflow name" },
                 ]}
               >
-                <Input placeholder="Nhập tên workflow" />
+                <Input placeholder="Enter workflow name" />
               </Form.Item>
             </Col>
-          </Row>
-
-          <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="statusCode"
-                label="Trạng thái"
-                rules={[
-                  { required: true, message: "Vui lòng chọn trạng thái" },
-                ]}
+                label="Status"
+                rules={[{ required: true, message: "Please select status" }]}
               >
-                <Select placeholder="Chọn trạng thái">
+                <Select placeholder="Select status">
                   {statusOptions.map((option) => (
                     <Option key={option.value} value={option.value}>
                       {option.label}
@@ -456,8 +435,8 @@ const WorkflowPage: React.FC = () => {
             </Col>
           </Row>
 
-          <Form.Item name="description" label="Mô tả">
-            <TextArea rows={4} placeholder="Nhập mô tả workflow" />
+          <Form.Item name="description" label="Description">
+            <Input.TextArea rows={4} placeholder="Enter workflow description" />
           </Form.Item>
         </Form>
       </Modal>
