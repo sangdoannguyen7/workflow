@@ -45,7 +45,7 @@ import {
 import { MockAPI } from "../mock/enhanced.mock";
 import { NotificationComponent } from "../shared/components/notification/notification";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 const HeaderLayout = () => {
   const dispatch = useDispatch();
