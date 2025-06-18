@@ -13,16 +13,12 @@ import {
   Row,
   Col,
   Select,
-  Drawer,
   theme,
   Typography,
-  List,
   Tag,
-  Divider,
-  Badge,
-  Tooltip,
-  Modal,
   Collapse,
+  Badge,
+  Modal,
 } from "antd";
 import {
   ApartmentOutlined,
@@ -30,12 +26,11 @@ import {
   ScheduleOutlined,
   LinkOutlined,
   DragOutlined,
-  DownloadOutlined,
-  UploadOutlined,
   SaveOutlined,
   ReloadOutlined,
   PlayCircleOutlined,
   PauseCircleOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import {
   ReactFlow,
@@ -97,30 +92,46 @@ const TEMPLATE_CONFIGS = {
   },
 };
 
-// Draggable Template Component
+// Draggable Template Component - SỬA LẠI HOÀN TOÀN
 const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
   const nodeType = getNodeTypeFromTemplate(template.templateType);
   const config = TEMPLATE_CONFIGS[nodeType];
 
-  const onDragStart = (
-    event: DragEvent<HTMLDivElement>,
-    template: ITemplate
-  ) => {
+  // SỬA LẠI HÀM DRAG START
+  const onDragStart = (event: DragEvent<HTMLDivElement>) => {
+    console.log("Drag started for template:", template.templateCode);
+
+    const dragData = {
+      type: "template",
+      template: template,
+      nodeType: nodeType,
+    };
+
+    // Set data với key đúng
     event.dataTransfer.setData(
       "application/reactflow",
-      JSON.stringify({
-        type: "template",
-        template: template,
-        nodeType: nodeType,
-      })
+      JSON.stringify(dragData)
     );
-    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", template.templateCode);
+    event.dataTransfer.effectAllowed = "copy";
+
+    // Thêm visual feedback
+    if (event.currentTarget) {
+      event.currentTarget.style.opacity = "0.5";
+    }
+  };
+
+  const onDragEnd = (event: DragEvent<HTMLDivElement>) => {
+    if (event.currentTarget) {
+      event.currentTarget.style.opacity = "1";
+    }
   };
 
   return (
     <div
-      draggable
-      onDragStart={(event) => onDragStart(event, template)}
+      draggable={true}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
       style={{
         border: `2px solid ${config?.borderColor || "#d9d9d9"}`,
         borderRadius: "8px",
@@ -136,7 +147,6 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
         e.currentTarget.style.boxShadow = `0 4px 12px ${
           config?.color || "#ccc"
         }30`;
-        e.currentTarget.style.cursor = "grab";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = "translateY(0)";
@@ -169,7 +179,9 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
         {template.templateCode}
       </Text>
       <Text style={{ fontSize: "11px", color: "#999", lineHeight: "1.2" }}>
-        {template.description}
+        {template.description && template.description.length > 50
+          ? `${template.description.substring(0, 50)}...`
+          : template.description}
       </Text>
       <div style={{ marginTop: "6px" }}>
         <Tag size="small" color={config?.color}>
@@ -186,7 +198,7 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
   );
 };
 
-// Enhanced Custom Node Component with proper handles
+// Enhanced Custom Node Component với handles đúng
 const WorkflowNode: React.FC<{ data: any; selected: boolean; id: string }> = ({
   data,
   selected,
@@ -228,6 +240,7 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean; id: string }> = ({
             height: 12,
             border: `2px solid ${config?.color || "#666"}`,
             backgroundColor: "#fff",
+            borderRadius: "50%",
           }}
         />
       )}
@@ -244,6 +257,7 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean; id: string }> = ({
             height: 12,
             border: `2px solid ${config?.color || "#666"}`,
             backgroundColor: "#fff",
+            borderRadius: "50%",
           }}
         />
       )}
@@ -267,11 +281,7 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean; id: string }> = ({
 
       {/* Node Header */}
       <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          marginBottom: "8px",
-        }}
+        style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}
       >
         <div
           style={{
@@ -363,6 +373,7 @@ const WorkflowBuilderPage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
@@ -391,6 +402,8 @@ const WorkflowBuilderPage: React.FC = () => {
   // Handle node connections with validation
   const onConnect = useCallback(
     (params: Connection) => {
+      console.log("Attempting to connect:", params);
+
       if (!isValidConnection(params)) {
         message.error(
           "Không thể kết nối các node này! Kiểm tra loại node và quy tắc kết nối."
@@ -414,25 +427,37 @@ const WorkflowBuilderPage: React.FC = () => {
     [setEdges, isPlaying, isValidConnection]
   );
 
-  // Handle drop from template palette
+  // SỬA LẠI HÀM DROP HOÀN TOÀN
   const onDrop = useCallback(
     (event: DragEvent<HTMLDivElement>) => {
       event.preventDefault();
+      console.log("Drop event triggered");
 
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-      if (!reactFlowBounds || !reactFlowInstance) return;
+      if (!reactFlowBounds || !reactFlowInstance) {
+        console.log("Missing bounds or instance");
+        return;
+      }
 
       const data = event.dataTransfer.getData("application/reactflow");
-      if (!data) return;
+      console.log("Dropped data:", data);
+
+      if (!data) {
+        console.log("No data in drop event");
+        return;
+      }
 
       try {
         const { template, nodeType } = JSON.parse(data);
+        console.log("Parsed template:", template);
 
         // Convert screen coordinates to flow coordinates
         const position = reactFlowInstance.project({
           x: event.clientX - reactFlowBounds.left,
           y: event.clientY - reactFlowBounds.top,
         });
+
+        console.log("Drop position:", position);
 
         const newNodeId = `node_${nodeCounter}`;
         const newNode: Node = {
@@ -456,21 +481,38 @@ const WorkflowBuilderPage: React.FC = () => {
           },
         };
 
+        console.log("Creating new node:", newNode);
         setNodes((nds) => nds.concat(newNode));
         setNodeCounter((prev) => prev + 1);
         message.success(
           `Đã thêm node "${template.templateName}" (${nodeType.toUpperCase()})`
         );
+        setIsDragging(false);
       } catch (error) {
+        console.error("Error parsing drop data:", error);
         message.error("Không thể thêm node");
+        setIsDragging(false);
       }
     },
     [nodeCounter, setNodes, reactFlowInstance]
   );
 
+  // SỬA LẠI HÀM DRAG OVER
   const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
+    event.dataTransfer.dropEffect = "copy";
+    setIsDragging(true);
+  }, []);
+
+  const onDragLeave = useCallback((event: DragEvent<HTMLDivElement>) => {
+    // Chỉ clear khi thực sự rời khỏi toàn bộ area
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX;
+    const y = event.clientY;
+
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setIsDragging(false);
+    }
   }, []);
 
   // Fetch data
@@ -487,6 +529,7 @@ const WorkflowBuilderPage: React.FC = () => {
     try {
       const response = await templateApi.getTemplates({ size: 1000 });
       setTemplates(response.content);
+      console.log("Loaded templates:", response.content.length);
     } catch (error) {
       message.error("Không thể tải danh sách template");
     }
@@ -580,20 +623,6 @@ const WorkflowBuilderPage: React.FC = () => {
     setSelectedNode(null);
   }, []);
 
-  // Update node data
-  const updateNodeData = useCallback(
-    (nodeId: string, data: any) => {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.id === nodeId
-            ? { ...node, data: { ...node.data, ...data } }
-            : node
-        )
-      );
-    },
-    [setNodes]
-  );
-
   // Delete selected node
   const deleteSelectedNode = useCallback(() => {
     if (selectedNode) {
@@ -629,7 +658,6 @@ const WorkflowBuilderPage: React.FC = () => {
     const newIsPlaying = !isPlaying;
     setIsPlaying(newIsPlaying);
 
-    // Update edge styles
     setEdges((eds) =>
       eds.map((edge) => ({
         ...edge,
@@ -704,7 +732,12 @@ const WorkflowBuilderPage: React.FC = () => {
           >
             <div style={{ marginBottom: "12px" }}>
               <Text type="secondary" style={{ fontSize: "12px" }}>
-                Kéo template vào canvas để tạo node.
+                🎯 <strong>Cách sử dụng:</strong>
+                <br />
+                1. Kéo template từ đây vào canvas bên phải
+                <br />
+                2. Kết nối các node bằng cách kéo handle
+                <br />
                 <br />
                 <Text strong style={{ color: "#52c41a" }}>
                   🚀 TRIGGER
@@ -787,6 +820,9 @@ const WorkflowBuilderPage: React.FC = () => {
               </Col>
               <Col>
                 <Space>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    Nodes: {nodes.length} | Edges: {edges.length}
+                  </Text>
                   <Button
                     icon={<ReloadOutlined />}
                     onClick={() =>
@@ -810,6 +846,13 @@ const WorkflowBuilderPage: React.FC = () => {
                     {isPlaying ? "Dừng" : "Chạy"} Mô phỏng
                   </Button>
                   <Button
+                    danger
+                    onClick={clearWorkflow}
+                    disabled={nodes.length === 0}
+                  >
+                    Xóa tất cả
+                  </Button>
+                  <Button
                     type="primary"
                     icon={<SaveOutlined />}
                     onClick={saveWorkflowDesign}
@@ -825,7 +868,13 @@ const WorkflowBuilderPage: React.FC = () => {
           {/* Flow Canvas */}
           <div
             ref={reactFlowWrapper}
-            style={{ flex: 1, margin: "4px 8px 8px 8px" }}
+            style={{
+              flex: 1,
+              margin: "4px 8px 8px 8px",
+              border: isDragging ? "3px dashed #1890ff" : "2px dashed #d9d9d9",
+              borderRadius: "8px",
+              transition: "border 0.2s ease",
+            }}
           >
             <ReactFlow
               nodes={nodes}
@@ -837,15 +886,15 @@ const WorkflowBuilderPage: React.FC = () => {
               onPaneClick={onPaneClick}
               onDrop={onDrop}
               onDragOver={onDragOver}
+              onDragLeave={onDragLeave}
               onInit={setReactFlowInstance}
               nodeTypes={nodeTypes}
               connectionMode={ConnectionMode.Loose}
               fitView
               attributionPosition="bottom-left"
               style={{
-                background: "#fafafa",
+                background: isDragging ? "#e6f7ff" : "#fafafa",
                 borderRadius: "8px",
-                border: "2px dashed #d9d9d9",
               }}
             >
               <Controls />
@@ -893,13 +942,32 @@ const WorkflowBuilderPage: React.FC = () => {
                       Workflow Builder
                     </Title>
                     <Text type="secondary" style={{ fontSize: "14px" }}>
-                      Kéo thả template từ sidebar để tạo workflow.
+                      🎯 <strong>Bước 1:</strong> Kéo template từ sidebar trái
+                      vào đây
                       <br />
-                      🚀 TRIGGER → ⚙️ BEHAVIOR → 📤 OUTPUT
+                      🎯 <strong>Bước 2:</strong> Kết nối các node: 🚀 TRIGGER →
+                      ⚙️ BEHAVIOR → 📤 OUTPUT
                       <br />
-                      Kết nối các node bằng cách kéo từ handle này đến handle
-                      khác.
+                      🎯 <strong>Bước 3:</strong> Lưu workflow và test
                     </Text>
+                  </div>
+                </Panel>
+              )}
+
+              {/* Drag Feedback */}
+              {isDragging && (
+                <Panel position="bottom-center">
+                  <div
+                    style={{
+                      padding: "12px 24px",
+                      background: "#1890ff",
+                      color: "white",
+                      borderRadius: "24px",
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    📍 Thả để tạo node mới
                   </div>
                 </Panel>
               )}
@@ -973,8 +1041,10 @@ const WorkflowBuilderPage: React.FC = () => {
               </div>
               <Button
                 danger
+                icon={<DeleteOutlined />}
                 onClick={deleteSelectedNode}
                 style={{ marginTop: "16px" }}
+                block
               >
                 Xóa Node
               </Button>
