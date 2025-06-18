@@ -50,14 +50,27 @@ const SiderLayout = () => {
       collapsed={collapseStore?.type === "large"}
     >
       {/* <div style={{backgroundColor: 'red', width: 180, height: 100}}></div> */}
-      <Image
-        style={{ marginTop: 16, marginBottom: 16 }}
-        src={logo}
-        preview={false}
-        onClick={() => {
-          window.location.href = "/customer/residences";
+      <div
+        style={{
+          padding: "16px",
+          textAlign: "center",
+          borderBottom: "1px solid #f0f0f0",
+          marginBottom: "8px",
         }}
-      />
+      >
+        <Image
+          style={{
+            maxWidth: "120px",
+            height: "auto",
+            cursor: "pointer",
+          }}
+          src={logo}
+          preview={false}
+          onClick={() => {
+            window.location.href = "/dashboard";
+          }}
+        />
+      </div>
       <div className="demo-logo-vertical" />
       <Menu
         theme="light"
