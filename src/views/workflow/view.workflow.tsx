@@ -381,7 +381,7 @@ const WorkflowPage: React.FC = () => {
     {
       title: "Actions",
       key: "action",
-      width: 200,
+      width: 160,
       fixed: "right",
       render: (_: any, record: IWorkflow) => (
         <div
@@ -866,7 +866,7 @@ const WorkflowPage: React.FC = () => {
                 </Col>
                 <Col span={12}>
                   <Statistic
-                    title="Tỷ lệ lỗi"
+                    title="T�� lệ lỗi"
                     value={testResults.performance.errorRate.toFixed(2)}
                     suffix="%"
                     valueStyle={{ color: colorError }}
