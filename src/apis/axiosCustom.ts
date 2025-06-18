@@ -57,34 +57,44 @@ export async function axiosCustom<IDataResponse>(
     responseType: responseType === "" ? undefined : "blob",
   };
 
-  try {
-    const response = await api.request<IDataResponse>({
-      url: dataRequest.url,
-      ...dataRequest,
-    });
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const response = error.response;
-      if (response && response.status === 401) {
-        const refreshedToken = await refreshToken(); // Implement your token refresh function
-        if (refreshedToken) {
-          dataRequest = {
-            ...dataRequest,
-            headers: {
-              Authorization: `Bearer ${refreshedToken}`,
-            },
-          };
-          const response = await api.request<IDataResponse>({
-            url: dataRequest.url,
-            ...dataRequest,
-          });
-          return response.data;
+  return ApiFallbackService.executeFallback(
+    async () => {
+      try {
+        const response = await api.request<IDataResponse>({
+          url: dataRequest.url,
+          ...dataRequest,
+        });
+        return response.data;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const response = error.response;
+          if (response && response.status === 401) {
+            const refreshedToken = await refreshToken();
+            if (refreshedToken) {
+              dataRequest = {
+                ...dataRequest,
+                headers: {
+                  Authorization: `Bearer ${refreshedToken}`,
+                },
+              };
+              const retryResponse = await api.request<IDataResponse>({
+                url: dataRequest.url,
+                ...dataRequest,
+              });
+              return retryResponse.data;
+            }
+          }
         }
+        throw error;
       }
+    },
+    () => {
+      // Fallback to mock data
+      return ApiFallbackService.handleWorkflowRequests(
+        options
+      ) as IDataResponse;
     }
-    throw error;
-  }
+  );
 }
 
 export default axiosCustom;
