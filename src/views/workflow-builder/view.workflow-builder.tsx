@@ -585,43 +585,55 @@ const WorkflowBuilderPage: React.FC = () => {
     [setEdges, isPlaying, isValidConnection]
   );
 
-  // SỬA LẠI HÀM DROP HOÀN TOÀN - Không dùng reactFlowInstance.project
+  // Hàm xử lý drop từ WorkflowCanvas component
   const onDrop = useCallback(
-    (event: DragEvent<HTMLDivElement>) => {
-      event.preventDefault();
-      console.log("Drop event triggered");
-
-      const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-      if (!reactFlowBounds) {
-        console.log("Missing bounds");
-        return;
+    (
+      event: DragEvent<HTMLDivElement>,
+      dropData?: {
+        template: any;
+        nodeType: string;
+        position: { x: number; y: number };
       }
-
-      const data = event.dataTransfer.getData("application/reactflow");
-      console.log("Dropped data:", data);
-
-      if (!data) {
-        console.log("No data in drop event");
-        return;
-      }
+    ) => {
+      console.log("Drop handler called");
 
       try {
-        const { template, nodeType } = JSON.parse(data);
-        console.log("Parsed template:", template);
+        let template, nodeType, position;
 
-        // Tính toán vị trí trực tiếp mà không cần reactFlowInstance.project
-        const dropX = event.clientX - reactFlowBounds.left;
-        const dropY = event.clientY - reactFlowBounds.top;
+        if (dropData) {
+          // Từ WorkflowCanvas component (có useReactFlow)
+          template = dropData.template;
+          nodeType = dropData.nodeType;
+          position = dropData.position;
+        } else {
+          // Fallback cho trường hợp không có dropData
+          const data = event.dataTransfer.getData("application/reactflow");
+          if (!data) return;
 
-        console.log("Drop position:", { x: dropX, y: dropY });
+          const parsed = JSON.parse(data);
+          template = parsed.template;
+          nodeType = parsed.nodeType;
+
+          // Tính toán vị trí đơn giản
+          const reactFlowBounds =
+            reactFlowWrapper.current?.getBoundingClientRect();
+          if (!reactFlowBounds) return;
+
+          position = {
+            x: Math.max(0, event.clientX - reactFlowBounds.left - 125),
+            y: Math.max(0, event.clientY - reactFlowBounds.top - 50),
+          };
+        }
+
+        console.log("Creating node with position:", position);
 
         const newNodeId = `node_${nodeCounter}`;
         const newNode: Node = {
           id: newNodeId,
           type: "workflowNode",
           position: {
-            x: Math.max(0, dropX - 125), // Center the node, tránh âm
-            y: Math.max(0, dropY - 50),
+            x: position.x - 100, // Center the node
+            y: position.y - 40,
           },
           data: {
             label: template.templateName,
@@ -637,7 +649,7 @@ const WorkflowBuilderPage: React.FC = () => {
           },
         };
 
-        console.log("Creating new node:", newNode);
+        console.log("New node created:", newNode);
         setNodes((nds) => nds.concat(newNode));
         setNodeCounter((prev) => prev + 1);
         message.success(
@@ -645,8 +657,8 @@ const WorkflowBuilderPage: React.FC = () => {
         );
         setIsDragging(false);
       } catch (error) {
-        console.error("Error parsing drop data:", error);
-        message.error("Không thể thêu node");
+        console.error("Error in onDrop:", error);
+        message.error("Không thể tạo node");
         setIsDragging(false);
       }
     },
