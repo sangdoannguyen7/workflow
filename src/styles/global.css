@@ -319,24 +319,78 @@
   transform: scale(1.1);
 }
 
-/* Enhanced action column transparency styles */
-.ant-table-cell-fix-right {
-  z-index: 10 !important;
-  background: rgba(255, 255, 255, 0.95) !important;
-  border-left: 1px solid rgba(25, 118, 210, 0.1) !important;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.04) !important;
+/* Enhanced action column transparency */
+.ant-table-tbody .action-column {
+  position: sticky !important;
+  right: 0 !important;
+  background: rgba(255, 255, 255, 0.9) !important;
   backdrop-filter: blur(12px) !important;
+  border-radius: 6px !important;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1) !important;
+  z-index: 10 !important;
+  border-left: 1px solid rgba(0, 0, 0, 0.06) !important;
 }
 
-[data-theme="dark"] .ant-table-cell-fix-right {
-  background: rgba(30, 30, 30, 0.95) !important;
-  border-left: 1px solid rgba(144, 202, 249, 0.1) !important;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2) !important;
+/* Dark mode support for action columns */
+.ant-theme-dark .ant-table-tbody .action-column {
+  background: rgba(20, 20, 20, 0.9) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* Consistent table spacing */
-.ant-table-tbody > tr > td {
-  padding: 8px !important;
+/* Drag and Drop Workflow Builder Styles */
+.react-flow__node.selected {
+  box-shadow: 0 0 0 2px #1890ff !important;
+}
+
+.react-flow__handle {
+  opacity: 0.8 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+.react-flow__handle:hover {
+  opacity: 1 !important;
+  transform: scale(1.2) !important;
+}
+
+.react-flow__edge.selected {
+  z-index: 1000 !important;
+}
+
+.react-flow__edge.animated {
+  stroke-dasharray: 8, 8 !important;
+  animation: dash 0.5s linear infinite !important;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+/* Draggable template styles */
+.draggable-template {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.draggable-template:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+}
+
+.draggable-template.dragging {
+  opacity: 0.6 !important;
+  transform: scale(0.95) rotate(5deg) !important;
+  z-index: 1000 !important;
+}
+
+/* Drop zone feedback */
+.react-flow__pane {
+  transition: background-color 0.2s ease !important;
+}
+
+.react-flow__pane.drag-over {
+  background-color: rgba(24, 144, 255, 0.05) !important;
+}
 }
 
 .ant-table-thead > tr > th {
@@ -345,9 +399,9 @@
 
 /* Page container standardization */
 .page-container {
-  min-height: calc(100vh - 140px);
   padding: 8px;
   background: transparent;
+  min-height: calc(100vh - 140px);
 }
 
 /* Consistent margins for all components */
