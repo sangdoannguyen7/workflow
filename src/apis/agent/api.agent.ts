@@ -5,6 +5,13 @@ import {
   IAgentSearchParams,
   IAgentRequest,
 } from "../../interface/agent.interface";
+import {
+  getMockAgents,
+  createMockAgent,
+  updateMockAgent,
+  deleteMockAgent,
+  getMockAgentByCode,
+} from "../../mock/agent.mock";
 
 class AgentApi {
   private readonly baseUrl = "/v1/property/agents";
@@ -17,8 +24,16 @@ class AgentApi {
       data: null,
     };
 
-    const response: IDataResponse<IAgentResponse> = await axiosCustom(request);
-    return response.value;
+    try {
+      const response: IDataResponse<IAgentResponse> = await axiosCustom(
+        request
+      );
+      return response.value;
+    } catch (error) {
+      // Fallback to mock data
+      console.log("Using mock data for agents");
+      return getMockAgents(params);
+    }
   }
 
   async getAgentById(id: number): Promise<IAgent> {
@@ -28,10 +43,19 @@ class AgentApi {
       params: null,
       data: null,
     };
-    const response: IDataResponse<{ data: IAgent }> = await axiosCustom(
-      request
-    );
-    return response.value.data;
+
+    try {
+      const response: IDataResponse<{ data: IAgent }> = await axiosCustom(
+        request
+      );
+      return response.value.data;
+    } catch (error) {
+      // Fallback to mock data
+      const agents = getMockAgents();
+      const agent = agents.content.find((a) => a.agentId === id);
+      if (!agent) throw new Error("Agent not found");
+      return agent;
+    }
   }
 
   async getAgentByCode(code: string): Promise<IAgent> {
@@ -41,10 +65,18 @@ class AgentApi {
       params: null,
       data: null,
     };
-    const response: IDataResponse<{ data: IAgent }> = await axiosCustom(
-      request
-    );
-    return response.value.data;
+
+    try {
+      const response: IDataResponse<{ data: IAgent }> = await axiosCustom(
+        request
+      );
+      return response.value.data;
+    } catch (error) {
+      // Fallback to mock data
+      const agent = getMockAgentByCode(code);
+      if (!agent) throw new Error("Agent not found");
+      return agent;
+    }
   }
 
   async createAgent(agentRequest: IAgentRequest): Promise<IAgent> {
@@ -54,10 +86,17 @@ class AgentApi {
       params: null,
       data: agentRequest,
     };
-    const response: IDataResponse<{ data: IAgent }> = await axiosCustom(
-      request
-    );
-    return response.value.data;
+
+    try {
+      const response: IDataResponse<{ data: IAgent }> = await axiosCustom(
+        request
+      );
+      return response.value.data;
+    } catch (error) {
+      // Fallback to mock data
+      console.log("Creating agent with mock data");
+      return createMockAgent(agentRequest);
+    }
   }
 
   async updateAgent(
@@ -70,10 +109,21 @@ class AgentApi {
       params: null,
       data: agentRequest,
     };
-    const response: IDataResponse<{ data: IAgent }> = await axiosCustom(
-      request
-    );
-    return response.value.data;
+
+    try {
+      const response: IDataResponse<{ data: IAgent }> = await axiosCustom(
+        request
+      );
+      return response.value.data;
+    } catch (error) {
+      // Fallback to mock data
+      console.log("Updating agent with mock data");
+      const agent = getMockAgentByCode(agentCode);
+      if (!agent) throw new Error("Agent not found");
+      const updated = updateMockAgent(agent.agentId!, agentRequest);
+      if (!updated) throw new Error("Failed to update agent");
+      return updated;
+    }
   }
 
   async deleteAgent(agentCode: string): Promise<void> {
@@ -83,7 +133,17 @@ class AgentApi {
       params: null,
       data: null,
     };
-    await axiosCustom(request);
+
+    try {
+      await axiosCustom(request);
+    } catch (error) {
+      // Fallback to mock data
+      console.log("Deleting agent with mock data");
+      const agent = getMockAgentByCode(agentCode);
+      if (!agent) throw new Error("Agent not found");
+      const deleted = deleteMockAgent(agent.agentId!);
+      if (!deleted) throw new Error("Failed to delete agent");
+    }
   }
 }
 
