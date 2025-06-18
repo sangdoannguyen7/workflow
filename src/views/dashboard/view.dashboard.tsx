@@ -392,7 +392,7 @@ const DashboardPage = () => {
                 onChange={setSelectedWorkflow}
                 style={{ width: "100%" }}
                 options={[
-                  { value: "all", label: "Tất c��� workflow" },
+                  { value: "all", label: "Tất cả workflow" },
                   { value: "user-reg", label: "User Registration" },
                   { value: "payment", label: "Payment Processing" },
                   { value: "email", label: "Email Campaign" },
@@ -632,7 +632,68 @@ const DashboardPage = () => {
             }}
             bodyStyle={{ padding: "16px 24px" }}
           >
-            <Area {...executionAreaConfig} height={320} />
+            <div style={{ position: "relative" }}>
+              <Area {...executionAreaConfig} height={320} />
+              {/* Error trend line overlay */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  pointerEvents: "none",
+                }}
+              >
+                <svg width="100%" height="320" style={{ position: "absolute" }}>
+                  <path
+                    d="M 50 280 L 150 275 L 250 270 L 350 265 L 450 270 L 550 260 L 650 265"
+                    stroke={colorError}
+                    strokeWidth="2"
+                    strokeDasharray="4,4"
+                    fill="none"
+                    opacity="0.8"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div
+              style={{
+                marginTop: 8,
+                display: "flex",
+                justifyContent: "center",
+                gap: 16,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <div
+                  style={{
+                    width: 12,
+                    height: 3,
+                    background: colorPrimary,
+                    borderRadius: 2,
+                  }}
+                />
+                <Text style={{ fontSize: 12, color: colorTextSecondary }}>
+                  Thành công
+                </Text>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <div
+                  style={{
+                    width: 12,
+                    height: 2,
+                    background: colorError,
+                    borderRadius: 2,
+                    backgroundImage:
+                      "repeating-linear-gradient(90deg, transparent, transparent 2px, #fff 2px, #fff 4px)",
+                  }}
+                />
+                <Text style={{ fontSize: 12, color: colorTextSecondary }}>
+                  Lỗi
+                </Text>
+              </div>
+            </div>
           </Card>
         </Col>
 
