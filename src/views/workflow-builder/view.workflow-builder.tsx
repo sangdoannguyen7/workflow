@@ -69,6 +69,8 @@ import {
   Panel,
   useReactFlow,
   ReactFlowInstance,
+  Handle,
+  Position,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -155,8 +157,9 @@ const TEMPLATE_CONFIGS = {
   },
 };
 
-// Draggable Template Component with enhanced design
+// Enhanced Draggable Template Component with improved design
 const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
+  const [isDragging, setIsDragging] = useState(false);
   const config =
     TEMPLATE_CONFIGS[template.templateType as keyof typeof TEMPLATE_CONFIGS] ||
     TEMPLATE_CONFIGS.process;
@@ -165,6 +168,7 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
     event: DragEvent<HTMLDivElement>,
     template: ITemplate
   ) => {
+    setIsDragging(true);
     event.dataTransfer.setData(
       "application/reactflow",
       JSON.stringify({
@@ -173,33 +177,55 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
       })
     );
     event.dataTransfer.effectAllowed = "move";
+
+    // Create custom drag image
+    const dragImage = event.currentTarget.cloneNode(true) as HTMLElement;
+    dragImage.style.transform = "rotate(5deg)";
+    dragImage.style.opacity = "0.8";
+    document.body.appendChild(dragImage);
+    event.dataTransfer.setDragImage(dragImage, 0, 0);
+    setTimeout(() => document.body.removeChild(dragImage), 0);
+  };
+
+  const onDragEnd = () => {
+    setIsDragging(false);
   };
 
   return (
     <div
       draggable
       onDragStart={(event) => onDragStart(event, template)}
+      onDragEnd={onDragEnd}
       style={{
         border: `2px solid ${config?.borderColor || "#d9d9d9"}`,
         borderRadius: "12px",
-        padding: "16px",
-        marginBottom: "12px",
-        cursor: "grab",
+        padding: "14px",
+        marginBottom: "8px",
+        cursor: isDragging ? "grabbing" : "grab",
         backgroundColor: config?.bgColor || "#fafafa",
         transition: "all 0.3s ease",
         userSelect: "none",
         position: "relative",
         overflow: "hidden",
+        opacity: isDragging ? 0.5 : 1,
+        transform: isDragging ? "scale(0.95)" : "scale(1)",
+        boxShadow: isDragging
+          ? `0 8px 24px ${config?.color || "#ccc"}60`
+          : "0 2px 8px rgba(0,0,0,0.1)",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-4px)";
-        e.currentTarget.style.boxShadow = `0 8px 24px ${
-          config?.color || "#ccc"
-        }40`;
+        if (!isDragging) {
+          e.currentTarget.style.transform = "translateY(-2px) scale(1.02)";
+          e.currentTarget.style.boxShadow = `0 8px 24px ${
+            config?.color || "#ccc"
+          }40`;
+        }
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "none";
+        if (!isDragging) {
+          e.currentTarget.style.transform = "translateY(0) scale(1)";
+          e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
+        }
       }}
     >
       {/* Type indicator */}
@@ -404,13 +430,11 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
         />
       </div>
 
-      {/* Connection Handles */}
-      <div
+      {/* Connection Handles using proper React Flow components */}
+      <Handle
+        type="target"
+        position={Position.Left}
         style={{
-          position: "absolute",
-          left: "-8px",
-          top: "50%",
-          transform: "translateY(-50%)",
           width: "16px",
           height: "16px",
           borderRadius: "50%",
@@ -418,15 +442,12 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
           backgroundColor: "#fff",
           boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
         }}
-        className="react-flow__handle react-flow__handle-left"
       />
 
-      <div
+      <Handle
+        type="source"
+        position={Position.Right}
         style={{
-          position: "absolute",
-          right: "-8px",
-          top: "50%",
-          transform: "translateY(-50%)",
           width: "16px",
           height: "16px",
           borderRadius: "50%",
@@ -434,20 +455,24 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
           backgroundColor: "#fff",
           boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
         }}
-        className="react-flow__handle react-flow__handle-right"
       />
     </div>
   );
 };
 
 const AGENT_COLORS: Record<string, string> = {
-  AGT_VALIDATOR: "#52c41a",
-  AGT_DATABASE: "#1890ff",
-  AGT_EMAIL: "#fa8c16",
-  AGT_SECURITY: "#722ed1",
-  AGT_PAYMENT: "#eb2f96",
-  AGT_ETL: "#13c2c2",
-  AGT_ANALYTICS: "#faad14",
+  AGT_HTTP: "#52c41a",
+  AGT_SCHEDULER: "#1890ff",
+  AGT_FILE_SYSTEM: "#fa8c16",
+  AGT_VALIDATION: "#722ed1",
+  AGT_TRANSFORM: "#eb2f96",
+  AGT_DATABASE: "#13c2c2",
+  AGT_LOGIC: "#faad14",
+  AGT_EMAIL: "#f5222d",
+  AGT_LOGGING: "#2f54eb",
+  AGT_SECURITY: "#52c41a",
+  AGT_ANALYTICS: "#fa541c",
+  AGT_NOTIFICATION: "#722ed1",
   unknown: "#d9d9d9",
 };
 
@@ -612,31 +637,44 @@ const WorkflowBuilderPage: React.FC = () => {
     [setEdges, isPlaying, colorPrimary, nodes, edges]
   );
 
-  // Handle drop from template palette
+  // Enhanced drop handler for template palette
   const onDrop = useCallback(
     (event: DragEvent<HTMLDivElement>) => {
       event.preventDefault();
 
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-      if (!reactFlowBounds || !reactFlowInstance) return;
+      if (!reactFlowBounds) {
+        console.error("ReactFlow bounds not found");
+        return;
+      }
 
       const data = event.dataTransfer.getData("application/reactflow");
-      if (!data) return;
+      if (!data) {
+        console.error("No drag data found");
+        return;
+      }
 
       try {
         const { template } = JSON.parse(data);
+        if (!template) {
+          throw new Error("No template in drag data");
+        }
 
-        const position = reactFlowInstance.project({
+        // Calculate drop position relative to the ReactFlow viewport
+        const position = reactFlowInstance?.project({
           x: event.clientX - reactFlowBounds.left,
           y: event.clientY - reactFlowBounds.top,
-        });
+        }) || {
+          x: event.clientX - reactFlowBounds.left - 140,
+          y: event.clientY - reactFlowBounds.top - 60,
+        };
 
         const newNodeId = `node_${nodeCounter}`;
         const newNode: Node = {
           id: newNodeId,
           type: "workflowNode",
           position: {
-            x: position.x - 140,
+            x: position.x - 140, // Center the node on cursor
             y: position.y - 60,
           },
           data: {
@@ -652,18 +690,22 @@ const WorkflowBuilderPage: React.FC = () => {
           },
         };
 
-        setNodes((nds) => nds.concat(newNode));
+        setNodes((nds) => [...(nds || []), newNode]);
         setNodeCounter((prev) => prev + 1);
+
         NotificationComponent({
           type: "success",
           message: "Thành công",
           description: `Đã thêm node "${template.templateName}"`,
         });
+
+        console.log("Node added successfully:", newNode);
       } catch (error) {
+        console.error("Drop error:", error);
         NotificationComponent({
           type: "error",
           message: "Lỗi",
-          description: "Không thể thêm node",
+          description: "Không thể thêm node. Vui lòng thử lại.",
         });
       }
     },
@@ -1210,37 +1252,83 @@ const WorkflowBuilderPage: React.FC = () => {
               </Text>
             </div>
 
-            <Collapse
-              defaultActiveKey={Object.keys(groupedTemplates || {})}
-              ghost
-              size="small"
-              items={Object.entries(groupedTemplates || {}).map(
-                ([agent, agentTemplates]) => ({
-                  key: agent,
-                  label: (
-                    <Space>
-                      <Avatar
-                        size="small"
+            <div>
+              {Object.entries(groupedTemplates || {}).map(
+                ([agent, agentTemplates]) => (
+                  <div key={agent} style={{ marginBottom: "20px" }}>
+                    {/* Agent Header */}
+                    <div
+                      style={{
+                        background: `linear-gradient(135deg, ${
+                          AGENT_COLORS[agent] || colorPrimary
+                        }15, ${AGENT_COLORS[agent] || colorPrimary}05)`,
+                        border: `1px solid ${
+                          AGENT_COLORS[agent] || colorPrimary
+                        }20`,
+                        borderRadius: "12px",
+                        padding: "12px 16px",
+                        marginBottom: "12px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "12px",
+                        }}
+                      >
+                        <Avatar
+                          size={32}
+                          style={{
+                            backgroundColor:
+                              AGENT_COLORS[agent] || colorPrimary,
+                            fontSize: "12px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {agent.replace("AGT_", "").charAt(0)}
+                        </Avatar>
+                        <div>
+                          <Text
+                            strong
+                            style={{
+                              fontSize: "14px",
+                              color: AGENT_COLORS[agent] || colorPrimary,
+                            }}
+                          >
+                            {agent.replace("AGT_", "").replace("_", " ")}
+                          </Text>
+                          <br />
+                          <Text type="secondary" style={{ fontSize: "11px" }}>
+                            {(agentTemplates || []).length} templates
+                          </Text>
+                        </div>
+                      </div>
+                      <Badge
+                        count={(agentTemplates || []).length}
                         style={{
                           backgroundColor: AGENT_COLORS[agent] || colorPrimary,
                           fontSize: "10px",
                         }}
-                      >
-                        {agent.charAt(0).toUpperCase()}
-                      </Avatar>
-                      <Text strong>{agent}</Text>
-                      <Badge count={(agentTemplates || []).length} />
-                    </Space>
-                  ),
-                  children: (agentTemplates || []).map((template) => (
-                    <DraggableTemplate
-                      key={template.templateId}
-                      template={template}
-                    />
-                  )),
-                })
+                      />
+                    </div>
+
+                    {/* Agent Templates */}
+                    <div style={{ paddingLeft: "8px" }}>
+                      {(agentTemplates || []).map((template) => (
+                        <DraggableTemplate
+                          key={template.templateId}
+                          template={template}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
               )}
-            />
+            </div>
           </Card>
         </div>
 
