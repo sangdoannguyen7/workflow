@@ -46,7 +46,7 @@ export class ApiFallbackService {
 
     // Workflows
     if (uri === "/v1/workflows" && request.method === "GET") {
-      return getMockWorkflows(params);
+      return getEnhancedMockWorkflows(params);
     }
 
     if (uri.startsWith("/v1/workflows/") && request.method === "GET") {
