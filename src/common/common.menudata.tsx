@@ -6,7 +6,6 @@ import {
   SettingOutlined,
   DashboardOutlined,
   ThunderboltOutlined,
-  ApiOutlined,
   ClusterOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
