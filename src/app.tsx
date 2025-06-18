@@ -1,3 +1,4 @@
+import React from "react";
 import { App as AntApp, ConfigProvider, theme as themeAntd } from "antd";
 import { useSelector } from "react-redux";
 import { IState } from "./interface/action.interface";
