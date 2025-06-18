@@ -21,43 +21,34 @@ const RenderRouter = () => {
     <BrowserRouter>
       <MainLayout>
         <Routes>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/account" element={<UserPage />} />
-              <Route path="/group" element={<GroupPage />} />
-              <Route path="/permission" element={<PermissionPage />} />
-              <Route path="/site" element={<SitePage />} />
-              <Route path="/hotel" element={<UserPage />} />
-              <Route path="/room" element={<UserPage />} />
-              <Route path="/order" element={<UserPage />} />
-              <Route path="/calendar" element={<CalendarPage />} />
-              <Route path="/price" element={<UserPage />} />
-              <Route path="/rating" element={<UserPage />} />
-              <Route path="/statistic" element={<UserPage />} />
-              <Route path="/agent" element={<AgentPage />} />
-              <Route path="/template" element={<TemplatePage />} />
-              <Route path="/node" element={<NodePage />} />
-              <Route path="/workflow" element={<WorkflowPage />} />
-              <Route
-                path="/workflow-designer"
-                element={<WorkflowDesignerPage />}
-              />
-              <Route
-                path="/workflow-designer/:workflowCode"
-                element={<WorkflowDesignerPage />}
-              />
-              <Route path="/node-flow" element={<NodeFlowPage />} />
-              <Route
-                path="/workflow-builder"
-                element={<WorkflowBuilderPage />}
-              />
-              <Route path="/management" element={<ManagementPage />} />
-              <Route path="*" element={<NotfoundPage />} />
-            </Routes>
-          </Layout.Content>
-          <FooterComponent />
-        </Layout>
-      </Layout>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/account" element={<UserPage />} />
+          <Route path="/group" element={<GroupPage />} />
+          <Route path="/permission" element={<PermissionPage />} />
+          <Route path="/site" element={<SitePage />} />
+          <Route path="/hotel" element={<UserPage />} />
+          <Route path="/room" element={<UserPage />} />
+          <Route path="/order" element={<UserPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/price" element={<UserPage />} />
+          <Route path="/rating" element={<UserPage />} />
+          <Route path="/statistic" element={<UserPage />} />
+          <Route path="/agent" element={<AgentPage />} />
+          <Route path="/template" element={<TemplatePage />} />
+          <Route path="/node" element={<NodePage />} />
+          <Route path="/workflow" element={<WorkflowPage />} />
+          <Route path="/workflow-designer" element={<WorkflowDesignerPage />} />
+          <Route
+            path="/workflow-designer/:workflowCode"
+            element={<WorkflowDesignerPage />}
+          />
+          <Route path="/node-flow" element={<NodeFlowPage />} />
+          <Route path="/workflow-builder" element={<WorkflowBuilderPage />} />
+          <Route path="/management" element={<ManagementPage />} />
+          <Route path="*" element={<NotfoundPage />} />
+        </Routes>
+      </MainLayout>
     </BrowserRouter>
   );
 };
