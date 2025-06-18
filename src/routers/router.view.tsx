@@ -22,14 +22,23 @@ import ManagementPage from "../views/management/view.management.tsx";
 const RenderRouter = () => {
   return (
     <BrowserRouter>
-      <Layout>
+      <Layout style={{ minHeight: "100vh" }}>
         <SiderLayout />
-        <Layout style={{ margin: "-8px -8px" }}>
+        <Layout
+          style={{
+            marginLeft: "200px", // Space for fixed sidebar
+            minHeight: "100vh",
+          }}
+        >
           <HeaderComponent />
           <Layout.Content
             style={{
-              margin: "8px 8px 0px 24px",
-              borderRadius: 8,
+              margin: "16px",
+              padding: "24px",
+              background: "#fff",
+              borderRadius: "8px",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+              minHeight: "calc(100vh - 160px)",
             }}
           >
             <Routes>
