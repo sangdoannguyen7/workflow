@@ -170,7 +170,7 @@ function App() {
       theme={getThemeConfig()}
     >
       <AntApp>
-        <RenderRouter />
+        <AppContent />
       </AntApp>
     </ConfigProvider>
   );
