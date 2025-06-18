@@ -34,6 +34,7 @@ import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
   CloseCircleOutlined,
+  InfoCircleOutlined,
   SyncOutlined,
   ThunderboltOutlined,
   TrophyOutlined,
