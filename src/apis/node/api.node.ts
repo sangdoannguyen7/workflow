@@ -49,20 +49,19 @@ class NodeApi implements INodeApi {
     throw new Error("Use workflow API to get nodes");
   }
 
-  async getNodesByTemplate(templateCode: string): Promise<INode[]> {
+  async getNodesByTemplate(_templateCode: string): Promise<INode[]> {
     throw new Error("API does not support getByTemplate");
   }
 
-  async initializeNodes(initRequest: INodeInitRequest): Promise<INode[]> {
+  async initializeNodes(initRequest: any): Promise<INode[]> {
     const request: IDataRequest = {
       method: "POST",
       uri: `${this.baseUrl}/initialize`,
       params: null,
       data: initRequest,
     };
-    const response: IDataResponse<ListResponse<INode>> = await axiosCustom(
-      request
-    );
+    // Note: Need to fix the interface when ListResponse is available
+    const response: IDataResponse<any> = await axiosCustom(request);
     return response.value.data;
   }
 }
