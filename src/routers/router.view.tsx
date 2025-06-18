@@ -15,6 +15,7 @@ import WorkflowDesignerPage from "../views/workflow/view.workflow-designer.tsx";
 import NodeFlowPage from "../views/node-flow/view.node-flow.tsx";
 import WorkflowBuilderPage from "../views/workflow-builder/view.workflow-builder.tsx";
 import ManagementPage from "../views/management/view.management.tsx";
+import WorkflowTestPage from "../views/workflow-test.tsx";
 
 const RenderRouter = () => {
   return (
