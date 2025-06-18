@@ -88,29 +88,69 @@ const { TextArea } = Input;
 
 // Template configurations with enhanced styling
 const TEMPLATE_CONFIGS = {
+  trigger: {
+    icon: <PlayCircleOutlined />,
+    color: "#52c41a",
+    bgColor: "#f6ffed",
+    borderColor: "#b7eb8f",
+    category: "TRIGGER",
+    canConnectTo: ["intermediate"],
+    canConnectFrom: [],
+  },
+  intermediate: {
+    icon: <SettingOutlined />,
+    color: "#1890ff",
+    bgColor: "#e6f7ff",
+    borderColor: "#91d5ff",
+    category: "INTERMEDIATE",
+    canConnectTo: ["intermediate", "exit"],
+    canConnectFrom: ["trigger", "intermediate"],
+  },
+  exit: {
+    icon: <CheckCircleOutlined />,
+    color: "#fa8c16",
+    bgColor: "#fff7e6",
+    borderColor: "#ffd591",
+    category: "EXIT",
+    canConnectTo: [],
+    canConnectFrom: ["intermediate"],
+  },
+  // Legacy support
   webhook: {
     icon: <LinkOutlined />,
     color: "#52c41a",
     bgColor: "#f6ffed",
     borderColor: "#b7eb8f",
+    category: "TRIGGER",
+    canConnectTo: ["intermediate"],
+    canConnectFrom: [],
   },
   schedule: {
     icon: <ScheduleOutlined />,
-    color: "#1890ff",
-    bgColor: "#e6f7ff",
-    borderColor: "#91d5ff",
+    color: "#52c41a",
+    bgColor: "#f6ffed",
+    borderColor: "#b7eb8f",
+    category: "TRIGGER",
+    canConnectTo: ["intermediate"],
+    canConnectFrom: [],
   },
   restapi: {
     icon: <ApiOutlined />,
-    color: "#fa8c16",
-    bgColor: "#fff7e6",
-    borderColor: "#ffd591",
+    color: "#1890ff",
+    bgColor: "#e6f7ff",
+    borderColor: "#91d5ff",
+    category: "INTERMEDIATE",
+    canConnectTo: ["intermediate", "exit"],
+    canConnectFrom: ["trigger", "intermediate"],
   },
   process: {
     icon: <SettingOutlined />,
-    color: "#722ed1",
-    bgColor: "#f9f0ff",
-    borderColor: "#d3adf7",
+    color: "#1890ff",
+    bgColor: "#e6f7ff",
+    borderColor: "#91d5ff",
+    category: "INTERMEDIATE",
+    canConnectTo: ["intermediate", "exit"],
+    canConnectFrom: ["trigger", "intermediate"],
   },
 };
 
@@ -620,7 +660,7 @@ const WorkflowBuilderPage: React.FC = () => {
       NotificationComponent({
         type: "error",
         message: "Lỗi",
-        description: "Không thể t��i danh sách agent",
+        description: "Không thể tải danh sách agent",
       });
     }
   };
