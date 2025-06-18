@@ -1303,6 +1303,14 @@ const WorkflowBuilderPage: React.FC = () => {
     }
   }, [selectedWorkflow, workflows]);
 
+  // Initialize ReactFlow properly
+  useEffect(() => {
+    if (reactFlowInstance) {
+      console.log("✅ ReactFlow instance ready");
+      reactFlowInstance.fitView({ padding: 0.1 });
+    }
+  }, [reactFlowInstance]);
+
   return (
     <ReactFlowProvider>
       <div
