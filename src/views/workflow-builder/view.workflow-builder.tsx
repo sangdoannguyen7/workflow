@@ -30,10 +30,6 @@ import {
   Form,
   Switch,
   Spin,
-  Drawer,
-  Timeline,
-  Statistic,
-  Collapse,
 } from "antd";
 import {
   ApartmentOutlined,
