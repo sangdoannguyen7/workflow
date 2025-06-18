@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Avatar,
   Button,
@@ -15,7 +15,6 @@ import {
   Form,
   Input,
   Select,
-  Divider,
   Row,
   Col,
   List,
@@ -31,8 +30,6 @@ import {
   SunOutlined,
   MoonOutlined,
   EditOutlined,
-  KeyOutlined,
-  NotificationOutlined,
   CheckOutlined,
   ExclamationCircleOutlined,
   InfoCircleOutlined,
