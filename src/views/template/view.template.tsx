@@ -347,7 +347,14 @@ const TemplatePage: React.FC = () => {
       fixed: "right",
       className: "action-column-transparent",
       render: (_: any, record: ITemplate) => (
-        <div style={{ background: "rgba(255, 255, 255, 0.9)", backdropFilter: "blur(8px)", padding: "4px", borderRadius: "6px" }}>
+        <div
+          style={{
+            background: "rgba(255, 255, 255, 0.9)",
+            backdropFilter: "blur(8px)",
+            padding: "4px",
+            borderRadius: "6px",
+          }}
+        >
           <Space size="small">
             <Tooltip title="Chỉnh sửa">
               <Button
@@ -691,7 +698,7 @@ const TemplatePage: React.FC = () => {
                       <Col span={12}>
                         <Form.Item
                           name="templateName"
-                          label="T��n Template"
+                          label="Tên Template"
                           rules={[
                             {
                               required: true,
@@ -843,7 +850,7 @@ const TemplatePage: React.FC = () => {
             ]}
           />
         </Form>
-      </Modal>
+      </Drawer>
     </div>
   );
 };
