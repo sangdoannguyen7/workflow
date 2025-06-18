@@ -34,7 +34,7 @@ import {
   KeyOutlined,
   NotificationOutlined,
   CheckOutlined,
-  ExclamationTriangleOutlined,
+  ExclamationCircleOutlined,
   InfoCircleOutlined,
   CloseCircleOutlined,
 } from "@ant-design/icons";
