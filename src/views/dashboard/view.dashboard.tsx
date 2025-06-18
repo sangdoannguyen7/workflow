@@ -45,7 +45,7 @@ import {
 import { Pie, Area, Gauge } from "@ant-design/plots";
 import dayjs from "dayjs";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { RangePicker } = DatePicker;
 
 const DashboardPage = () => {
