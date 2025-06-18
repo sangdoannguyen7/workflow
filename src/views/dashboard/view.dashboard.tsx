@@ -237,11 +237,9 @@ const DashboardPage = () => {
     statistic: {
       title: {
         formatter: () => "Total",
-        style: { fontSize: 14, fontWeight: 600 },
       },
       content: {
         formatter: () => "128",
-        style: { fontSize: 24, fontWeight: 700, color: colorPrimary },
       },
     },
     tooltip: {
