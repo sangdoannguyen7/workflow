@@ -523,7 +523,7 @@ const WorkflowBuilderPage: React.FC = () => {
 
   // Test workflow functionality
   const runWorkflowTest = async () => {
-    if (!selectedWorkflow || nodes.length === 0) {
+    if (!selectedWorkflow || !nodes || nodes.length === 0) {
       NotificationComponent({
         type: "warning",
         message: "Cảnh báo",
