@@ -78,7 +78,7 @@ class WorkflowApi implements IWorkflowApi {
 
   async deleteWorkflow(id: number): Promise<void> {
     if (API_CONFIG.USE_MOCK) {
-      await MockAPI.deleteWorkflow(id.toString());
+      await WorkflowMockAPI.deleteWorkflow(id.toString());
       return;
     }
 
