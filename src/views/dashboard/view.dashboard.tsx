@@ -79,7 +79,7 @@ const DashboardPage = () => {
 
   const loadDashboardData = () => {
     // Load mock data
-    const workflows = getMockWorkflows();
+    const workflows = getEnhancedMockWorkflows();
     const nodes = getMockNodes();
     const agents = getMockAgents();
     const templates = getMockTemplates();
