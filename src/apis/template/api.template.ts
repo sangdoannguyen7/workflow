@@ -7,6 +7,7 @@ import {
   ITemplateValueResponse,
 } from "../../interface/template.interface";
 import { ITemplateApi } from "./api.template.interface";
+import { MockAPI, API_CONFIG } from "../../config/api.config";
 
 class TemplateApi implements ITemplateApi {
   private readonly baseUrl = "/v1/property/templates";
@@ -14,6 +15,9 @@ class TemplateApi implements ITemplateApi {
   async getTemplates(
     params?: ITemplateSearchParams
   ): Promise<ITemplateResponse> {
+    if (API_CONFIG.USE_MOCK) {
+      return await MockAPI.getTemplates(params);
+    }
     const request: IDataRequest = {
       method: "GET",
       uri: this.baseUrl,
