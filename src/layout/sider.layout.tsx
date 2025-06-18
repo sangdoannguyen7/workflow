@@ -68,11 +68,13 @@ const SiderLayout = () => {
       <Menu
         theme="light"
         mode="inline"
-        // style={{maxHeight: window.innerHeight/1.3, overflowY: 'auto'}}
-        defaultSelectedKeys={["1"]}
-        defaultValue={1}
-        defaultActiveFirst={true}
+        selectedKeys={getSelectedKey()}
         items={menuData}
+        style={{
+          borderRight: "none",
+          height: "calc(100vh - 120px)",
+          overflowY: "auto",
+        }}
       />
     </Layout.Sider>
   );
