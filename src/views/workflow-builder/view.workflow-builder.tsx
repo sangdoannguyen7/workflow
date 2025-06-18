@@ -1603,6 +1603,27 @@ const WorkflowBuilderPage: React.FC = () => {
                   >
                     Tạo mới
                   </Button>
+                  <Button
+                    size="small"
+                    onClick={() => {
+                      const testNode: Node = {
+                        id: `test_${Date.now()}`,
+                        type: "workflowNode",
+                        position: { x: 100, y: 100 },
+                        data: {
+                          label: "Test Node",
+                          templateCode: "TEST",
+                          templateType: "trigger",
+                          agentCode: "AGT_TEST",
+                          description: "Test node for verification",
+                        },
+                      };
+                      setNodes((prev) => [...prev, testNode]);
+                      console.log("✅ Test node added:", testNode.id);
+                    }}
+                  >
+                    Test Node
+                  </Button>
                 </Space>
               </Col>
 
