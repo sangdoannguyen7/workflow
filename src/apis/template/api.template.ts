@@ -37,7 +37,7 @@ class TemplateApi implements ITemplateApi {
     return response.value;
   }
 
-  async getTemplateById(id: number): Promise<ITemplate> {
+  async getTemplateById(_id: number): Promise<ITemplate> {
     throw new Error("API does not support getById, use getByCode instead");
   }
 
