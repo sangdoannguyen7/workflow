@@ -59,8 +59,6 @@ import {
   Controls,
   MiniMap,
   Background,
-  useNodesState,
-  useEdgesState,
   addEdge,
   Connection,
   ReactFlowProvider,
@@ -71,6 +69,8 @@ import {
   ReactFlowInstance,
   Handle,
   Position,
+  applyNodeChanges,
+  applyEdgeChanges,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -509,8 +509,8 @@ const nodeTypes = {
 };
 
 const WorkflowBuilderPage: React.FC = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
   const [workflows, setWorkflows] = useState<IWorkflow[]>([]);
   const [templates, setTemplates] = useState<ITemplate[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<string>("");
@@ -1057,34 +1057,12 @@ const WorkflowBuilderPage: React.FC = () => {
 
   const onNodesChange = useCallback((changes: any) => {
     console.log("📝 Nodes changed:", changes);
-    setNodes((nds) => {
-      const newNodes = changes.reduce((acc: Node[], change: any) => {
-        if (change.type === "position") {
-          return acc.map((node) =>
-            node.id === change.id
-              ? { ...node, position: change.position }
-              : node
-          );
-        } else if (change.type === "remove") {
-          return acc.filter((node) => node.id !== change.id);
-        }
-        return acc;
-      }, nds);
-      return newNodes;
-    });
+    setNodes((nds) => applyNodeChanges(changes, nds));
   }, []);
 
   const onEdgesChange = useCallback((changes: any) => {
     console.log("🔗 Edges changed:", changes);
-    setEdges((eds) => {
-      const newEdges = changes.reduce((acc: any[], change: any) => {
-        if (change.type === "remove") {
-          return acc.filter((edge) => edge.id !== change.id);
-        }
-        return acc;
-      }, eds);
-      return newEdges;
-    });
+    setEdges((eds) => applyEdgeChanges(changes, eds));
   }, []);
 
   const updateNodeData = useCallback(
