@@ -421,40 +421,57 @@ const HeaderLayout = () => {
             </Tooltip>
           </div>
 
-          {/* User Profile */}
-          <div style={frameStyle}>
+          {/* Enhanced User Profile */}
+          <div style={avatarFrameStyle}>
             <Dropdown
               menu={{ items: userMenuItems }}
               placement="bottomRight"
               arrow
               trigger={["click"]}
             >
-              <Space style={{ cursor: "pointer", padding: "4px 8px" }}>
-                <Avatar
-                  src={
-                    <img
-                      src={"https://api.dicebear.com/7.x/miniavs/svg?seed=3"}
-                      alt="avatar"
-                    />
-                  }
-                  size={32}
-                  style={{
-                    border: `2px solid ${colorPrimary}20`,
-                    boxShadow: `0 2px 8px ${colorPrimary}30`,
-                  }}
-                />
+              <Space style={{ cursor: "pointer", padding: "4px 6px" }}>
+                <div style={{ position: "relative" }}>
+                  <Avatar
+                    src={
+                      <img
+                        src={"https://api.dicebear.com/7.x/miniavs/svg?seed=3"}
+                        alt="avatar"
+                      />
+                    }
+                    size={28}
+                    style={{
+                      border: `2px solid ${colorPrimary}`,
+                      boxShadow: `0 2px 8px ${colorPrimary}40`,
+                      transition: "all 0.2s ease",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: -1,
+                      right: -1,
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      backgroundColor: "#52c41a",
+                      border: "1px solid white",
+                      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+                    }}
+                  />
+                </div>
                 <div
                   style={{
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "flex-start",
                     lineHeight: 1.2,
+                    marginLeft: 4,
                   }}
                 >
                   <span
                     style={{
-                      fontSize: "13px",
-                      fontWeight: 500,
+                      fontSize: "12px",
+                      fontWeight: 600,
                       color: colorText,
                     }}
                   >
@@ -462,8 +479,9 @@ const HeaderLayout = () => {
                   </span>
                   <span
                     style={{
-                      fontSize: "11px",
+                      fontSize: "10px",
                       color: colorTextSecondary,
+                      opacity: 0.8,
                     }}
                   >
                     Quản trị viên
@@ -584,7 +602,7 @@ const HeaderLayout = () => {
               size="small"
               style={{ marginBottom: 16 }}
             >
-              <Form.Item name={["general", "siteName"]} label="T��n website">
+              <Form.Item name={["general", "siteName"]} label="Tên website">
                 <Input />
               </Form.Item>
               <Form.Item name={["general", "siteDescription"]} label="Mô tả">
