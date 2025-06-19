@@ -1,6 +1,3 @@
-import React from "react";
-import { ApiOutlined, LinkOutlined, ScheduleOutlined } from "@ant-design/icons";
-
 // Node Types enum
 export enum NodeType {
   TRIGGER = "trigger",
@@ -8,9 +5,9 @@ export enum NodeType {
   OUTPUT = "output",
 }
 
-// Node type configurations
+// Node type configurations (without React components)
 export interface NodeTypeConfig {
-  icon: React.ReactNode;
+  iconName: string;
   color: string;
   bgColor: string;
   borderColor: string;
@@ -20,7 +17,7 @@ export interface NodeTypeConfig {
 
 export const NODE_TYPE_CONFIGS: Record<NodeType, NodeTypeConfig> = {
   [NodeType.TRIGGER]: {
-    icon: <LinkOutlined />,
+    iconName: "LinkOutlined",
     color: "#52c41a",
     bgColor: "#f6ffed",
     borderColor: "#b7eb8f",
@@ -28,7 +25,7 @@ export const NODE_TYPE_CONFIGS: Record<NodeType, NodeTypeConfig> = {
     description: "Khởi động workflow - chỉ có output",
   },
   [NodeType.BEHAVIOR]: {
-    icon: <ApiOutlined />,
+    iconName: "ApiOutlined",
     color: "#1890ff",
     bgColor: "#e6f7ff",
     borderColor: "#91d5ff",
@@ -36,7 +33,7 @@ export const NODE_TYPE_CONFIGS: Record<NodeType, NodeTypeConfig> = {
     description: "Xử lý logic - có input và output",
   },
   [NodeType.OUTPUT]: {
-    icon: <ScheduleOutlined />,
+    iconName: "ScheduleOutlined",
     color: "#fa8c16",
     bgColor: "#fff7e6",
     borderColor: "#ffd591",
@@ -98,20 +95,24 @@ export const canNodesConnect = (
   return true;
 };
 
-export const getNodeTypeColor = (nodeType: NodeType): string => {
-  return NODE_TYPE_CONFIGS[nodeType]?.color || "#1890ff";
-};
-
-export const getNodeTypeIcon = (
-  nodeType: NodeType | string
-): React.ReactNode => {
+export const getNodeTypeColor = (nodeType: NodeType | string): string => {
   if (typeof nodeType === "string") {
     const enumValue = Object.values(NodeType).find(
       (type) => type === nodeType
     ) as NodeType;
-    return NODE_TYPE_CONFIGS[enumValue]?.icon || <ApiOutlined />;
+    return NODE_TYPE_CONFIGS[enumValue]?.color || "#1890ff";
   }
-  return NODE_TYPE_CONFIGS[nodeType]?.icon || <ApiOutlined />;
+  return NODE_TYPE_CONFIGS[nodeType]?.color || "#1890ff";
+};
+
+export const getNodeTypeIconName = (nodeType: NodeType | string): string => {
+  if (typeof nodeType === "string") {
+    const enumValue = Object.values(NodeType).find(
+      (type) => type === nodeType
+    ) as NodeType;
+    return NODE_TYPE_CONFIGS[enumValue]?.iconName || "ApiOutlined";
+  }
+  return NODE_TYPE_CONFIGS[nodeType]?.iconName || "ApiOutlined";
 };
 
 export const getNodeTypeBgColor = (nodeType: NodeType): string => {
@@ -128,6 +129,11 @@ export const getNodeTypeEmoji = (nodeType: NodeType): string => {
 
 export const getNodeTypeDescription = (nodeType: NodeType): string => {
   return NODE_TYPE_CONFIGS[nodeType]?.description || "Node xử lý logic";
+};
+
+// Icon mapping helper function (to be used in components)
+export const getNodeTypeIcon = (nodeType: NodeType | string): string => {
+  return getNodeTypeIconName(nodeType);
 };
 
 // Validation helpers
