@@ -666,6 +666,9 @@ const WorkflowBuilderPage: React.FC = () => {
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
+  // CRITICAL: Use drag sync hook để ensure perfect node-edge synchronization
+  useDragSync();
+
   const {
     token: { colorBgContainer },
   } = theme.useToken();
