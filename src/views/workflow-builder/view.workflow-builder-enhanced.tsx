@@ -58,6 +58,7 @@ import {
   NodeProps,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import "../../styles/workflow-edges.css";
 
 import { ITemplate } from "../../interface/template.interface";
 import { IWorkflow } from "../../interface/workflow.interface";
