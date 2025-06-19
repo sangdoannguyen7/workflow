@@ -462,6 +462,7 @@ const WorkflowCanvas: React.FC<{
   onDragOver: any;
   onDragLeave: any;
   nodeTypes: any;
+  edgeTypes: any;
   isPlaying: boolean;
   isDragging: boolean;
   selectedNode: Node | null;
@@ -477,6 +478,7 @@ const WorkflowCanvas: React.FC<{
   onDragOver,
   onDragLeave,
   nodeTypes,
+  edgeTypes,
   isPlaying,
   isDragging,
   selectedNode,
