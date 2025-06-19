@@ -445,6 +445,10 @@ const nodeTypes = {
   workflowNode: WorkflowNode,
 };
 
+const edgeTypes = {
+  custom: CustomEdge,
+};
+
 // WorkflowCanvas component với PERFORMANCE optimizations
 const WorkflowCanvas: React.FC<{
   nodes: Node[];
