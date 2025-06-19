@@ -977,7 +977,7 @@ const WorkflowBuilderPage: React.FC = () => {
     message.info(
       newIsPlaying
         ? "▶️ Bắt đầu mô phỏng workflow"
-        : "⏸️ Dừng mô phỏng workflow"
+        : "⏸��� Dừng mô phỏng workflow"
     );
   }, [isPlaying, setEdges]);
 
@@ -1102,7 +1102,10 @@ const WorkflowBuilderPage: React.FC = () => {
                   header={
                     <Space>
                       <span style={{ fontSize: "18px" }}>
-                        {getNodeTypeIconComponent(type as NodeType)}
+                        <DynamicIcon
+                          iconName={getNodeTypeIconName(type as NodeType)}
+                          style={{ color: getNodeTypeColor(type as NodeType) }}
+                        />
                       </span>
                       <Text
                         strong
