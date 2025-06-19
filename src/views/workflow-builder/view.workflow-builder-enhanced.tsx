@@ -19,6 +19,8 @@ import {
   Collapse,
   Badge,
   Modal,
+  Descriptions,
+  Statistic,
 } from "antd";
 import {
   ApartmentOutlined,
@@ -35,6 +37,9 @@ import {
   ZoomInOutlined,
   ZoomOutOutlined,
   SettingOutlined,
+  InfoCircleOutlined,
+  ClockCircleOutlined,
+  NodeIndexOutlined,
 } from "@ant-design/icons";
 import {
   ReactFlow,
@@ -65,9 +70,7 @@ import { IWorkflow } from "../../interface/workflow.interface";
 import { IWorkflowDesign } from "../../interface/workflow.interface";
 import templateApi from "../../apis/template/api.template";
 import workflowApi from "../../apis/workflow/api.workflow";
-import WorkflowToolbar from "./components/WorkflowToolbar";
 import NodePropertiesPanel from "./components/NodePropertiesPanel";
-import CustomEdge from "./components/CustomEdge";
 import {
   NodeType,
   getNodeTypeFromTemplate,
@@ -257,8 +260,13 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
   );
 };
 
-// Enhanced Custom Node Component với OPTIMIZED drag performance
-const WorkflowNode: React.FC<NodeProps> = ({ data, selected, id }) => {
+// FIXED: Enhanced Custom Node Component với SYNCHRONIZED drag performance
+const WorkflowNode: React.FC<NodeProps> = ({
+  data,
+  selected,
+  id,
+  dragging,
+}) => {
   const nodeType = getNodeTypeFromTemplate(data.templateType);
   const config = TEMPLATE_CONFIGS[nodeType];
   const canHaveInput = nodeType !== NodeType.TRIGGER;
@@ -279,15 +287,19 @@ const WorkflowNode: React.FC<NodeProps> = ({ data, selected, id }) => {
           ? `0 8px 20px ${config?.color || "#1890ff"}30`
           : "0 2px 8px rgba(0,0,0,0.1)",
         position: "relative",
-        transition: "all 0.2s ease",
-        cursor: "pointer",
-        // CRITICAL: Ensure proper stacking and performance
-        willChange: "transform, box-shadow",
+        // CRITICAL FIX: Disable transitions when dragging to sync with edges
+        transition: dragging ? "none" : "all 0.2s ease",
+        cursor: dragging ? "grabbing" : "pointer",
+        // Hardware acceleration optimizations
+        willChange: dragging ? "transform" : "auto",
         backfaceVisibility: "hidden",
-        transform: "translateZ(0)", // Force hardware acceleration
+        transform: "translateZ(0)",
+        // Enhanced visual feedback while dragging
+        filter: dragging ? "drop-shadow(0 12px 24px rgba(0,0,0,0.2))" : "none",
+        zIndex: dragging ? 1000 : "auto",
       }}
     >
-      {/* Enhanced Input Handle - OPTIMIZED for smooth dragging */}
+      {/* Enhanced Input Handle - SYNCHRONIZED with node movement */}
       {canHaveInput && (
         <Handle
           type="target"
@@ -300,17 +312,17 @@ const WorkflowNode: React.FC<NodeProps> = ({ data, selected, id }) => {
             border: `2px solid ${config?.color || "#666"}`,
             backgroundColor: "#fff",
             borderRadius: "50%",
-            // CRITICAL optimizations:
-            willChange: "transform",
+            // CRITICAL FIX: No transitions during drag for sync
+            transition: dragging ? "none" : "all 0.15s ease",
+            willChange: dragging ? "none" : "transform",
             backfaceVisibility: "hidden",
             transform: "translateZ(0)",
-            transition: "all 0.15s ease",
             zIndex: 10,
           }}
         />
       )}
 
-      {/* Enhanced Output Handle - OPTIMIZED for smooth dragging */}
+      {/* Enhanced Output Handle - SYNCHRONIZED with node movement */}
       {canHaveOutput && (
         <Handle
           type="source"
@@ -323,11 +335,11 @@ const WorkflowNode: React.FC<NodeProps> = ({ data, selected, id }) => {
             border: `2px solid ${config?.color || "#666"}`,
             backgroundColor: "#fff",
             borderRadius: "50%",
-            // CRITICAL optimizations:
-            willChange: "transform",
+            // CRITICAL FIX: No transitions during drag for sync
+            transition: dragging ? "none" : "all 0.15s ease",
+            willChange: dragging ? "none" : "transform",
             backfaceVisibility: "hidden",
             transform: "translateZ(0)",
-            transition: "all 0.15s ease",
             zIndex: 10,
           }}
         />
@@ -445,11 +457,7 @@ const nodeTypes = {
   workflowNode: WorkflowNode,
 };
 
-const edgeTypes = {
-  custom: CustomEdge,
-};
-
-// WorkflowCanvas component với PERFORMANCE optimizations
+// REORGANIZED: WorkflowCanvas component với fixed synchronization
 const WorkflowCanvas: React.FC<{
   nodes: Node[];
   edges: Edge[];
@@ -462,10 +470,11 @@ const WorkflowCanvas: React.FC<{
   onDragOver: any;
   onDragLeave: any;
   nodeTypes: any;
-  edgeTypes: any;
   isPlaying: boolean;
   isDragging: boolean;
   selectedNode: Node | null;
+  reactFlowInstance: ReactFlowInstance | null;
+  onInit: (instance: ReactFlowInstance) => void;
 }> = ({
   nodes,
   edges,
@@ -478,10 +487,10 @@ const WorkflowCanvas: React.FC<{
   onDragOver,
   onDragLeave,
   nodeTypes,
-  edgeTypes,
   isPlaying,
   isDragging,
   selectedNode,
+  onInit,
 }) => {
   const reactFlowInstance = useReactFlow();
 
@@ -524,18 +533,22 @@ const WorkflowCanvas: React.FC<{
       onDrop={handleDrop}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
+      onInit={onInit}
       nodeTypes={nodeTypes}
-      edgeTypes={edgeTypes}
       connectionMode={ConnectionMode.Loose}
       fitView
       attributionPosition="bottom-left"
       panOnDrag
       selectNodesOnDrag={false}
-      // CRITICAL performance optimizations
+      // CRITICAL performance optimizations for sync
       minZoom={0.1}
       maxZoom={2}
       defaultViewport={{ x: 0, y: 0, zoom: 1 }}
       proOptions={{ hideAttribution: true }}
+      // CRITICAL: Disable animation frame for better sync
+      nodesDraggable={true}
+      nodesConnectable={true}
+      elementsSelectable={true}
       style={{
         background: isDragging
           ? "linear-gradient(135deg, #e6f7ff, #f0f9ff)"
@@ -674,7 +687,7 @@ const WorkflowBuilderPage: React.FC = () => {
     [nodes]
   );
 
-  // Enhanced node connections với OPTIMIZED edge styling
+  // FIXED: Enhanced node connections với synchronized edge rendering
   const onConnect = useCallback(
     (params: Connection) => {
       console.log("Attempting to connect:", params);
@@ -691,11 +704,11 @@ const WorkflowBuilderPage: React.FC = () => {
       const newEdge = {
         ...params,
         id: `edge-${Date.now()}`,
-        type: "custom",
         animated: isPlaying,
-        data: {
-          animated: isPlaying,
-          status: "default",
+        style: {
+          stroke: "#1890ff",
+          strokeWidth: 2,
+          strokeDasharray: isPlaying ? "5,5" : undefined,
         },
         markerEnd: {
           type: "arrowclosed" as const,
@@ -843,11 +856,12 @@ const WorkflowBuilderPage: React.FC = () => {
         id: edge.id,
         source: edge.source,
         target: edge.target,
-        type: "custom",
+        type: edge.type || "default",
         animated: isPlaying,
-        data: {
-          animated: isPlaying,
-          status: "default",
+        style: {
+          stroke: "#1890ff",
+          strokeWidth: 2,
+          strokeDasharray: isPlaying ? "5,5" : undefined,
         },
         markerEnd: {
           type: "arrowclosed" as const,
@@ -953,9 +967,9 @@ const WorkflowBuilderPage: React.FC = () => {
       eds.map((edge) => ({
         ...edge,
         animated: newIsPlaying,
-        data: {
-          ...edge.data,
-          animated: newIsPlaying,
+        style: {
+          ...edge.style,
+          strokeDasharray: newIsPlaying ? "5,5" : undefined,
         },
       }))
     );
@@ -984,32 +998,18 @@ const WorkflowBuilderPage: React.FC = () => {
     setReactFlowInstance(instance);
   }, []);
 
-  // Optimized nodes change handler for smooth dragging
+  // FIXED: Optimized event handlers để đảm bảo sync
   const handleNodesChange = useCallback(
     (changes: any[]) => {
-      // Filter out unnecessary position updates during drag for better performance
-      const optimizedChanges = changes.map((change) => {
-        if (change.type === "position" && change.dragging) {
-          // Throttle position updates during drag
-          return {
-            ...change,
-            position: {
-              x: Math.round(change.position.x),
-              y: Math.round(change.position.y),
-            },
-          };
-        }
-        return change;
-      });
-
-      onNodesChange(optimizedChanges);
+      // Apply changes immediately for better sync
+      onNodesChange(changes);
     },
     [onNodesChange]
   );
 
-  // Optimized edges change handler
   const handleEdgesChange = useCallback(
     (changes: any[]) => {
+      // Apply changes immediately for better sync
       onEdgesChange(changes);
     },
     [onEdgesChange]
@@ -1040,178 +1040,430 @@ const WorkflowBuilderPage: React.FC = () => {
     [setNodes]
   );
 
+  // Get current workflow info
+  const currentWorkflow = workflows.find(
+    (w) => w.workflowCode === selectedWorkflow
+  );
+
+  // Calculate workflow statistics
+  const triggerNodes = nodes.filter(
+    (n) => getNodeTypeFromTemplate(n.data.templateType) === NodeType.TRIGGER
+  );
+  const behaviorNodes = nodes.filter(
+    (n) => getNodeTypeFromTemplate(n.data.templateType) === NodeType.BEHAVIOR
+  );
+  const outputNodes = nodes.filter(
+    (n) => getNodeTypeFromTemplate(n.data.templateType) === NodeType.OUTPUT
+  );
+
   return (
     <ReactFlowProvider>
       <div
         style={{
           height: "100vh",
           display: "flex",
+          flexDirection: "column",
           background: colorBgContainer,
         }}
       >
-        {/* Enhanced Template Palette Sidebar */}
-        <div
+        {/* REORGANIZED: Top Controls và Toolbar */}
+        <Card
+          size="small"
           style={{
-            width: paletteVisible ? "340px" : "0px",
-            transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            borderRight: paletteVisible ? "1px solid #e8e8e8" : "none",
-            background: "linear-gradient(180deg, #fafafa, #f5f5f5)",
-            overflow: "hidden",
-            boxShadow: paletteVisible ? "2px 0 12px rgba(0,0,0,0.08)" : "none",
+            margin: "8px",
+            marginBottom: "4px",
+            borderRadius: "12px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            border: "1px solid #e8e8e8",
           }}
+          bodyStyle={{ padding: "12px 20px" }}
         >
-          <Card
-            title={
-              <Space>
-                <DragOutlined style={{ color: "#1890ff" }} />
-                <span style={{ fontWeight: 600 }}>Template Palette</span>
-                <Badge
-                  count={templates.length}
-                  style={{ backgroundColor: "#1890ff" }}
-                />
+          <Row justify="space-between" align="middle">
+            {/* Left Section */}
+            <Col>
+              <Space size="middle">
+                <Tooltip title="Toggle template palette">
+                  <Button
+                    icon={<DragOutlined />}
+                    onClick={() => setPaletteVisible(!paletteVisible)}
+                    type={paletteVisible ? "primary" : "default"}
+                    style={{ borderRadius: "8px" }}
+                  >
+                    Templates
+                  </Button>
+                </Tooltip>
+
+                <div>
+                  <Text type="secondary" style={{ fontSize: "12px" }}>
+                    Workflow:
+                  </Text>
+                  <Select
+                    style={{ width: 300, marginLeft: "8px" }}
+                    placeholder="Chọn workflow để thiết kế"
+                    value={selectedWorkflow}
+                    onChange={setSelectedWorkflow}
+                    showSearch
+                  >
+                    {workflows.map((workflow) => (
+                      <Select.Option
+                        key={workflow.workflowCode}
+                        value={workflow.workflowCode}
+                      >
+                        {workflow.workflowName} ({workflow.workflowCode})
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
               </Space>
-            }
-            size="small"
-            style={{ height: "100%", border: "none" }}
-            bodyStyle={{
-              padding: "16px",
-              height: "calc(100% - 57px)",
-              overflow: "auto",
+            </Col>
+
+            {/* Center Section - View Controls */}
+            <Col>
+              <Space>
+                <div
+                  style={{
+                    padding: "4px",
+                    background: "#f8f9fa",
+                    borderRadius: "8px",
+                    border: "1px solid #e9ecef",
+                  }}
+                >
+                  <Tooltip title="Fit view">
+                    <Button
+                      icon={<FullscreenOutlined />}
+                      onClick={() => reactFlowInstance?.fitView()}
+                      type="text"
+                      size="small"
+                    />
+                  </Tooltip>
+                  <Tooltip title="Zoom in">
+                    <Button
+                      icon={<ZoomInOutlined />}
+                      onClick={() => reactFlowInstance?.zoomIn()}
+                      type="text"
+                      size="small"
+                    />
+                  </Tooltip>
+                  <Tooltip title="Zoom out">
+                    <Button
+                      icon={<ZoomOutOutlined />}
+                      onClick={() => reactFlowInstance?.zoomOut()}
+                      type="text"
+                      size="small"
+                    />
+                  </Tooltip>
+                </div>
+              </Space>
+            </Col>
+
+            {/* Right Section */}
+            <Col>
+              <Space>
+                <Button
+                  type={isPlaying ? "primary" : "default"}
+                  icon={
+                    isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />
+                  }
+                  onClick={toggleSimulation}
+                  disabled={nodes.length === 0}
+                  style={{ borderRadius: "8px" }}
+                >
+                  {isPlaying ? "Dừng" : "Chạy"}
+                </Button>
+
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={clearWorkflow}
+                  disabled={nodes.length === 0}
+                  style={{ borderRadius: "8px" }}
+                >
+                  Xóa tất cả
+                </Button>
+
+                <Button
+                  icon={<ReloadOutlined />}
+                  onClick={() =>
+                    selectedWorkflow && loadWorkflowDesign(selectedWorkflow)
+                  }
+                  disabled={!selectedWorkflow}
+                  style={{ borderRadius: "8px" }}
+                >
+                  Tải lại
+                </Button>
+
+                <Button
+                  type="primary"
+                  icon={<SaveOutlined />}
+                  onClick={saveWorkflowDesign}
+                  disabled={!selectedWorkflow || nodes.length === 0}
+                  style={{
+                    borderRadius: "8px",
+                    background: "linear-gradient(135deg, #1890ff, #40a9ff)",
+                    border: "none",
+                    boxShadow: "0 4px 12px rgba(24, 144, 255, 0.3)",
+                  }}
+                >
+                  Lưu Workflow
+                </Button>
+              </Space>
+            </Col>
+          </Row>
+        </Card>
+
+        {/* REORGANIZED: Main Content Area */}
+        <div style={{ flex: 1, display: "flex" }}>
+          {/* Enhanced Template Palette Sidebar */}
+          <div
+            style={{
+              width: paletteVisible ? "340px" : "0px",
+              transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              borderRight: paletteVisible ? "1px solid #e8e8e8" : "none",
+              background: "linear-gradient(180deg, #fafafa, #f5f5f5)",
+              overflow: "hidden",
+              boxShadow: paletteVisible
+                ? "2px 0 12px rgba(0,0,0,0.08)"
+                : "none",
             }}
           >
-            <div style={{ marginBottom: "16px" }}>
-              <Text
-                style={{ fontSize: "13px", color: "#666", lineHeight: "1.5" }}
+            <Card
+              title={
+                <Space>
+                  <DragOutlined style={{ color: "#1890ff" }} />
+                  <span style={{ fontWeight: 600 }}>Template Palette</span>
+                  <Badge
+                    count={templates.length}
+                    style={{ backgroundColor: "#1890ff" }}
+                  />
+                </Space>
+              }
+              size="small"
+              style={{ height: "100%", border: "none" }}
+              bodyStyle={{
+                padding: "16px",
+                height: "calc(100% - 57px)",
+                overflow: "auto",
+              }}
+            >
+              <div style={{ marginBottom: "16px" }}>
+                <Text
+                  style={{ fontSize: "13px", color: "#666", lineHeight: "1.5" }}
+                >
+                  🎯 <strong>Cách sử dụng:</strong>
+                  <br />
+                  1. Kéo template từ đây vào canvas bên phải
+                  <br />
+                  2. Kết nối các node bằng cách kéo handle
+                  <br />
+                  <br />
+                  <Text strong style={{ color: "#52c41a" }}>
+                    🚀 TRIGGER
+                  </Text>
+                  : Chỉ có output
+                  <br />
+                  <Text strong style={{ color: "#1890ff" }}>
+                    ⚙️ BEHAVIOR
+                  </Text>
+                  : Có input & output
+                  <br />
+                  <Text strong style={{ color: "#fa8c16" }}>
+                    📤 OUTPUT
+                  </Text>
+                  : Chỉ có input
+                </Text>
+              </div>
+
+              <Collapse
+                defaultActiveKey={Object.keys(groupedTemplates)}
+                ghost
+                size="small"
+                style={{ background: "transparent" }}
               >
-                🎯 <strong>Cách sử dụng:</strong>
-                <br />
-                1. Kéo template từ đây vào canvas bên phải
-                <br />
-                2. Kết nối các node bằng cách kéo handle
-                <br />
-                <br />
-                <Text strong style={{ color: "#52c41a" }}>
-                  🚀 TRIGGER
-                </Text>
-                : Chỉ có output
-                <br />
-                <Text strong style={{ color: "#1890ff" }}>
-                  ⚙️ BEHAVIOR
-                </Text>
-                : Có input & output
-                <br />
-                <Text strong style={{ color: "#fa8c16" }}>
-                  📤 OUTPUT
-                </Text>
-                : Chỉ có input
-              </Text>
+                {Object.entries(groupedTemplates).map(
+                  ([type, templateList]) => (
+                    <CollapsePanel
+                      key={type}
+                      header={
+                        <Space>
+                          <span style={{ fontSize: "18px" }}>
+                            {TEMPLATE_CONFIGS[type as NodeType]?.icon}
+                          </span>
+                          <Text
+                            strong
+                            style={{
+                              color: getNodeTypeColor(type as NodeType),
+                              fontSize: "14px",
+                            }}
+                          >
+                            {type.toUpperCase()}
+                          </Text>
+                          <Badge
+                            count={templateList.length}
+                            style={{
+                              backgroundColor: getNodeTypeColor(
+                                type as NodeType
+                              ),
+                            }}
+                          />
+                        </Space>
+                      }
+                    >
+                      {templateList.map((template) => (
+                        <DraggableTemplate
+                          key={template.templateId || template.templateCode}
+                          template={template}
+                        />
+                      ))}
+                    </CollapsePanel>
+                  )
+                )}
+              </Collapse>
+            </Card>
+          </div>
+
+          {/* REORGANIZED: Canvas và Info Layout */}
+          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            {/* Enhanced Flow Canvas */}
+            <div
+              ref={reactFlowWrapper}
+              style={{
+                flex: 1,
+                margin: "6px 12px 6px 12px",
+                border: isDragging
+                  ? "3px dashed #1890ff"
+                  : "2px dashed #e8e8e8",
+                borderRadius: "16px",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                boxShadow: isDragging
+                  ? "0 8px 32px rgba(24, 144, 255, 0.2)"
+                  : "0 2px 8px rgba(0,0,0,0.06)",
+              }}
+            >
+              <WorkflowCanvas
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={handleNodesChange}
+                onEdgesChange={handleEdgesChange}
+                onConnect={onConnect}
+                onNodeClick={onNodeClick}
+                onPaneClick={onPaneClick}
+                onDrop={onDrop}
+                onDragOver={onDragOver}
+                onDragLeave={onDragLeave}
+                nodeTypes={nodeTypes}
+                isPlaying={isPlaying}
+                isDragging={isDragging}
+                selectedNode={selectedNode}
+                reactFlowInstance={reactFlowInstance}
+                onInit={onInit}
+              />
             </div>
 
-            <Collapse
-              defaultActiveKey={Object.keys(groupedTemplates)}
-              ghost
+            {/* NEW: Bottom Workflow Information Panel */}
+            <Card
               size="small"
-              style={{ background: "transparent" }}
+              style={{
+                margin: "0 12px 12px 12px",
+                borderRadius: "12px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                border: "1px solid #e8e8e8",
+              }}
+              title={
+                <Space>
+                  <InfoCircleOutlined style={{ color: "#1890ff" }} />
+                  <span>Thông tin Workflow</span>
+                  {currentWorkflow && (
+                    <Tag color="blue">
+                      {currentWorkflow.statusName || "ACTIVE"}
+                    </Tag>
+                  )}
+                </Space>
+              }
             >
-              {Object.entries(groupedTemplates).map(([type, templateList]) => (
-                <CollapsePanel
-                  key={type}
-                  header={
-                    <Space>
-                      <span style={{ fontSize: "18px" }}>
-                        {TEMPLATE_CONFIGS[type as NodeType]?.icon}
-                      </span>
-                      <Text
-                        strong
-                        style={{
-                          color: getNodeTypeColor(type as NodeType),
-                          fontSize: "14px",
-                        }}
-                      >
-                        {type.toUpperCase()}
-                      </Text>
-                      <Badge
-                        count={templateList.length}
-                        style={{
-                          backgroundColor: getNodeTypeColor(type as NodeType),
-                        }}
+              <Row gutter={24}>
+                <Col span={8}>
+                  <Descriptions size="small" column={1} bordered>
+                    <Descriptions.Item label="Workflow">
+                      {currentWorkflow?.workflowName || "Chưa chọn"}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Code">
+                      {currentWorkflow?.workflowCode || "N/A"}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Mô tả">
+                      {currentWorkflow?.description || "Không có mô tả"}
+                    </Descriptions.Item>
+                  </Descriptions>
+                </Col>
+
+                <Col span={8}>
+                  <Row gutter={16}>
+                    <Col span={8}>
+                      <Statistic
+                        title="🚀 Trigger"
+                        value={triggerNodes.length}
+                        valueStyle={{ color: "#52c41a", fontSize: "24px" }}
+                        prefix={<LinkOutlined />}
                       />
+                    </Col>
+                    <Col span={8}>
+                      <Statistic
+                        title="⚙️ Behavior"
+                        value={behaviorNodes.length}
+                        valueStyle={{ color: "#1890ff", fontSize: "24px" }}
+                        prefix={<ApiOutlined />}
+                      />
+                    </Col>
+                    <Col span={8}>
+                      <Statistic
+                        title="📤 Output"
+                        value={outputNodes.length}
+                        valueStyle={{ color: "#fa8c16", fontSize: "24px" }}
+                        prefix={<ScheduleOutlined />}
+                      />
+                    </Col>
+                  </Row>
+                </Col>
+
+                <Col span={8}>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Statistic
+                        title="Total Nodes"
+                        value={nodes.length}
+                        valueStyle={{ fontSize: "24px" }}
+                        prefix={<NodeIndexOutlined />}
+                      />
+                    </Col>
+                    <Col span={12}>
+                      <Statistic
+                        title="Connections"
+                        value={edges.length}
+                        valueStyle={{ fontSize: "24px" }}
+                        prefix={<ApartmentOutlined />}
+                      />
+                    </Col>
+                  </Row>
+
+                  <div style={{ marginTop: "16px" }}>
+                    <Space>
+                      <Text type="secondary" style={{ fontSize: "12px" }}>
+                        <ClockCircleOutlined /> Cập nhật lúc:{" "}
+                        {new Date().toLocaleTimeString("vi-VN")}
+                      </Text>
+                      {selectedNode && (
+                        <Tag color="orange">
+                          Node: {selectedNode.data.label}
+                        </Tag>
+                      )}
                     </Space>
-                  }
-                >
-                  {templateList.map((template) => (
-                    <DraggableTemplate
-                      key={template.templateId || template.templateCode}
-                      template={template}
-                    />
-                  ))}
-                </CollapsePanel>
-              ))}
-            </Collapse>
-          </Card>
-        </div>
-
-        {/* Main Canvas Area */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          {/* Enhanced Toolbar */}
-          <WorkflowToolbar
-            workflows={workflows}
-            selectedWorkflow={selectedWorkflow}
-            onWorkflowChange={setSelectedWorkflow}
-            onSave={saveWorkflowDesign}
-            onLoad={() =>
-              selectedWorkflow && loadWorkflowDesign(selectedWorkflow)
-            }
-            onClear={clearWorkflow}
-            onTogglePalette={() => setPaletteVisible(!paletteVisible)}
-            onToggleSimulation={toggleSimulation}
-            onExport={() => console.log("Export workflow")}
-            onImport={() => console.log("Import workflow")}
-            onFitView={() => reactFlowInstance?.fitView()}
-            onZoomIn={() => reactFlowInstance?.zoomIn()}
-            onZoomOut={() => reactFlowInstance?.zoomOut()}
-            isPlaying={isPlaying}
-            nodeCount={nodes.length}
-            edgeCount={edges.length}
-            paletteVisible={paletteVisible}
-            selectedNodeId={selectedNode?.id}
-          />
-
-          {/* Enhanced Flow Canvas với optimized performance */}
-          <div
-            ref={reactFlowWrapper}
-            style={{
-              flex: 1,
-              margin: "6px 12px 12px 12px",
-              border: isDragging ? "3px dashed #1890ff" : "2px dashed #e8e8e8",
-              borderRadius: "16px",
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              boxShadow: isDragging
-                ? "0 8px 32px rgba(24, 144, 255, 0.2)"
-                : "0 2px 8px rgba(0,0,0,0.06)",
-            }}
-          >
-            <WorkflowCanvas
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={handleNodesChange}
-              onEdgesChange={handleEdgesChange}
-              onConnect={onConnect}
-              onNodeClick={onNodeClick}
-              onPaneClick={onPaneClick}
-              onDrop={onDrop}
-              onDragOver={onDragOver}
-              onDragLeave={onDragLeave}
-              nodeTypes={nodeTypes}
-              edgeTypes={edgeTypes}
-              isPlaying={isPlaying}
-              isDragging={isDragging}
-              selectedNode={selectedNode}
-            />
+                  </div>
+                </Col>
+              </Row>
+            </Card>
           </div>
         </div>
 
-        {/* Enhanced Node Properties Panel */}
+        {/* Enhanced Node Properties Panel - Positioned on right */}
         {selectedNode && (
           <NodePropertiesPanel
             node={selectedNode}
