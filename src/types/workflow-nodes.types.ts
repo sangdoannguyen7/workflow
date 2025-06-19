@@ -100,7 +100,10 @@ export const getNodeTypeColor = (nodeType: NodeType | string): string => {
     const enumValue = Object.values(NodeType).find(
       (type) => type === nodeType
     ) as NodeType;
-    return NODE_TYPE_CONFIGS[enumValue]?.color || "#1890ff";
+    if (enumValue && NODE_TYPE_CONFIGS[enumValue]) {
+      return NODE_TYPE_CONFIGS[enumValue].color;
+    }
+    return "#1890ff";
   }
   return NODE_TYPE_CONFIGS[nodeType]?.color || "#1890ff";
 };
