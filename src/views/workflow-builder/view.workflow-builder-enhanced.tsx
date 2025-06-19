@@ -1131,7 +1131,7 @@ const WorkflowBuilderPage: React.FC = () => {
                   header={
                     <Space>
                       <span style={{ fontSize: "18px" }}>
-                        {getNodeTypeIcon(type as NodeType)}
+                        {getNodeTypeIconComponent(type as NodeType)}
                       </span>
                       <Text
                         strong
