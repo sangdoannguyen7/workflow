@@ -219,6 +219,3 @@ export const validateWorkflow = (
     warnings,
   };
 };
-
-// Export all types
-export type { NodeTypeConfig };
