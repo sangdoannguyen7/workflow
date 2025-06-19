@@ -738,17 +738,6 @@ const NodePropertiesPanel: React.FC<NodePropertiesPanelProps> = ({
             borderBottom: "1px solid #f0f0f0",
           }}
         />
-
-        {/* Tab content area with proper scrolling */}
-        <div
-          style={{
-            padding: "16px",
-            height: "calc(100% - 48px)",
-            overflow: "auto",
-          }}
-        >
-          {/* Content is handled by Tabs component */}
-        </div>
       </Form>
     </Card>
   );
