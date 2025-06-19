@@ -951,9 +951,9 @@ const WorkflowBuilderPage: React.FC = () => {
       eds.map((edge) => ({
         ...edge,
         animated: newIsPlaying,
-        style: {
-          ...edge.style,
-          strokeDasharray: newIsPlaying ? "5,5" : undefined,
+        data: {
+          ...edge.data,
+          animated: newIsPlaying,
         },
       }))
     );
