@@ -1,16 +1,21 @@
-/* Optimized React Flow Edge Styles for Smooth Dragging */
+/* FIXED: React Flow Edge Styles for Perfect Node-Edge Synchronization */
 
-/* Global optimizations for all edges */
+/* CRITICAL FIX: Disable transitions when nodes are being dragged */
 .react-flow__edge {
   /* Ensure proper stacking order */
   z-index: 1;
   transform: translateZ(0);
   backface-visibility: hidden;
 
-  /* Smooth transitions that sync with node movements */
-  transition: stroke 0.2s ease, stroke-width 0.2s ease !important;
+  /* CRITICAL: No transitions during drag for perfect sync */
+  transition: none !important;
   /* Hardware acceleration for smooth dragging */
-  will-change: transform;
+  will-change: d, stroke, stroke-width;
+}
+
+/* Only apply transitions when NOT dragging */
+.react-flow__edge:not(.dragging) {
+  transition: stroke 0.2s ease, stroke-width 0.2s ease !important;
 }
 
 /* Path optimizations */
