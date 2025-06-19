@@ -67,6 +67,14 @@ import templateApi from "../../apis/template/api.template";
 import workflowApi from "../../apis/workflow/api.workflow";
 import WorkflowToolbar from "./components/WorkflowToolbar";
 import NodePropertiesPanel from "./components/NodePropertiesPanel";
+import DynamicIcon from "../../shared/components/DynamicIcon";
+import {
+  NodeType,
+  getNodeTypeFromTemplate,
+  canNodesConnect,
+  getNodeTypeColor,
+  getNodeTypeIconName,
+} from "../../types/workflow-nodes.types";
 
 const { Text, Title } = Typography;
 const { Panel: CollapsePanel } = Collapse;
