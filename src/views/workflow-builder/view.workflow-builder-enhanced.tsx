@@ -689,13 +689,11 @@ const WorkflowBuilderPage: React.FC = () => {
       const newEdge = {
         ...params,
         id: `edge-${Date.now()}`,
+        type: "custom",
         animated: isPlaying,
-        style: {
-          stroke: "#1890ff",
-          strokeWidth: 2,
-          strokeDasharray: isPlaying ? "5,5" : undefined,
-          // CRITICAL: Smooth edge rendering
-          transition: "all 0.2s ease",
+        data: {
+          animated: isPlaying,
+          status: "default",
         },
         markerEnd: {
           type: "arrowclosed" as const,
