@@ -78,7 +78,7 @@ enum NodeType {
   OUTPUT = "output",
 }
 
-// Template configurations v���i enhanced styling
+// Template configurations với enhanced styling
 const TEMPLATE_CONFIGS = {
   [NodeType.TRIGGER]: {
     icon: <LinkOutlined />,
@@ -133,7 +133,7 @@ const getNodeTypeColor = (nodeType: NodeType): string => {
   return TEMPLATE_CONFIGS[nodeType]?.color || "#1890ff";
 };
 
-const getNodeTypeIcon = (nodeType: NodeType): React.ReactNode => {
+const getNodeTypeIconComponent = (nodeType: NodeType): React.ReactNode => {
   return TEMPLATE_CONFIGS[nodeType]?.icon || <ApiOutlined />;
 };
 
