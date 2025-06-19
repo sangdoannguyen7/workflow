@@ -980,6 +980,37 @@ const WorkflowBuilderPage: React.FC = () => {
     setReactFlowInstance(instance);
   }, []);
 
+  // Optimized nodes change handler for smooth dragging
+  const handleNodesChange = useCallback(
+    (changes: any[]) => {
+      // Filter out unnecessary position updates during drag for better performance
+      const optimizedChanges = changes.map((change) => {
+        if (change.type === "position" && change.dragging) {
+          // Throttle position updates during drag
+          return {
+            ...change,
+            position: {
+              x: Math.round(change.position.x),
+              y: Math.round(change.position.y),
+            },
+          };
+        }
+        return change;
+      });
+
+      onNodesChange(optimizedChanges);
+    },
+    [onNodesChange]
+  );
+
+  // Optimized edges change handler
+  const handleEdgesChange = useCallback(
+    (changes: any[]) => {
+      onEdgesChange(changes);
+    },
+    [onEdgesChange]
+  );
+
   useEffect(() => {
     fetchWorkflows();
     fetchTemplates();
