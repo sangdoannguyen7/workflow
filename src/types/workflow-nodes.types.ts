@@ -113,7 +113,10 @@ export const getNodeTypeIconName = (nodeType: NodeType | string): string => {
     const enumValue = Object.values(NodeType).find(
       (type) => type === nodeType
     ) as NodeType;
-    return NODE_TYPE_CONFIGS[enumValue]?.iconName || "ApiOutlined";
+    if (enumValue && NODE_TYPE_CONFIGS[enumValue]) {
+      return NODE_TYPE_CONFIGS[enumValue].iconName;
+    }
+    return "ApiOutlined";
   }
   return NODE_TYPE_CONFIGS[nodeType]?.iconName || "ApiOutlined";
 };
