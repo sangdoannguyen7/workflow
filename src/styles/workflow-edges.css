@@ -18,18 +18,23 @@
   transition: stroke 0.2s ease, stroke-width 0.2s ease !important;
 }
 
-/* Path optimizations */
+/* FIXED: Path optimizations cho perfect sync */
 .react-flow__edge-path {
   transform: translateZ(0);
 
-  /* Smooth stroke transitions */
-  transition: d 0.15s ease-out, stroke 0.2s ease, stroke-width 0.2s ease !important;
+  /* CRITICAL: No transitions during drag for instant updates */
+  transition: none !important;
   /* Hardware acceleration */
   will-change: d, stroke, stroke-width;
 
   /* Better anti-aliasing */
   shape-rendering: geometricPrecision;
   vector-effect: non-scaling-stroke;
+}
+
+/* Only apply smooth transitions when NOT dragging */
+.react-flow__edge-path:not(.dragging) {
+  transition: stroke 0.2s ease, stroke-width 0.2s ease !important;
 }
 
 /* Optimized edge labels */
