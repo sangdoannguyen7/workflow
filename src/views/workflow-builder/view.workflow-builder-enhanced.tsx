@@ -78,6 +78,7 @@ import {
   getNodeTypeColor,
   getNodeTypeIconName,
 } from "../../types/workflow-nodes.types";
+import { useDragSync } from "../../hooks/useDragSync";
 
 const { Text, Title } = Typography;
 const { Panel: CollapsePanel } = Collapse;
