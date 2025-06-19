@@ -1203,6 +1203,7 @@ const WorkflowBuilderPage: React.FC = () => {
               onDragOver={onDragOver}
               onDragLeave={onDragLeave}
               nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
               isPlaying={isPlaying}
               isDragging={isDragging}
               selectedNode={selectedNode}
