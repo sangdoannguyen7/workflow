@@ -9,6 +9,7 @@ import {
   Card,
   Button,
   Space,
+  message,
   Row,
   Col,
   Select,
@@ -22,14 +23,6 @@ import {
   Tooltip,
   Modal,
   Collapse,
-  Progress,
-  Statistic,
-  Avatar,
-  Timeline,
-  Input,
-  Form,
-  Switch,
-  Spin,
 } from "antd";
 import {
   ApartmentOutlined,
@@ -39,18 +32,6 @@ import {
   DragOutlined,
   DownloadOutlined,
   UploadOutlined,
-  PlayCircleOutlined,
-  PauseCircleOutlined,
-  InfoCircleOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  ExclamationCircleOutlined,
-  BugOutlined,
-  RocketOutlined,
-  SettingOutlined,
-  EyeOutlined,
-  ThunderboltOutlined,
-  PlusOutlined,
 } from "@ant-design/icons";
 import {
   ReactFlow,
@@ -59,6 +40,8 @@ import {
   Controls,
   MiniMap,
   Background,
+  useNodesState,
+  useEdgesState,
   addEdge,
   Connection,
   ReactFlowProvider,
@@ -67,10 +50,6 @@ import {
   Panel,
   useReactFlow,
   ReactFlowInstance,
-  Handle,
-  Position,
-  applyNodeChanges,
-  applyEdgeChanges,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -79,99 +58,45 @@ import { IWorkflow } from "../../interface/workflow.interface";
 import { IWorkflowDesign } from "../../interface/workflow.interface";
 import templateApi from "../../apis/template/api.template";
 import workflowApi from "../../apis/workflow/api.workflow";
-import { WorkflowMockAPI } from "../../mock/workflow-enhanced.mock";
-import { NotificationComponent } from "../../shared/components/notification/notification.tsx";
 
 // Import components
 import WorkflowToolbar from "./components/WorkflowToolbar";
 import NodePropertiesPanel from "./components/NodePropertiesPanel";
 
 const { Text, Title } = Typography;
-const { TextArea } = Input;
+const { Panel: CollapsePanel } = Collapse;
 
-// Template configurations with enhanced styling
+// Template configurations
 const TEMPLATE_CONFIGS = {
-  trigger: {
-    icon: <PlayCircleOutlined />,
-    color: "#52c41a",
-    bgColor: "#f6ffed",
-    borderColor: "#b7eb8f",
-    category: "TRIGGER",
-    canConnectTo: ["intermediate"],
-    canConnectFrom: [],
-  },
-  intermediate: {
-    icon: <SettingOutlined />,
-    color: "#1890ff",
-    bgColor: "#e6f7ff",
-    borderColor: "#91d5ff",
-    category: "INTERMEDIATE",
-    canConnectTo: ["intermediate", "exit"],
-    canConnectFrom: ["trigger", "intermediate"],
-  },
-  exit: {
-    icon: <CheckCircleOutlined />,
-    color: "#fa8c16",
-    bgColor: "#fff7e6",
-    borderColor: "#ffd591",
-    category: "EXIT",
-    canConnectTo: [],
-    canConnectFrom: ["intermediate"],
-  },
-  // Legacy support
   webhook: {
     icon: <LinkOutlined />,
     color: "#52c41a",
     bgColor: "#f6ffed",
     borderColor: "#b7eb8f",
-    category: "TRIGGER",
-    canConnectTo: ["intermediate"],
-    canConnectFrom: [],
   },
   schedule: {
     icon: <ScheduleOutlined />,
-    color: "#52c41a",
-    bgColor: "#f6ffed",
-    borderColor: "#b7eb8f",
-    category: "TRIGGER",
-    canConnectTo: ["intermediate"],
-    canConnectFrom: [],
+    color: "#1890ff",
+    bgColor: "#e6f7ff",
+    borderColor: "#91d5ff",
   },
   restapi: {
     icon: <ApiOutlined />,
-    color: "#1890ff",
-    bgColor: "#e6f7ff",
-    borderColor: "#91d5ff",
-    category: "INTERMEDIATE",
-    canConnectTo: ["intermediate", "exit"],
-    canConnectFrom: ["trigger", "intermediate"],
-  },
-  process: {
-    icon: <SettingOutlined />,
-    color: "#1890ff",
-    bgColor: "#e6f7ff",
-    borderColor: "#91d5ff",
-    category: "INTERMEDIATE",
-    canConnectTo: ["intermediate", "exit"],
-    canConnectFrom: ["trigger", "intermediate"],
+    color: "#fa8c16",
+    bgColor: "#fff7e6",
+    borderColor: "#ffd591",
   },
 };
 
-// Enhanced Draggable Template Component with improved design
+// Draggable Template Component
 const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
-  const [isDragging, setIsDragging] = useState(false);
   const config =
-    TEMPLATE_CONFIGS[template.templateType as keyof typeof TEMPLATE_CONFIGS] ||
-    TEMPLATE_CONFIGS.process;
+    TEMPLATE_CONFIGS[template.templateType as keyof typeof TEMPLATE_CONFIGS];
 
   const onDragStart = (
     event: DragEvent<HTMLDivElement>,
     template: ITemplate
   ) => {
-    console.log("🚀 Starting drag for template:", template.templateName);
-    setIsDragging(true);
-
-    // Set the drag data
     event.dataTransfer.setData(
       "application/reactflow",
       JSON.stringify({
@@ -180,197 +105,105 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
       })
     );
     event.dataTransfer.effectAllowed = "move";
-
-    // Simple drag image without complex manipulation
-    event.dataTransfer.setDragImage(event.currentTarget, 50, 25);
-  };
-
-  const onDragEnd = () => {
-    setIsDragging(false);
   };
 
   return (
     <div
       draggable
       onDragStart={(event) => onDragStart(event, template)}
-      onDragEnd={onDragEnd}
       style={{
         border: `2px solid ${config?.borderColor || "#d9d9d9"}`,
-        borderRadius: "14px",
+        borderRadius: "8px",
         padding: "12px",
-        marginBottom: "6px",
-        cursor: isDragging ? "grabbing" : "grab",
-        background: `linear-gradient(135deg, ${config?.bgColor || "#fafafa"}, ${
-          config?.color || "#f0f0f0"
-        }08)`,
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        marginBottom: "8px",
+        cursor: "grab",
+        backgroundColor: config?.bgColor || "#fafafa",
+        transition: "all 0.2s ease",
         userSelect: "none",
-        position: "relative",
-        overflow: "hidden",
-        opacity: isDragging ? 0.6 : 1,
-        transform: isDragging ? "scale(0.95) rotate(2deg)" : "scale(1)",
-        boxShadow: isDragging
-          ? `0 12px 32px ${config?.color || "#ccc"}50`
-          : `0 2px 8px rgba(0,0,0,0.08), 0 1px 2px ${
-              config?.color || "#ccc"
-            }20`,
       }}
       onMouseEnter={(e) => {
-        if (!isDragging) {
-          e.currentTarget.style.transform = "translateY(-3px) scale(1.02)";
-          e.currentTarget.style.boxShadow = `0 8px 24px ${
-            config?.color || "#ccc"
-          }40, 0 4px 12px rgba(0,0,0,0.1)`;
-          e.currentTarget.style.borderColor = config?.color || "#ccc";
-        }
+        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.boxShadow = `0 4px 12px ${
+          config?.color || "#ccc"
+        }30`;
+        e.currentTarget.style.cursor = "grab";
       }}
       onMouseLeave={(e) => {
-        if (!isDragging) {
-          e.currentTarget.style.transform = "translateY(0) scale(1)";
-          e.currentTarget.style.boxShadow = `0 2px 8px rgba(0,0,0,0.08), 0 1px 2px ${
-            config?.color || "#ccc"
-          }20`;
-          e.currentTarget.style.borderColor = config?.borderColor || "#d9d9d9";
-        }
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "none";
+      }}
+      onMouseDown={(e) => {
+        e.currentTarget.style.cursor = "grabbing";
+      }}
+      onMouseUp={(e) => {
+        e.currentTarget.style.cursor = "grab";
       }}
     >
-      {/* Enhanced Type indicator with connection info */}
       <div
-        style={{
-          position: "absolute",
-          top: 6,
-          right: 6,
-          background: `linear-gradient(135deg, ${config?.color}, ${config?.color}dd)`,
-          color: "white",
-          borderRadius: "10px",
-          padding: "4px 8px",
-          fontSize: "9px",
-          fontWeight: "bold",
-          boxShadow: `0 2px 8px ${config?.color}40`,
-          border: "1px solid rgba(255,255,255,0.2)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <span>{template.templateType?.toUpperCase()}</span>
-          <div style={{ display: "flex", gap: "2px" }}>
-            {/* Input/Output indicators */}
-            {(config?.category === "INTERMEDIATE" ||
-              config?.category === "EXIT") && (
-              <div
-                style={{
-                  width: "4px",
-                  height: "4px",
-                  borderRadius: "50%",
-                  background: "#4CAF50",
-                  title: "Has Input",
-                }}
-              />
-            )}
-            {(config?.category === "TRIGGER" ||
-              config?.category === "INTERMEDIATE") && (
-              <div
-                style={{
-                  width: "4px",
-                  height: "4px",
-                  borderRadius: "50%",
-                  background: "#2196F3",
-                  title: "Has Output",
-                }}
-              />
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div
-        style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}
+        style={{ display: "flex", alignItems: "center", marginBottom: "6px" }}
       >
         <div
           style={{
             color: config?.color || "#666",
-            marginRight: "12px",
-            fontSize: "20px",
+            marginRight: "8px",
+            fontSize: "16px",
           }}
         >
           {config?.icon}
         </div>
-        <div style={{ flex: 1 }}>
-          <Text strong style={{ color: config?.color || "#666", fontSize: 15 }}>
-            {template.templateName}
-          </Text>
-          <br />
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            {template.templateCode}
-          </Text>
-        </div>
-      </div>
-
-      {template.description && (
-        <Text
-          style={{
-            fontSize: 12,
-            color: "#666",
-            display: "block",
-            lineHeight: 1.4,
-            marginBottom: "10px",
-          }}
-        >
-          {template.description.length > 80
-            ? `${template.description.substring(0, 80)}...`
-            : template.description}
+        <Text strong style={{ color: config?.color || "#666" }}>
+          {template.templateName}
         </Text>
-      )}
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+      </div>
+      <Text type="secondary" style={{ fontSize: "12px", display: "block" }}>
+        {template.templateCode}
+      </Text>
+      <Text style={{ fontSize: "11px", color: "#999", lineHeight: "1.2" }}>
+        {template.description}
+      </Text>
+      <div style={{ marginTop: "6px" }}>
+        <Tag size="small" color={config?.color}>
+          {template.templateType?.toUpperCase()}
+        </Tag>
         <Tag
           size="small"
           color={template.statusCode === "ACTIVE" ? "green" : "orange"}
         >
           {template.statusName}
         </Tag>
-        <Text style={{ fontSize: 11, color: "#999" }}>
-          {template.agentCode}
-        </Text>
       </div>
     </div>
   );
 };
 
-// Stable Custom Node Component with proper event handling
+// Enhanced Custom Node Component
 const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
   data,
   selected,
 }) => {
   const config =
-    TEMPLATE_CONFIGS[data.templateType as keyof typeof TEMPLATE_CONFIGS] ||
-    TEMPLATE_CONFIGS.process;
+    TEMPLATE_CONFIGS[data.templateType as keyof typeof TEMPLATE_CONFIGS];
 
   return (
     <div
       style={{
         padding: "16px",
         border: selected
-          ? `2px solid ${config?.color || "#1890ff"}`
-          : `1px solid ${config?.borderColor || "#d9d9d9"}`,
+          ? `3px solid ${config?.color || "#1890ff"}`
+          : `2px solid ${config?.borderColor || "#d9d9d9"}`,
         borderRadius: "12px",
         background: "#fff",
         minWidth: "200px",
         maxWidth: "250px",
         boxShadow: selected
           ? `0 8px 20px ${config?.color || "#1890ff"}30`
-          : "0 2px 8px rgba(0,0,0,0.06)",
+          : "0 2px 8px rgba(0,0,0,0.1)",
         position: "relative",
-        cursor: "move",
-        userSelect: "none",
+        transition: "all 0.2s ease",
+        cursor: "pointer",
       }}
     >
-      {/* Status indicator */}
+      {/* Node Type Badge */}
       <div
         style={{
           position: "absolute",
@@ -378,11 +211,10 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
           right: "-8px",
           background: config?.color || "#666",
           color: "white",
-          borderRadius: "16px",
-          padding: "6px 10px",
+          borderRadius: "12px",
+          padding: "4px 8px",
           fontSize: "10px",
           fontWeight: "bold",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
         }}
       >
         {data.templateType?.toUpperCase()}
@@ -390,13 +222,17 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
 
       {/* Node Header */}
       <div
-        style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginBottom: "8px",
+        }}
       >
         <div
           style={{
             color: config?.color || "#666",
-            marginRight: "12px",
-            fontSize: "20px",
+            marginRight: "8px",
+            fontSize: "18px",
           }}
         >
           {config?.icon}
@@ -405,10 +241,9 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
           <Text
             strong
             style={{
-              fontSize: "15px",
+              fontSize: "14px",
               color: config?.color || "#666",
               display: "block",
-              lineHeight: 1.2,
             }}
           >
             {data.label}
@@ -423,176 +258,72 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean }> = ({
       {data.description && (
         <Text
           style={{
-            fontSize: "12px",
+            fontSize: "11px",
             color: "#666",
             display: "block",
-            lineHeight: "1.4",
-            marginBottom: "12px",
-            background: "#f8f9fa",
-            padding: "8px",
-            borderRadius: "8px",
+            lineHeight: "1.3",
+            marginBottom: "8px",
           }}
         >
-          {data.description.length > 100
-            ? `${data.description.substring(0, 100)}...`
+          {data.description.length > 80
+            ? `${data.description.substring(0, 80)}...`
             : data.description}
         </Text>
       )}
 
-      {/* Node Footer */}
+      {/* Node Status */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginTop: "12px",
-          fontSize: "11px",
+          fontSize: "10px",
           color: "#999",
         }}
       >
-        <Space size="small">
-          <Tag size="small" color={config?.color}>
-            Agent
-          </Tag>
-          <Text style={{ fontSize: 11 }}>{data.agentCode}</Text>
-        </Space>
+        <span>Agent: {data.agentCode}</span>
         <div
           style={{
-            width: "10px",
-            height: "10px",
+            width: "8px",
+            height: "8px",
             borderRadius: "50%",
             backgroundColor: selected ? config?.color : "#ccc",
-            boxShadow: selected ? `0 0 8px ${config?.color}60` : "none",
           }}
         />
       </div>
 
-      {/* Enhanced Connection Handles Based on Template Type */}
-      {/* Input Handle - Only for INTERMEDIATE and EXIT */}
-      {(config?.category === "INTERMEDIATE" || config?.category === "EXIT") && (
-        <Handle
-          type="target"
-          position={Position.Left}
-          style={{
-            width: "18px",
-            height: "18px",
-            borderRadius: "50%",
-            border: `3px solid ${config?.color || "#1890ff"}`,
-            backgroundColor: "#fff",
-            boxShadow: `0 3px 10px rgba(0,0,0,0.15), 0 0 0 2px ${
-              config?.color || "#1890ff"
-            }20`,
-            opacity: 1,
-            transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-            cursor: "crosshair",
-            zIndex: 15,
-            left: "-9px",
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = "scale(1.2)";
-            e.target.style.boxShadow = `0 6px 16px ${
-              config?.color || "#1890ff"
-            }50, 0 0 0 4px ${config?.color || "#1890ff"}40`;
-            e.target.style.borderColor = `${config?.color || "#1890ff"}`;
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = "scale(1)";
-            e.target.style.boxShadow = `0 3px 10px rgba(0,0,0,0.15), 0 0 0 2px ${
-              config?.color || "#1890ff"
-            }20`;
-          }}
-        />
-      )}
+      {/* Connection Handles */}
+      <div
+        style={{
+          position: "absolute",
+          left: "-6px",
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: "12px",
+          height: "12px",
+          borderRadius: "50%",
+          border: `2px solid ${config?.color || "#666"}`,
+          backgroundColor: "#fff",
+        }}
+        className="react-flow__handle react-flow__handle-left"
+      />
 
-      {/* Output Handle - Only for TRIGGER and INTERMEDIATE */}
-      {(config?.category === "TRIGGER" ||
-        config?.category === "INTERMEDIATE") && (
-        <Handle
-          type="source"
-          position={Position.Right}
-          style={{
-            width: "18px",
-            height: "18px",
-            borderRadius: "50%",
-            border: `3px solid ${config?.color || "#1890ff"}`,
-            backgroundColor: "#fff",
-            boxShadow: `0 3px 10px rgba(0,0,0,0.15), 0 0 0 2px ${
-              config?.color || "#1890ff"
-            }20`,
-            opacity: 1,
-            transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-            cursor: "crosshair",
-            zIndex: 15,
-            right: "-9px",
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = "scale(1.2)";
-            e.target.style.boxShadow = `0 6px 16px ${
-              config?.color || "#1890ff"
-            }50, 0 0 0 4px ${config?.color || "#1890ff"}40`;
-            e.target.style.borderColor = `${config?.color || "#1890ff"}`;
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = "scale(1)";
-            e.target.style.boxShadow = `0 3px 10px rgba(0,0,0,0.15), 0 0 0 2px ${
-              config?.color || "#1890ff"
-            }20`;
-          }}
-        />
-      )}
-
-      {/* Visual indicators for handle types */}
-      {config?.category === "TRIGGER" && (
-        <div
-          style={{
-            position: "absolute",
-            left: "-4px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
-            background: config?.color,
-            opacity: 0.6,
-            pointerEvents: "none",
-          }}
-        />
-      )}
-
-      {config?.category === "EXIT" && (
-        <div
-          style={{
-            position: "absolute",
-            right: "-4px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: "8px",
-            height: "8px",
-            borderRadius: "50%",
-            background: config?.color,
-            opacity: 0.6,
-            pointerEvents: "none",
-          }}
-        />
-      )}
+      <div
+        style={{
+          position: "absolute",
+          right: "-6px",
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: "12px",
+          height: "12px",
+          borderRadius: "50%",
+          border: `2px solid ${config?.color || "#666"}`,
+          backgroundColor: "#fff",
+        }}
+        className="react-flow__handle react-flow__handle-right"
+      />
     </div>
   );
-};
-
-const AGENT_COLORS: Record<string, string> = {
-  AGT_HTTP: "#52c41a",
-  AGT_SCHEDULER: "#1890ff",
-  AGT_FILE_SYSTEM: "#fa8c16",
-  AGT_VALIDATION: "#722ed1",
-  AGT_TRANSFORM: "#eb2f96",
-  AGT_DATABASE: "#13c2c2",
-  AGT_LOGIC: "#faad14",
-  AGT_EMAIL: "#f5222d",
-  AGT_LOGGING: "#2f54eb",
-  AGT_SECURITY: "#52c41a",
-  AGT_ANALYTICS: "#fa541c",
-  AGT_NOTIFICATION: "#722ed1",
-  unknown: "#d9d9d9",
 };
 
 const nodeTypes = {
@@ -600,202 +331,71 @@ const nodeTypes = {
 };
 
 const WorkflowBuilderPage: React.FC = () => {
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [workflows, setWorkflows] = useState<IWorkflow[]>([]);
   const [templates, setTemplates] = useState<ITemplate[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<string>("");
-  const [currentWorkflow, setCurrentWorkflow] = useState<IWorkflow | null>(
-    null
-  );
   const [paletteVisible, setPaletteVisible] = useState(true);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [nodeCounter, setNodeCounter] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isTestRunning, setIsTestRunning] = useState(false);
-  const [testResults, setTestResults] = useState<any>(null);
-  const [testResultsDrawerVisible, setTestResultsDrawerVisible] =
-    useState(false);
-  const [createWorkflowModalVisible, setCreateWorkflowModalVisible] =
-    useState(false);
-  const [agentExpandedState, setAgentExpandedState] = useState<
-    Record<string, boolean>
-  >({});
-  const [createForm] = Form.useForm();
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
   const {
-    token: {
-      colorBgContainer,
-      borderRadiusLG,
-      colorPrimary,
-      colorSuccess,
-      colorWarning,
-      colorError,
-      colorText,
-      colorTextSecondary,
-      boxShadowSecondary,
-    },
+    token: { colorBgContainer },
   } = theme.useToken();
 
-  // Handle node connections with enhanced validation rules
+  // Handle node connections
   const onConnect = useCallback(
     (params: Connection) => {
-      if (!params.source || !params.target) return;
-
-      // Get source and target nodes
-      const sourceNode = nodes.find((node) => node.id === params.source);
-      const targetNode = nodes.find((node) => node.id === params.target);
-
-      if (!sourceNode || !targetNode) return;
-
-      // Get template configurations
-      const sourceConfig =
-        TEMPLATE_CONFIGS[
-          sourceNode.data.templateType as keyof typeof TEMPLATE_CONFIGS
-        ];
-      const targetConfig =
-        TEMPLATE_CONFIGS[
-          targetNode.data.templateType as keyof typeof TEMPLATE_CONFIGS
-        ];
-
-      if (!sourceConfig || !targetConfig) {
-        NotificationComponent({
-          type: "error",
-          message: "Lỗi kết nối",
-          description: "Không thể xác định loại node",
-        });
-        return;
-      }
-
-      // Enhanced connection validation rules
-      const sourceCategory = sourceConfig.category;
-      const targetCategory = targetConfig.category;
-
-      let canConnect = false;
-      let errorMessage = "";
-
-      if (sourceCategory === "TRIGGER") {
-        // Trigger nodes can only connect TO intermediate nodes
-        if (targetCategory === "INTERMEDIATE") {
-          canConnect = true;
-        } else if (targetCategory === "EXIT") {
-          errorMessage =
-            "Trigger không thể kết nối trực tiếp với Exit. Hãy sử dụng node Intermediate làm trung gian.";
-        } else if (targetCategory === "TRIGGER") {
-          errorMessage = "Trigger không thể kết nối với Trigger khác.";
-        }
-      } else if (sourceCategory === "INTERMEDIATE") {
-        // Intermediate nodes can connect to both intermediate and exit nodes
-        if (targetCategory === "INTERMEDIATE" || targetCategory === "EXIT") {
-          canConnect = true;
-        } else if (targetCategory === "TRIGGER") {
-          errorMessage = "Node Intermediate không thể kết nối với Trigger.";
-        }
-      } else if (sourceCategory === "EXIT") {
-        // Exit nodes can only connect back to trigger nodes (for loops/callbacks)
-        if (targetCategory === "TRIGGER") {
-          canConnect = true;
-        } else {
-          errorMessage =
-            "Exit chỉ có thể kết nối về Trigger (để tạo vòng lặp hoặc callback).";
-        }
-      }
-
-      if (!canConnect) {
-        NotificationComponent({
-          type: "error",
-          message: "Kết nối không hợp lệ",
-          description:
-            errorMessage ||
-            `${sourceCategory} không thể kết nối với ${targetCategory}`,
-        });
-        return;
-      }
-
-      // Check for duplicate connections
-      const existingEdge = edges.find(
-        (edge) => edge.source === params.source && edge.target === params.target
-      );
-
-      if (existingEdge) {
-        NotificationComponent({
-          type: "warning",
-          message: "Cảnh báo",
-          description: "Kết nối này đã tồn tại",
-        });
-        return;
-      }
-
-      // Check for self-connections
-      if (params.source === params.target) {
-        NotificationComponent({
-          type: "error",
-          message: "Kết nối không hợp lệ",
-          description: "Node không thể kết nối với chính nó",
-        });
-        return;
-      }
-
       const newEdge = {
         ...params,
         id: `edge-${Date.now()}`,
         animated: isPlaying,
         style: {
-          stroke: colorPrimary,
-          strokeWidth: 3,
-          strokeDasharray: isPlaying ? "8,8" : undefined,
+          stroke: "#1890ff",
+          strokeWidth: 2,
+          strokeDasharray: isPlaying ? "5,5" : undefined,
         },
       };
       setEdges((eds) => addEdge(newEdge, eds));
-      NotificationComponent({
-        type: "success",
-        message: "Thành công",
-        description: `Đã kết nối ${sourceCategory} với ${targetCategory}`,
-      });
+      message.success("Đã kết nối nodes");
     },
-    [setEdges, isPlaying, colorPrimary, nodes, edges]
+    [setEdges, isPlaying]
   );
 
-  // Simplified and reliable drop handler
+  // Handle drop from template palette
   const onDrop = useCallback(
     (event: DragEvent<HTMLDivElement>) => {
       event.preventDefault();
-      event.stopPropagation();
 
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-      if (!reactFlowBounds) {
-        console.log("ReactFlow bounds not available");
-        return;
-      }
+      if (!reactFlowBounds || !reactFlowInstance) return;
 
       const data = event.dataTransfer.getData("application/reactflow");
-      if (!data) {
-        console.log("No drag data available");
-        return;
-      }
+      if (!data) return;
 
       try {
         const { template } = JSON.parse(data);
-        if (!template) {
-          console.log("No template in drag data");
-          return;
-        }
 
-        // Simple position calculation - no complex projection needed
-        const position = {
-          x: event.clientX - reactFlowBounds.left - 100,
-          y: event.clientY - reactFlowBounds.top - 50,
-        };
+        // Convert screen coordinates to flow coordinates
+        const position = reactFlowInstance.project({
+          x: event.clientX - reactFlowBounds.left,
+          y: event.clientY - reactFlowBounds.top,
+        });
 
-        const newNodeId = `node_${Date.now()}_${nodeCounter}`;
+        const newNodeId = `node_${nodeCounter}`;
         const newNode: Node = {
           id: newNodeId,
           type: "workflowNode",
-          position: position,
+          position: {
+            x: position.x - 125, // Center the node
+            y: position.y - 50,
+          },
           data: {
             label: template.templateName,
             templateCode: template.templateCode,
@@ -803,233 +403,43 @@ const WorkflowBuilderPage: React.FC = () => {
             agentCode: template.agentCode,
             description: template.description,
             template: template,
+            timeout: 30000,
+            retries: 3,
+            priority: "normal",
           },
         };
 
-        setNodes((nds) => [...nds, newNode]);
+        setNodes((nds) => nds.concat(newNode));
         setNodeCounter((prev) => prev + 1);
-
-        console.log("✅ Node added successfully:", newNode.id);
-
-        NotificationComponent({
-          type: "success",
-          message: "Thành công",
-          description: `Đã thêm node "${template.templateName}"`,
-        });
+        message.success(`Đã thêm node "${template.templateName}"`);
       } catch (error) {
-        console.error("❌ Drop error:", error);
-        NotificationComponent({
-          type: "error",
-          message: "Lỗi",
-          description: "Không thể thêm node",
-        });
+        message.error("Không thể thêm node");
       }
     },
-    [nodeCounter, setNodes]
+    [nodeCounter, setNodes, reactFlowInstance]
   );
 
   const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    event.stopPropagation();
     event.dataTransfer.dropEffect = "move";
   }, []);
 
-  // Enhanced test workflow functionality with detailed step results
-  const runWorkflowTest = async () => {
-    if (!selectedWorkflow || !nodes || nodes.length === 0) {
-      NotificationComponent({
-        type: "warning",
-        message: "Cảnh báo",
-        description: "Vui lòng chọn workflow và thêm ít nhất một node",
-      });
-      return;
-    }
-
-    setIsTestRunning(true);
-    try {
-      // Mock test execution with detailed step results
-      const stepResults = [];
-      const totalNodes = (nodes || []).length;
-
-      // Simulate step-by-step execution
-      for (let i = 0; i < totalNodes; i++) {
-        const node = nodes[i];
-        await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate processing time
-
-        const stepResult = {
-          nodeId: node.id,
-          nodeName: node.data.label,
-          nodeType: node.data.templateType,
-          agentCode: node.data.agentCode,
-          status: Math.random() > 0.1 ? "success" : "error", // 90% success rate
-          executionTime: Math.random() * 1000 + 200,
-          startTime: new Date(),
-          endTime: new Date(Date.now() + Math.random() * 1000 + 200),
-          input: {
-            data: `Input data for ${node.data.label}`,
-            parameters: node.data.template || {},
-          },
-          output:
-            Math.random() > 0.1
-              ? {
-                  data: `Processed output from ${node.data.label}`,
-                  status: "completed",
-                  recordsProcessed: Math.floor(Math.random() * 1000) + 1,
-                }
-              : {
-                  error: "Processing failed",
-                  details: "Mock error for demonstration",
-                },
-          logs: [
-            {
-              timestamp: new Date(),
-              level: "info",
-              message: `Starting ${node.data.label}`,
-            },
-            {
-              timestamp: new Date(),
-              level: "debug",
-              message: "Processing input data",
-            },
-            Math.random() > 0.1
-              ? {
-                  timestamp: new Date(),
-                  level: "success",
-                  message: "Step completed successfully",
-                }
-              : {
-                  timestamp: new Date(),
-                  level: "error",
-                  message: "Step failed with error",
-                },
-          ],
-        };
-        stepResults.push(stepResult);
-      }
-
-      const successfulSteps = stepResults.filter(
-        (step) => step.status === "success"
-      ).length;
-      const failedSteps = stepResults.filter(
-        (step) => step.status === "error"
-      ).length;
-      const totalExecutionTime = stepResults.reduce(
-        (sum, step) => sum + step.executionTime,
-        0
-      );
-
-      const enhancedResults = {
-        status: failedSteps === 0 ? "success" : "partial",
-        executionTime: totalExecutionTime,
-        nodesExecuted: totalNodes,
-        successfulNodes: successfulSteps,
-        failedNodes: failedSteps,
-        stepResults: stepResults,
-        summary: {
-          throughput: Math.floor(Math.random() * 1000) + 500,
-          averageResponseTime: totalExecutionTime / totalNodes,
-          errorRate: (failedSteps / totalNodes) * 100,
-          peakMemoryUsage: Math.floor(Math.random() * 512) + 256,
-        },
-        logs: [
-          {
-            timestamp: new Date(),
-            level: "info",
-            message: "Workflow test started",
-          },
-          {
-            timestamp: new Date(),
-            level: "success",
-            message: "Node validation passed",
-          },
-          {
-            timestamp: new Date(),
-            level: "info",
-            message: "Executing node sequence",
-          },
-          {
-            timestamp: new Date(),
-            level: failedSteps === 0 ? "success" : "warning",
-            message:
-              failedSteps === 0
-                ? "Workflow test completed successfully"
-                : `Workflow completed with ${failedSteps} errors`,
-          },
-        ],
-      };
-
-      setTestResults(enhancedResults);
-      setTestResultsDrawerVisible(true);
-      NotificationComponent({
-        type: enhancedResults.status === "success" ? "success" : "warning",
-        message: "Test hoàn thành",
-        description: `Workflow test ${
-          enhancedResults.status === "success"
-            ? "thành công"
-            : `hoàn thành với ${failedSteps} lỗi`
-        } trong ${(enhancedResults.executionTime / 1000).toFixed(2)}s`,
-      });
-    } catch (error) {
-      NotificationComponent({
-        type: "error",
-        message: "Test thất bại",
-        description: "Có lỗi xảy ra trong quá trình test workflow",
-      });
-    } finally {
-      setIsTestRunning(false);
-    }
-  };
-
-  // Fetch data functions
+  // Fetch data
   const fetchWorkflows = async () => {
     try {
-      const response = await WorkflowMockAPI.getWorkflows({ pageSize: 1000 });
-      setWorkflows(response.data || []);
+      const response = await workflowApi.getWorkflows({ size: 1000 });
+      setWorkflows(response.content);
     } catch (error) {
-      NotificationComponent({
-        type: "error",
-        message: "Lỗi",
-        description: "Không thể tải danh sách workflow",
-      });
-    }
-  };
-
-  const fetchAgents = async () => {
-    try {
-      const response = await WorkflowMockAPI.getAgentsForBuilder();
-      console.log("Agents loaded:", response.data?.length || 0);
-    } catch (error) {
-      NotificationComponent({
-        type: "error",
-        message: "Lỗi",
-        description: "Không thể tải danh sách agent",
-      });
+      message.error("Không thể tải danh sách workflow");
     }
   };
 
   const fetchTemplates = async () => {
     try {
-      const response = await WorkflowMockAPI.getTemplatesForBuilder();
-      const templateData = response.data || [];
-      setTemplates(templateData);
-
-      // Initialize agent expanded state (all expanded by default)
-      const agentKeys = [
-        ...new Set(
-          templateData.map((t: ITemplate) => t.agentCode || "unknown")
-        ),
-      ];
-      const initialExpandedState = agentKeys.reduce((acc, agent) => {
-        acc[agent] = true;
-        return acc;
-      }, {} as Record<string, boolean>);
-      setAgentExpandedState(initialExpandedState);
+      const response = await templateApi.getTemplates({ size: 1000 });
+      setTemplates(response.content);
     } catch (error) {
-      NotificationComponent({
-        type: "error",
-        message: "Lỗi",
-        description: "Không thể tải danh sách template",
-      });
+      message.error("Không thể tải danh sách template");
     }
   };
 
@@ -1038,27 +448,25 @@ const WorkflowBuilderPage: React.FC = () => {
     if (!code) return;
 
     try {
-      const design = await WorkflowMockAPI.getWorkflowDesign(code);
-      const workflow = workflows.find((w) => w.workflowCode === code);
-      setCurrentWorkflow(workflow || null);
+      const design = await workflowApi.getWorkflowDesign(code);
 
-      const flowNodes: Node[] = (design.nodes || []).map((node) => ({
+      const flowNodes: Node[] = design.nodes.map((node) => ({
         id: node.id,
         type: "workflowNode",
         position: node.position,
         data: node.data,
       }));
 
-      const flowEdges: Edge[] = (design.edges || []).map((edge) => ({
+      const flowEdges: Edge[] = design.edges.map((edge) => ({
         id: edge.id,
         source: edge.source,
         target: edge.target,
         type: edge.type || "default",
         animated: isPlaying,
         style: {
-          stroke: colorPrimary,
-          strokeWidth: 3,
-          strokeDasharray: isPlaying ? "8,8" : undefined,
+          stroke: "#1890ff",
+          strokeWidth: 2,
+          strokeDasharray: isPlaying ? "5,5" : undefined,
         },
       }));
 
@@ -1067,53 +475,38 @@ const WorkflowBuilderPage: React.FC = () => {
 
       const maxNumber = Math.max(
         0,
-        ...(flowNodes || []).map((node) => {
+        ...flowNodes.map((node) => {
           const match = node.id.match(/node_(\d+)/);
           return match ? parseInt(match[1]) : 0;
         })
       );
       setNodeCounter(maxNumber + 1);
 
-      NotificationComponent({
-        type: "success",
-        message: "Thành công",
-        description: "Tải workflow thành công",
-      });
+      message.success("Tải workflow thành công");
     } catch (error) {
-      NotificationComponent({
-        type: "info",
-        message: "Thông báo",
-        description: "Tạo workflow mới",
-      });
+      message.info("Tạo workflow mới");
       setNodes([]);
       setEdges([]);
       setNodeCounter(1);
-      setCurrentWorkflow(
-        workflows.find((w) => w.workflowCode === code) || null
-      );
     }
   };
 
   // Save workflow design
   const saveWorkflowDesign = async () => {
     if (!selectedWorkflow) {
-      NotificationComponent({
-        type: "warning",
-        message: "Cảnh báo",
-        description: "Vui lòng chọn workflow",
-      });
+      message.error("Vui lòng chọn workflow");
       return;
     }
 
     try {
       const design: IWorkflowDesign = {
         workflowCode: selectedWorkflow,
-        nodes: (nodes || []).map((node) => ({
+        nodes: nodes.map((node) => ({
           id: node.id,
           position: node.position,
           data: node.data,
         })),
-        edges: (edges || []).map((edge) => ({
+        edges: edges.map((edge) => ({
           id: edge.id,
           source: edge.source,
           target: edge.target,
@@ -1121,61 +514,28 @@ const WorkflowBuilderPage: React.FC = () => {
         })),
       };
 
-      await WorkflowMockAPI.saveWorkflowDesign(selectedWorkflow, design);
-      NotificationComponent({
-        type: "success",
-        message: "Thành công",
-        description: "Lưu workflow thành công",
-      });
+      await workflowApi.saveWorkflowDesign(selectedWorkflow, design);
+      message.success("Lưu workflow thành công");
     } catch (error) {
-      NotificationComponent({
-        type: "error",
-        message: "Lỗi",
-        description: "Không thể lưu workflow",
-      });
+      message.error("Không thể lưu workflow");
     }
   };
 
-  // Group templates by agent
-  const groupedTemplates = React.useMemo(() => {
-    if (!templates || !Array.isArray(templates)) {
-      return {};
-    }
-    return templates.reduce((acc, template) => {
-      const agent = template.agentCode || "unknown";
-      if (!acc[agent]) {
-        acc[agent] = [];
-      }
-      acc[agent].push(template);
-      return acc;
-    }, {} as Record<string, ITemplate[]>);
-  }, [templates]);
-
-  // Enhanced event handlers with logging
+  // Node click handler
   const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
-    console.log("🎯 Node clicked:", node.id);
     setSelectedNode(node);
   }, []);
 
+  // Pane click handler
   const onPaneClick = useCallback(() => {
-    console.log("🖱️ Pane clicked - deselecting node");
     setSelectedNode(null);
   }, []);
 
-  const onNodesChange = useCallback((changes: any) => {
-    console.log("📝 Nodes changed:", changes);
-    setNodes((nds) => applyNodeChanges(changes, nds));
-  }, []);
-
-  const onEdgesChange = useCallback((changes: any) => {
-    console.log("🔗 Edges changed:", changes);
-    setEdges((eds) => applyEdgeChanges(changes, eds));
-  }, []);
-
+  // Update node data
   const updateNodeData = useCallback(
     (nodeId: string, data: any) => {
       setNodes((nds) =>
-        (nds || []).map((node) =>
+        nds.map((node) =>
           node.id === nodeId
             ? { ...node, data: { ...node.data, ...data } }
             : node
@@ -1185,6 +545,7 @@ const WorkflowBuilderPage: React.FC = () => {
     [setNodes]
   );
 
+  // Delete selected node
   const deleteSelectedNode = useCallback(() => {
     if (selectedNode) {
       setNodes((nds) => nds.filter((node) => node.id !== selectedNode.id));
@@ -1195,14 +556,11 @@ const WorkflowBuilderPage: React.FC = () => {
         )
       );
       setSelectedNode(null);
-      NotificationComponent({
-        type: "success",
-        message: "Thành công",
-        description: "Đã xóa node",
-      });
+      message.success("Đã xóa node");
     }
   }, [selectedNode, setNodes, setEdges]);
 
+  // Clear workflow
   const clearWorkflow = useCallback(() => {
     Modal.confirm({
       title: "Xóa tất cả workflow?",
@@ -1212,32 +570,44 @@ const WorkflowBuilderPage: React.FC = () => {
         setEdges([]);
         setSelectedNode(null);
         setNodeCounter(1);
-        setTestResults(null);
-        NotificationComponent({
-          type: "success",
-          message: "Thành công",
-          description: "Đã xóa toàn bộ workflow",
-        });
+        message.success("Đã xóa toàn bộ workflow");
       },
     });
   }, [setNodes, setEdges]);
 
-  // Additional workflow builder functions
-  const handleExportWorkflow = useCallback(() => {
-    if (!selectedWorkflow || !nodes || nodes.length === 0) {
-      NotificationComponent({
-        type: "warning",
-        message: "Cảnh báo",
-        description: "Không có dữ liệu để xuất",
-      });
+  // Toggle simulation
+  const toggleSimulation = useCallback(() => {
+    const newIsPlaying = !isPlaying;
+    setIsPlaying(newIsPlaying);
+
+    // Update edge styles
+    setEdges((eds) =>
+      eds.map((edge) => ({
+        ...edge,
+        animated: newIsPlaying,
+        style: {
+          ...edge.style,
+          strokeDasharray: newIsPlaying ? "5,5" : undefined,
+        },
+      }))
+    );
+
+    message.info(
+      newIsPlaying ? "Bắt đầu mô phỏng workflow" : "Dừng mô phỏng workflow"
+    );
+  }, [isPlaying, setEdges]);
+
+  // Export workflow
+  const exportWorkflow = useCallback(() => {
+    if (!selectedWorkflow || nodes.length === 0) {
+      message.error("Không có dữ liệu để xuất");
       return;
     }
 
-    const exportData = {
+    const data = {
       workflowCode: selectedWorkflow,
       nodes: nodes.map((node) => ({
         id: node.id,
-        type: node.type,
         position: node.position,
         data: node.data,
       })),
@@ -1247,31 +617,24 @@ const WorkflowBuilderPage: React.FC = () => {
         target: edge.target,
         type: edge.type,
       })),
-      metadata: {
-        exportedAt: new Date().toISOString(),
-        version: "1.0.0",
-        nodeCount: nodes.length,
-        edgeCount: edges.length,
-      },
+      exportedAt: new Date().toISOString(),
     };
 
-    const dataStr = JSON.stringify(exportData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `workflow-${selectedWorkflow}-${Date.now()}.json`;
-    link.click();
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `workflow_${selectedWorkflow}_${Date.now()}.json`;
+    a.click();
     URL.revokeObjectURL(url);
 
-    NotificationComponent({
-      type: "success",
-      message: "Thành công",
-      description: "Đã xuất workflow thành công",
-    });
+    message.success("Đã xuất workflow");
   }, [selectedWorkflow, nodes, edges]);
 
-  const handleImportWorkflow = useCallback(
+  // Import workflow
+  const importWorkflow = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
@@ -1279,624 +642,170 @@ const WorkflowBuilderPage: React.FC = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const importData = JSON.parse(e.target?.result as string);
+          const data = JSON.parse(e.target?.result as string);
 
-          if (!importData.nodes || !importData.edges) {
-            throw new Error("Invalid workflow file format");
+          if (data.nodes && data.edges) {
+            setNodes(data.nodes);
+            setEdges(data.edges);
+            setSelectedWorkflow(data.workflowCode || "");
+
+            const maxNumber = Math.max(
+              0,
+              ...data.nodes.map((node: any) => {
+                const match = node.id.match(/node_(\d+)/);
+                return match ? parseInt(match[1]) : 0;
+              })
+            );
+            setNodeCounter(maxNumber + 1);
+
+            message.success("Đã nhập workflow thành công");
+          } else {
+            message.error("File không đúng định dạng");
           }
-
-          const importedNodes = importData.nodes.map((node: any) => ({
-            id: node.id,
-            type: node.type || "workflowNode",
-            position: node.position,
-            data: node.data,
-          }));
-
-          const importedEdges = importData.edges.map((edge: any) => ({
-            id: edge.id,
-            source: edge.source,
-            target: edge.target,
-            type: edge.type || "default",
-            animated: isPlaying,
-            style: {
-              stroke: colorPrimary,
-              strokeWidth: 3,
-              strokeDasharray: isPlaying ? "8,8" : undefined,
-            },
-          }));
-
-          setNodes(importedNodes);
-          setEdges(importedEdges);
-
-          // Update node counter
-          const maxNumber = Math.max(
-            0,
-            ...importedNodes.map((node: any) => {
-              const match = node.id.match(/node_(\d+)/);
-              return match ? parseInt(match[1]) : 0;
-            })
-          );
-          setNodeCounter(maxNumber + 1);
-
-          NotificationComponent({
-            type: "success",
-            message: "Thành công",
-            description: `Đã nhập workflow v���i ${importedNodes.length} nodes và ${importedEdges.length} connections`,
-          });
         } catch (error) {
-          NotificationComponent({
-            type: "error",
-            message: "Lỗi",
-            description: "File không đúng định dạng hoặc bị lỗi",
-          });
+          message.error("Không thể đọc file");
         }
       };
       reader.readAsText(file);
+
+      // Reset input
+      event.target.value = "";
     },
-    [setNodes, setEdges, isPlaying, colorPrimary]
+    [setNodes, setEdges]
   );
 
-  const handleFitView = useCallback(() => {
-    if (reactFlowInstance) {
-      reactFlowInstance.fitView({ padding: 0.2 });
-    }
+  // View controls
+  const fitView = useCallback(() => {
+    reactFlowInstance?.fitView();
   }, [reactFlowInstance]);
 
-  const handleZoomIn = useCallback(() => {
-    if (reactFlowInstance) {
-      reactFlowInstance.zoomIn();
-    }
+  const zoomIn = useCallback(() => {
+    reactFlowInstance?.zoomIn();
   }, [reactFlowInstance]);
 
-  const handleZoomOut = useCallback(() => {
-    if (reactFlowInstance) {
-      reactFlowInstance.zoomOut();
-    }
+  const zoomOut = useCallback(() => {
+    reactFlowInstance?.zoomOut();
   }, [reactFlowInstance]);
 
-  const handleCreateNewWorkflow = async (values: any) => {
-    try {
-      const newWorkflow = {
-        workflowCode: values.workflowCode,
-        workflowName: values.workflowName,
-        description: values.description || "",
-        statusCode: "DRAFT",
-        version: "v1.0.0",
-      };
-
-      const result = await WorkflowMockAPI.createWorkflow(newWorkflow);
-
-      // Add to local workflows list
-      setWorkflows((prev) => [...prev, result.data]);
-      setSelectedWorkflow(result.data.workflowCode);
-      setCreateWorkflowModalVisible(false);
-      createForm.resetFields();
-
-      NotificationComponent({
-        type: "success",
-        message: "Thành công",
-        description: "Tạo workflow mới thành công",
-      });
-    } catch (error) {
-      NotificationComponent({
-        type: "error",
-        message: "Lỗi",
-        description: "Không thể tạo workflow mới",
-      });
+  // Group templates by type
+  const groupedTemplates = templates.reduce((acc, template) => {
+    const type = template.templateType || "other";
+    if (!acc[type]) {
+      acc[type] = [];
     }
-  };
-
-  const toggleSimulation = useCallback(() => {
-    const newIsPlaying = !isPlaying;
-    setIsPlaying(newIsPlaying);
-
-    setEdges((eds) =>
-      (eds || []).map((edge) => ({
-        ...edge,
-        animated: newIsPlaying,
-        style: {
-          ...edge.style,
-          strokeDasharray: newIsPlaying ? "8,8" : undefined,
-        },
-      }))
-    );
-
-    NotificationComponent({
-      type: "info",
-      message: "Thông báo",
-      description: newIsPlaying
-        ? "Bắt đầu mô phỏng workflow"
-        : "Dừng mô phỏng workflow",
-    });
-  }, [isPlaying, setEdges]);
+    acc[type].push(template);
+    return acc;
+  }, {} as Record<string, ITemplate[]>);
 
   useEffect(() => {
     fetchWorkflows();
     fetchTemplates();
-    fetchAgents();
   }, []);
 
   useEffect(() => {
     if (selectedWorkflow) {
       loadWorkflowDesign(selectedWorkflow);
     }
-  }, [selectedWorkflow, workflows]);
-
-  // Initialize ReactFlow properly
-  useEffect(() => {
-    if (reactFlowInstance) {
-      console.log("✅ ReactFlow instance ready");
-      reactFlowInstance.fitView({ padding: 0.1 });
-    }
-  }, [reactFlowInstance]);
+  }, [selectedWorkflow]);
 
   return (
     <ReactFlowProvider>
       <div
-        style={{ height: "100vh", display: "flex", background: "transparent" }}
+        style={{
+          height: "100vh",
+          display: "flex",
+          background: colorBgContainer,
+        }}
       >
         {/* Template Palette Sidebar */}
         <div
           style={{
-            width: paletteVisible ? "350px" : "0px",
+            width: paletteVisible ? "320px" : "0px",
             transition: "width 0.3s ease",
-            borderRight: paletteVisible
-              ? `1px solid ${colorPrimary}20`
-              : "none",
-            background: colorBgContainer,
-            borderRadius: paletteVisible
-              ? `${borderRadiusLG}px 0 0 ${borderRadiusLG}px`
-              : 0,
-            boxShadow: paletteVisible ? boxShadowSecondary : "none",
+            borderRight: paletteVisible ? "1px solid #d9d9d9" : "none",
+            background: "#fafafa",
             overflow: "hidden",
-            margin: "4px 0 4px 4px",
           }}
         >
           <Card
             title={
               <Space>
-                <DragOutlined style={{ color: colorPrimary }} />
-                <span>Template Palette</span>
-                <Badge count={(templates || []).length} />
+                <DragOutlined />
+                Template Palette
+                <Badge count={templates.length} />
               </Space>
             }
             size="small"
-            style={{
-              height: "100%",
-              border: "none",
-              borderRadius: borderRadiusLG,
-            }}
+            style={{ height: "100%", border: "none" }}
             bodyStyle={{
-              padding: "16px",
+              padding: "12px",
               height: "calc(100% - 57px)",
               overflow: "auto",
             }}
           >
-            <div style={{ marginBottom: "16px" }}>
-              <Input.Search
-                placeholder="Tìm kiếm template..."
-                style={{ marginBottom: 12 }}
-              />
+            <div style={{ marginBottom: "12px" }}>
               <Text type="secondary" style={{ fontSize: "12px" }}>
-                Kéo template vào canvas để tạo node workflow
+                Kéo template vào canvas để tạo node
               </Text>
             </div>
 
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "10px" }}
-            >
-              {Object.entries(groupedTemplates || {}).map(
-                ([agent, agentTemplates], index) => {
-                  const agentColor = AGENT_COLORS[agent] || colorPrimary;
-                  const agentName = agent.replace("AGT_", "").replace("_", " ");
-                  const isExpanded = agentExpandedState[agent] !== false; // Default to true
-
-                  const toggleExpanded = () => {
-                    setAgentExpandedState((prev) => ({
-                      ...prev,
-                      [agent]: !prev[agent],
-                    }));
-                  };
-
-                  return (
-                    <div
-                      key={agent}
-                      style={{
-                        background: `linear-gradient(135deg, ${agentColor}12, ${agentColor}06)`,
-                        border: `2px solid ${agentColor}20`,
-                        borderRadius: "16px",
-                        overflow: "hidden",
-                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                        boxShadow: `0 4px 12px ${agentColor}15`,
-                        animation: `slideIn 0.4s ease-out ${index * 0.1}s both`,
-                      }}
-                    >
-                      {/* Agent Header */}
-                      <div
-                        onClick={toggleExpanded}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          padding: "16px 20px",
-                          cursor: "pointer",
-                          background: `linear-gradient(135deg, ${agentColor}18, ${agentColor}08)`,
-                          borderBottom: isExpanded
-                            ? `1px solid ${agentColor}25`
-                            : "none",
-                          transition: "all 0.3s ease",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "12px",
-                            flex: 1,
-                          }}
-                        >
-                          <div
-                            style={{
-                              position: "relative",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              width: "40px",
-                              height: "40px",
-                              borderRadius: "12px",
-                              background: `linear-gradient(135deg, ${agentColor}, ${agentColor}dd)`,
-                              boxShadow: `0 6px 20px ${agentColor}40, inset 0 1px 0 rgba(255,255,255,0.2)`,
-                              transition: "transform 0.2s ease",
-                            }}
-                          >
-                            <Text
-                              style={{
-                                fontSize: "16px",
-                                fontWeight: "bold",
-                                color: "#fff",
-                                textShadow: "0 1px 2px rgba(0,0,0,0.2)",
-                              }}
-                            >
-                              {agentName.charAt(0)}
-                            </Text>
-                            {/* Pulse animation */}
-                            <div
-                              style={{
-                                position: "absolute",
-                                inset: "-4px",
-                                borderRadius: "16px",
-                                background: `linear-gradient(135deg, ${agentColor}40, transparent)`,
-                                animation: "pulse 2s ease-in-out infinite",
-                              }}
-                            />
-                          </div>
-
-                          <div style={{ flex: 1 }}>
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                                marginBottom: "2px",
-                              }}
-                            >
-                              <Text
-                                strong
-                                style={{
-                                  fontSize: "14px",
-                                  color: agentColor,
-                                  fontWeight: 600,
-                                }}
-                              >
-                                {agentName}
-                              </Text>
-                              {/* Status indicator */}
-                              <div
-                                style={{
-                                  width: "8px",
-                                  height: "8px",
-                                  borderRadius: "50%",
-                                  background: colorSuccess,
-                                  boxShadow: `0 0 6px ${colorSuccess}60`,
-                                  animation: "blink 2s ease-in-out infinite",
-                                }}
-                              />
-                            </div>
-                            <Text
-                              style={{
-                                fontSize: "11px",
-                                color: colorTextSecondary,
-                                fontWeight: 500,
-                              }}
-                            >
-                              {(agentTemplates || []).length} templates • Ready
-                            </Text>
-                          </div>
-                        </div>
-
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "12px",
-                          }}
-                        >
-                          <Badge
-                            count={(agentTemplates || []).length}
-                            style={{
-                              backgroundColor: agentColor,
-                              fontSize: "10px",
-                              fontWeight: "bold",
-                              boxShadow: `0 2px 8px ${agentColor}40`,
-                            }}
-                          />
-                          <div
-                            style={{
-                              color: agentColor,
-                              fontSize: "12px",
-                              transform: isExpanded
-                                ? "rotate(180deg)"
-                                : "rotate(0deg)",
-                              transition: "transform 0.3s ease",
-                            }}
-                          >
-                            ▼
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Templates Content */}
-                      <div
-                        style={{
-                          maxHeight: isExpanded ? "400px" : "0px",
-                          overflow: "hidden",
-                          transition:
-                            "max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                        }}
-                      >
-                        <div
-                          style={{
-                            padding: "16px 20px",
-                            display: "grid",
-                            gap: "8px",
-                          }}
-                        >
-                          {(agentTemplates || []).map((template) => (
-                            <DraggableTemplate
-                              key={template.templateId}
-                              template={template}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-              )}
-            </div>
+            <Collapse defaultActiveKey={Object.keys(groupedTemplates)} ghost>
+              {Object.entries(groupedTemplates).map(([type, templateList]) => (
+                <CollapsePanel
+                  key={type}
+                  header={
+                    <Space>
+                      {
+                        TEMPLATE_CONFIGS[type as keyof typeof TEMPLATE_CONFIGS]
+                          ?.icon
+                      }
+                      <Text strong>{type.toUpperCase()}</Text>
+                      <Badge count={templateList.length} />
+                    </Space>
+                  }
+                >
+                  {templateList.map((template) => (
+                    <DraggableTemplate
+                      key={template.templateId}
+                      template={template}
+                    />
+                  ))}
+                </CollapsePanel>
+              ))}
+            </Collapse>
           </Card>
         </div>
 
         {/* Main Canvas Area */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          {/* Workflow Information Panel */}
-          <Card
-            size="small"
-            style={{
-              margin: "4px 4px 8px 4px",
-              borderRadius: borderRadiusLG,
-              boxShadow: boxShadowSecondary,
-            }}
-            bodyStyle={{ padding: "12px 16px" }}
-          >
-            <Collapse
-              size="small"
-              ghost
-              items={[
-                {
-                  key: "workflow-info",
-                  label: (
-                    <Space>
-                      <InfoCircleOutlined style={{ color: colorPrimary }} />
-                      <Text strong>Thông tin Workflow</Text>
-                      {currentWorkflow && (
-                        <Tag
-                          color={
-                            currentWorkflow.statusCode === "ACTIVE"
-                              ? "green"
-                              : "orange"
-                          }
-                        >
-                          {currentWorkflow.statusName}
-                        </Tag>
-                      )}
-                    </Space>
-                  ),
-                  children: currentWorkflow ? (
-                    <Row gutter={[16, 8]}>
-                      <Col xs={24} sm={12} md={8}>
-                        <div>
-                          <Text type="secondary" style={{ fontSize: 12 }}>
-                            Mã Workflow:
-                          </Text>
-                          <br />
-                          <Text strong>{currentWorkflow.workflowCode}</Text>
-                        </div>
-                      </Col>
-                      <Col xs={24} sm={12} md={8}>
-                        <div>
-                          <Text type="secondary" style={{ fontSize: 12 }}>
-                            Tên Workflow:
-                          </Text>
-                          <br />
-                          <Text strong>{currentWorkflow.workflowName}</Text>
-                        </div>
-                      </Col>
-                      <Col xs={24} sm={12} md={8}>
-                        <div>
-                          <Text type="secondary" style={{ fontSize: 12 }}>
-                            Mô tả:
-                          </Text>
-                          <br />
-                          <Text>
-                            {currentWorkflow.description || "Không có mô tả"}
-                          </Text>
-                        </div>
-                      </Col>
-                      <Col xs={24} sm={12} md={6}>
-                        <Statistic
-                          title="Tổng Nodes"
-                          value={(nodes || []).length}
-                          prefix={<ApartmentOutlined />}
-                          valueStyle={{
-                            color: colorSuccess,
-                            fontSize: 16,
-                            fontWeight: "bold",
-                          }}
-                        />
-                      </Col>
-                      <Col xs={24} sm={12} md={6}>
-                        <Statistic
-                          title="Connections"
-                          value={(edges || []).length}
-                          prefix={<LinkOutlined />}
-                          valueStyle={{
-                            color: colorPrimary,
-                            fontSize: 16,
-                            fontWeight: "bold",
-                          }}
-                        />
-                      </Col>
-                    </Row>
-                  ) : (
-                    <Text type="secondary">
-                      Vui lòng chọn workflow để xem thông tin
-                    </Text>
-                  ),
-                },
-              ]}
-            />
-          </Card>
-
           {/* Toolbar */}
-          <Card
-            style={{
-              marginBottom: 8,
-              borderRadius: borderRadiusLG,
-              boxShadow: boxShadowSecondary,
-            }}
-            bodyStyle={{ padding: "12px 16px" }}
-          >
-            <Row gutter={[16, 8]} align="middle">
-              <Col xs={24} sm={12} md={10}>
-                <Space>
-                  <Text strong>Workflow:</Text>
-                  <Select
-                    style={{ minWidth: 180 }}
-                    placeholder="Chọn workflow"
-                    value={selectedWorkflow}
-                    onChange={setSelectedWorkflow}
-                    options={(workflows || []).map((w) => ({
-                      value: w.workflowCode,
-                      label: `${w.workflowName} (${w.workflowCode})`,
-                    }))}
-                  />
-                  <Button
-                    type="dashed"
-                    icon={<PlusOutlined />}
-                    onClick={() => setCreateWorkflowModalVisible(true)}
-                    size="small"
-                  >
-                    Tạo mới
-                  </Button>
-                  <Button
-                    size="small"
-                    onClick={() => {
-                      const testNode: Node = {
-                        id: `test_${Date.now()}`,
-                        type: "workflowNode",
-                        position: { x: 100, y: 100 },
-                        data: {
-                          label: "Test Node",
-                          templateCode: "TEST",
-                          templateType: "trigger",
-                          agentCode: "AGT_TEST",
-                          description: "Test node for verification",
-                        },
-                      };
-                      setNodes((prev) => [...prev, testNode]);
-                      console.log("✅ Test node added:", testNode.id);
-                    }}
-                  >
-                    Test Node
-                  </Button>
-                </Space>
-              </Col>
-
-              <Col xs={24} sm={12} md={8}>
-                <Space>
-                  <Button
-                    icon={<RocketOutlined />}
-                    onClick={saveWorkflowDesign}
-                    type="primary"
-                  >
-                    Lưu
-                  </Button>
-                  <Button
-                    icon={
-                      isPlaying ? (
-                        <PauseCircleOutlined />
-                      ) : (
-                        <PlayCircleOutlined />
-                      )
-                    }
-                    onClick={toggleSimulation}
-                    type={isPlaying ? "primary" : "default"}
-                  >
-                    {isPlaying ? "Dừng" : "Mô phỏng"}
-                  </Button>
-                </Space>
-              </Col>
-
-              <Col xs={24} sm={24} md={8}>
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                  <Space>
-                    <Button
-                      icon={<ThunderboltOutlined />}
-                      onClick={runWorkflowTest}
-                      loading={isTestRunning}
-                      type="default"
-                      style={{
-                        background: `${colorSuccess}10`,
-                        borderColor: colorSuccess,
-                        color: colorSuccess,
-                      }}
-                    >
-                      {isTestRunning ? "Đang test..." : "Run All Test"}
-                    </Button>
-                    <Button
-                      icon={<EyeOutlined />}
-                      onClick={() => setPaletteVisible(!paletteVisible)}
-                    >
-                      Templates
-                    </Button>
-                  </Space>
-                </div>
-              </Col>
-            </Row>
-          </Card>
+          <WorkflowToolbar
+            workflows={workflows}
+            selectedWorkflow={selectedWorkflow}
+            onWorkflowChange={setSelectedWorkflow}
+            onSave={saveWorkflowDesign}
+            onLoad={() =>
+              selectedWorkflow && loadWorkflowDesign(selectedWorkflow)
+            }
+            onClear={clearWorkflow}
+            onTogglePalette={() => setPaletteVisible(!paletteVisible)}
+            onToggleSimulation={toggleSimulation}
+            onExport={exportWorkflow}
+            onImport={importWorkflow}
+            onFitView={fitView}
+            onZoomIn={zoomIn}
+            onZoomOut={zoomOut}
+            isPlaying={isPlaying}
+            nodeCount={nodes.length}
+            edgeCount={edges.length}
+            paletteVisible={paletteVisible}
+            selectedNodeId={selectedNode?.id}
+          />
 
           {/* Flow Canvas */}
           <div
             ref={reactFlowWrapper}
-            style={{
-              flex: 1,
-              borderRadius: borderRadiusLG,
-              overflow: "hidden",
-              boxShadow: boxShadowSecondary,
-              position: "relative",
-              minHeight: "500px",
-            }}
+            style={{ flex: 1, margin: "4px 8px 8px 8px" }}
           >
             <ReactFlow
               nodes={nodes}
@@ -1911,121 +820,65 @@ const WorkflowBuilderPage: React.FC = () => {
               onInit={setReactFlowInstance}
               nodeTypes={nodeTypes}
               connectionMode={ConnectionMode.Loose}
-              fitView={false}
+              fitView
               attributionPosition="bottom-left"
               style={{
-                background: colorBgContainer,
-                width: "100%",
-                height: "100%",
+                background: "#fafafa",
+                borderRadius: "8px",
+                border: "2px dashed #d9d9d9",
               }}
-              defaultViewport={{ x: 50, y: 50, zoom: 1 }}
-              selectNodesOnDrag={false}
-              panOnDrag={true}
-              elementsSelectable={true}
-              nodesDraggable={true}
-              nodesConnectable={true}
-              edgesFocusable={true}
-              deleteKeyCode={["Backspace", "Delete"]}
-              connectionLineStyle={{
-                strokeWidth: 2,
-                stroke: colorPrimary,
-              }}
-              proOptions={{ hideAttribution: true }}
             >
-              <Controls
-                style={{
-                  background: colorBgContainer,
-                  border: `1px solid ${colorPrimary}20`,
-                  borderRadius: 8,
-                }}
-              />
+              <Controls />
               <MiniMap
                 nodeColor={(node) => {
                   const config =
                     TEMPLATE_CONFIGS[
                       node.data?.templateType as keyof typeof TEMPLATE_CONFIGS
-                    ] || TEMPLATE_CONFIGS.process;
+                    ];
                   return config?.color || "#666";
                 }}
                 style={{
-                  backgroundColor: colorBgContainer,
-                  border: `1px solid ${colorPrimary}20`,
-                  borderRadius: 8,
+                  backgroundColor: "#fafafa",
+                  border: "1px solid #d9d9d9",
                 }}
               />
-              <Background
-                variant={BackgroundVariant.Dots}
-                gap={20}
-                size={2}
-                color={`${colorPrimary}20`}
-              />
+              <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
 
-              {/* Enhanced Drop Zone Hint */}
-              {(!nodes || nodes.length === 0) && (
+              {/* Drop Zone Hint */}
+              {nodes.length === 0 && (
                 <Panel position="top-center">
                   <div
                     style={{
-                      padding: "40px",
-                      background: `linear-gradient(135deg, ${colorBgContainer}, ${colorPrimary}08)`,
-                      borderRadius: borderRadiusLG,
-                      border: `3px dashed ${colorPrimary}60`,
+                      padding: "24px",
+                      background: "rgba(255,255,255,0.95)",
+                      borderRadius: "12px",
+                      border: "2px dashed #d9d9d9",
                       textAlign: "center",
-                      maxWidth: "600px",
-                      boxShadow: `${boxShadowSecondary}, 0 0 0 1px ${colorPrimary}20`,
-                      animation: "pulse 2s ease-in-out infinite alternate",
+                      maxWidth: "450px",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                     }}
                   >
-                    <DragOutlined
+                    <ApartmentOutlined
                       style={{
-                        fontSize: "64px",
-                        color: colorPrimary,
-                        marginBottom: "24px",
+                        fontSize: "48px",
+                        color: "#d9d9d9",
+                        marginBottom: "16px",
                         display: "block",
-                        opacity: 0.8,
                       }}
                     />
                     <Title
-                      level={2}
-                      style={{
-                        color: colorPrimary,
-                        marginBottom: "16px",
-                        fontWeight: 600,
-                      }}
+                      level={3}
+                      type="secondary"
+                      style={{ marginBottom: "8px" }}
                     >
-                      🚀 Workflow Builder
+                      Workflow Builder
                     </Title>
-                    <Text
-                      style={{
-                        fontSize: "16px",
-                        lineHeight: 1.8,
-                        color: colorText,
-                        display: "block",
-                        marginBottom: "20px",
-                      }}
-                    >
-                      <strong>Bắt đầu xây dựng workflow của bạn:</strong>
+                    <Text type="secondary" style={{ fontSize: "14px" }}>
+                      Kéo thả template từ sidebar để tạo workflow.
                       <br />
-                      📝 <strong>1.</strong> Kéo template từ sidebar bên trái
-                      vào canvas
-                      <br />
-                      🔗 <strong>2.</strong> Kết nối các node bằng cách kéo từ
-                      ⚪ handle này đến ⚪ handle khác
-                      <br />⚡ <strong>3.</strong> Sử dụng nút "Run All Test" để
-                      kiểm tra workflow
+                      Kết nối các node bằng cách kéo từ handle này đến handle
+                      khác.
                     </Text>
-                    <div
-                      style={{
-                        background: `${colorPrimary}15`,
-                        padding: "12px 20px",
-                        borderRadius: "8px",
-                        border: `1px solid ${colorPrimary}30`,
-                      }}
-                    >
-                      <Text style={{ fontSize: "14px", color: colorPrimary }}>
-                        💡 <strong>Mẹo:</strong> Trigger → Intermediate → Exit
-                        là flow chuẩn
-                      </Text>
-                    </div>
                   </div>
                 </Panel>
               )}
@@ -2033,430 +886,13 @@ const WorkflowBuilderPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Node Properties Panel - Only show when node is selected */}
-        {selectedNode && (
-          <NodePropertiesPanel
-            node={selectedNode}
-            onUpdate={updateNodeData}
-            onDelete={deleteSelectedNode}
-            onClose={() => setSelectedNode(null)}
-          />
-        )}
-
-        {/* Show helper text when no node selected */}
-        {!selectedNode && (
-          <div
-            style={{
-              position: "fixed",
-              right: "20px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              background: colorBgContainer,
-              border: `2px dashed ${colorPrimary}40`,
-              borderRadius: borderRadiusLG,
-              padding: "20px",
-              textAlign: "center",
-              maxWidth: "200px",
-              boxShadow: boxShadowSecondary,
-              zIndex: 1000,
-            }}
-          >
-            <InfoCircleOutlined
-              style={{
-                fontSize: "24px",
-                color: colorPrimary,
-                marginBottom: "8px",
-              }}
-            />
-            <Text
-              style={{
-                fontSize: "12px",
-                display: "block",
-                marginBottom: "4px",
-              }}
-            >
-              <strong>Chọn một node</strong>
-            </Text>
-            <Text type="secondary" style={{ fontSize: "11px" }}>
-              để xem và chỉnh sửa thuộc tính
-            </Text>
-          </div>
-        )}
-
-        {/* Create Workflow Modal */}
-        <Modal
-          title="Tạo Workflow Mới"
-          open={createWorkflowModalVisible}
-          onCancel={() => {
-            setCreateWorkflowModalVisible(false);
-            createForm.resetFields();
-          }}
-          footer={null}
-          width={500}
-        >
-          <Form
-            form={createForm}
-            layout="vertical"
-            onFinish={handleCreateNewWorkflow}
-          >
-            <Form.Item
-              name="workflowCode"
-              label="Mã Workflow"
-              rules={[{ required: true, message: "Vui lòng nhập mã workflow" }]}
-            >
-              <Input placeholder="WF_001" />
-            </Form.Item>
-
-            <Form.Item
-              name="workflowName"
-              label="Tên Workflow"
-              rules={[
-                { required: true, message: "Vui lòng nhập tên workflow" },
-              ]}
-            >
-              <Input placeholder="My Workflow" />
-            </Form.Item>
-
-            <Form.Item name="description" label="Mô tả">
-              <Input.TextArea rows={3} placeholder="Mô tả workflow..." />
-            </Form.Item>
-
-            <Form.Item style={{ textAlign: "right", marginBottom: 0 }}>
-              <Space>
-                <Button
-                  onClick={() => {
-                    setCreateWorkflowModalVisible(false);
-                    createForm.resetFields();
-                  }}
-                >
-                  Hủy
-                </Button>
-                <Button type="primary" htmlType="submit">
-                  Tạo Workflow
-                </Button>
-              </Space>
-            </Form.Item>
-          </Form>
-        </Modal>
-
-        {/* Enhanced Test Results Drawer */}
-        <Drawer
-          title={
-            <Space>
-              <RocketOutlined style={{ color: colorSuccess }} />
-              <span>Kết quả Test Chi Tiết</span>
-              {testResults && (
-                <Tag
-                  color={
-                    testResults.status === "success"
-                      ? "green"
-                      : testResults.status === "partial"
-                      ? "orange"
-                      : "red"
-                  }
-                >
-                  {testResults.status === "success"
-                    ? "Thành công"
-                    : testResults.status === "partial"
-                    ? "Một phần"
-                    : "Thất bại"}
-                </Tag>
-              )}
-            </Space>
-          }
-          open={testResultsDrawerVisible}
-          onClose={() => setTestResultsDrawerVisible(false)}
-          width={600}
-          extra={
-            <Button onClick={() => setTestResultsDrawerVisible(false)}>
-              Đóng
-            </Button>
-          }
-        >
-          {testResults && (
-            <div>
-              {/* Test Summary */}
-              <Card
-                title="Tóm tắt kết quả"
-                size="small"
-                style={{ marginBottom: 16 }}
-              >
-                <Row gutter={[16, 8]}>
-                  <Col span={12}>
-                    <Statistic
-                      title="Thời gian thực thi"
-                      value={(testResults.executionTime / 1000).toFixed(2)}
-                      suffix="s"
-                      valueStyle={{ color: colorSuccess, fontSize: 16 }}
-                    />
-                  </Col>
-                  <Col span={12}>
-                    <Statistic
-                      title="Tỷ lệ thành công"
-                      value={(
-                        (testResults.successfulNodes /
-                          testResults.nodesExecuted) *
-                        100
-                      ).toFixed(1)}
-                      suffix="%"
-                      valueStyle={{
-                        color:
-                          testResults.failedNodes === 0
-                            ? colorSuccess
-                            : colorWarning,
-                        fontSize: 16,
-                      }}
-                    />
-                  </Col>
-                  <Col span={8}>
-                    <Statistic
-                      title="Nodes thành công"
-                      value={testResults.successfulNodes}
-                      valueStyle={{ color: colorSuccess, fontSize: 14 }}
-                    />
-                  </Col>
-                  <Col span={8}>
-                    <Statistic
-                      title="Nodes thất bại"
-                      value={testResults.failedNodes}
-                      valueStyle={{ color: colorError, fontSize: 14 }}
-                    />
-                  </Col>
-                  <Col span={8}>
-                    <Statistic
-                      title="Tổng nodes"
-                      value={testResults.nodesExecuted}
-                      valueStyle={{ color: colorPrimary, fontSize: 14 }}
-                    />
-                  </Col>
-                </Row>
-
-                {testResults.summary && (
-                  <div style={{ marginTop: 16 }}>
-                    <Divider orientation="left" style={{ margin: "12px 0" }}>
-                      Hiệu suất
-                    </Divider>
-                    <Row gutter={[12, 8]}>
-                      <Col span={12}>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          Throughput:
-                        </Text>
-                        <br />
-                        <Text strong>
-                          {testResults.summary.throughput} req/s
-                        </Text>
-                      </Col>
-                      <Col span={12}>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          Avg Response:
-                        </Text>
-                        <br />
-                        <Text strong>
-                          {testResults.summary.averageResponseTime.toFixed(0)}ms
-                        </Text>
-                      </Col>
-                      <Col span={12}>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          Error Rate:
-                        </Text>
-                        <br />
-                        <Text
-                          strong
-                          style={{
-                            color:
-                              testResults.summary.errorRate > 0
-                                ? colorError
-                                : colorSuccess,
-                          }}
-                        >
-                          {testResults.summary.errorRate.toFixed(1)}%
-                        </Text>
-                      </Col>
-                      <Col span={12}>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          Peak Memory:
-                        </Text>
-                        <br />
-                        <Text strong>
-                          {testResults.summary.peakMemoryUsage}MB
-                        </Text>
-                      </Col>
-                    </Row>
-                  </div>
-                )}
-              </Card>
-
-              {/* Step-by-step Results */}
-              {testResults.stepResults && (
-                <Card
-                  title="Chi tiết từng bước"
-                  size="small"
-                  style={{ marginBottom: 16 }}
-                >
-                  <Timeline
-                    items={testResults.stepResults.map((step, index) => ({
-                      color:
-                        step.status === "success" ? colorSuccess : colorError,
-                      children: (
-                        <div key={step.nodeId}>
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "flex-start",
-                              marginBottom: 8,
-                            }}
-                          >
-                            <div>
-                              <Text strong style={{ fontSize: 13 }}>
-                                {step.nodeName}
-                              </Text>
-                              <br />
-                              <Tag
-                                size="small"
-                                color={
-                                  AGENT_COLORS[step.agentCode] || colorPrimary
-                                }
-                              >
-                                {step.agentCode}
-                              </Tag>
-                              <Tag
-                                size="small"
-                                color={
-                                  step.status === "success" ? "green" : "red"
-                                }
-                              >
-                                {step.status === "success"
-                                  ? "Thành công"
-                                  : "Thất bại"}
-                              </Tag>
-                            </div>
-                            <Text type="secondary" style={{ fontSize: 11 }}>
-                              {step.executionTime.toFixed(0)}ms
-                            </Text>
-                          </div>
-
-                          <Collapse
-                            ghost
-                            size="small"
-                            items={[
-                              {
-                                key: `details-${index}`,
-                                label: (
-                                  <Text style={{ fontSize: 11 }}>Chi tiết</Text>
-                                ),
-                                children: (
-                                  <div style={{ fontSize: 11 }}>
-                                    <div style={{ marginBottom: 8 }}>
-                                      <Text strong>Input:</Text>
-                                      <div
-                                        style={{
-                                          background: "#f5f5f5",
-                                          padding: 8,
-                                          borderRadius: 4,
-                                          marginTop: 4,
-                                        }}
-                                      >
-                                        <pre
-                                          style={{ margin: 0, fontSize: 10 }}
-                                        >
-                                          {JSON.stringify(step.input, null, 2)}
-                                        </pre>
-                                      </div>
-                                    </div>
-
-                                    <div style={{ marginBottom: 8 }}>
-                                      <Text strong>Output:</Text>
-                                      <div
-                                        style={{
-                                          background:
-                                            step.status === "success"
-                                              ? "#f6ffed"
-                                              : "#fff2f0",
-                                          padding: 8,
-                                          borderRadius: 4,
-                                          marginTop: 4,
-                                          border: `1px solid ${
-                                            step.status === "success"
-                                              ? "#b7eb8f"
-                                              : "#ffccc7"
-                                          }`,
-                                        }}
-                                      >
-                                        <pre
-                                          style={{ margin: 0, fontSize: 10 }}
-                                        >
-                                          {JSON.stringify(step.output, null, 2)}
-                                        </pre>
-                                      </div>
-                                    </div>
-
-                                    <div>
-                                      <Text strong>Logs:</Text>
-                                      {step.logs.map((log, logIndex) => (
-                                        <div
-                                          key={logIndex}
-                                          style={{
-                                            fontSize: 10,
-                                            color:
-                                              log.level === "error"
-                                                ? colorError
-                                                : log.level === "success"
-                                                ? colorSuccess
-                                                : colorText,
-                                            marginTop: 2,
-                                          }}
-                                        >
-                                          [{log.timestamp.toLocaleTimeString()}]{" "}
-                                          {log.level.toUpperCase()}:{" "}
-                                          {log.message}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                ),
-                              },
-                            ]}
-                          />
-                        </div>
-                      ),
-                    }))}
-                  />
-                </Card>
-              )}
-
-              {/* Overall Logs */}
-              <Card title="System Logs" size="small">
-                <div
-                  style={{
-                    maxHeight: 200,
-                    overflowY: "auto",
-                    fontFamily: "monospace",
-                    fontSize: 11,
-                  }}
-                >
-                  {testResults.logs.map((log, index) => (
-                    <div
-                      key={index}
-                      style={{
-                        color:
-                          log.level === "error"
-                            ? colorError
-                            : log.level === "success"
-                            ? colorSuccess
-                            : colorText,
-                        marginBottom: 4,
-                      }}
-                    >
-                      [{log.timestamp.toLocaleTimeString()}]{" "}
-                      {log.level.toUpperCase()}: {log.message}
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </div>
-          )}
-        </Drawer>
+        {/* Node Properties Panel */}
+        <NodePropertiesPanel
+          node={selectedNode}
+          onUpdate={updateNodeData}
+          onDelete={deleteSelectedNode}
+          onClose={() => setSelectedNode(null)}
+        />
       </div>
     </ReactFlowProvider>
   );
