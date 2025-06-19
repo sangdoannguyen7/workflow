@@ -34,8 +34,6 @@ import {
   FullscreenOutlined,
   ZoomInOutlined,
   ZoomOutOutlined,
-  DownloadOutlined,
-  UploadOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
 import {
@@ -57,6 +55,7 @@ import {
   ReactFlowInstance,
   Handle,
   Position,
+  NodeProps,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -67,7 +66,6 @@ import templateApi from "../../apis/template/api.template";
 import workflowApi from "../../apis/workflow/api.workflow";
 import WorkflowToolbar from "./components/WorkflowToolbar";
 import NodePropertiesPanel from "./components/NodePropertiesPanel";
-import DynamicIcon from "../../shared/components/DynamicIcon";
 import {
   NodeType,
   getNodeTypeFromTemplate,
@@ -102,10 +100,6 @@ const TEMPLATE_CONFIGS = {
     borderColor: "#ffd591",
     emoji: "📤",
   },
-};
-
-const getNodeTypeIconComponent = (nodeType: NodeType): React.ReactNode => {
-  return TEMPLATE_CONFIGS[nodeType]?.icon || <ApiOutlined />;
 };
 
 // Enhanced Draggable Template Component
@@ -261,12 +255,8 @@ const DraggableTemplate: React.FC<{ template: ITemplate }> = ({ template }) => {
   );
 };
 
-// Enhanced Custom Node Component với smooth animations
-const WorkflowNode: React.FC<{ data: any; selected: boolean; id: string }> = ({
-  data,
-  selected,
-  id,
-}) => {
+// Enhanced Custom Node Component với OPTIMIZED drag performance
+const WorkflowNode: React.FC<NodeProps> = ({ data, selected, id }) => {
   const nodeType = getNodeTypeFromTemplate(data.templateType);
   const config = TEMPLATE_CONFIGS[nodeType];
   const canHaveInput = nodeType !== NodeType.TRIGGER;
@@ -275,59 +265,68 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean; id: string }> = ({
   return (
     <div
       style={{
-        padding: "18px",
+        padding: "16px",
         border: selected
           ? `3px solid ${config?.color || "#1890ff"}`
           : `2px solid ${config?.borderColor || "#d9d9d9"}`,
-        borderRadius: "16px",
+        borderRadius: "12px",
         background: "#fff",
-        minWidth: "220px",
-        maxWidth: "280px",
+        minWidth: "200px",
+        maxWidth: "250px",
         boxShadow: selected
-          ? `0 12px 28px ${config?.color || "#1890ff"}25, 0 4px 12px ${
-              config?.color || "#1890ff"
-            }15`
-          : "0 4px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)",
+          ? `0 8px 20px ${config?.color || "#1890ff"}30`
+          : "0 2px 8px rgba(0,0,0,0.1)",
         position: "relative",
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        transition: "all 0.2s ease",
         cursor: "pointer",
-        transform: selected ? "translateY(-2px)" : "translateY(0)",
+        // CRITICAL: Ensure proper stacking and performance
+        willChange: "transform, box-shadow",
+        backfaceVisibility: "hidden",
+        transform: "translateZ(0)", // Force hardware acceleration
       }}
     >
-      {/* Enhanced Input Handle */}
+      {/* Enhanced Input Handle - OPTIMIZED for smooth dragging */}
       {canHaveInput && (
         <Handle
           type="target"
           position={Position.Left}
           id="input"
           style={{
-            left: -8,
-            width: 16,
-            height: 16,
-            border: `3px solid ${config?.color || "#666"}`,
+            left: -6,
+            width: 12,
+            height: 12,
+            border: `2px solid ${config?.color || "#666"}`,
             backgroundColor: "#fff",
             borderRadius: "50%",
-            boxShadow: `0 2px 8px ${config?.color}40`,
-            transition: "all 0.2s ease",
+            // CRITICAL optimizations:
+            willChange: "transform",
+            backfaceVisibility: "hidden",
+            transform: "translateZ(0)",
+            transition: "all 0.15s ease",
+            zIndex: 10,
           }}
         />
       )}
 
-      {/* Enhanced Output Handle */}
+      {/* Enhanced Output Handle - OPTIMIZED for smooth dragging */}
       {canHaveOutput && (
         <Handle
           type="source"
           position={Position.Right}
           id="output"
           style={{
-            right: -8,
-            width: 16,
-            height: 16,
-            border: `3px solid ${config?.color || "#666"}`,
+            right: -6,
+            width: 12,
+            height: 12,
+            border: `2px solid ${config?.color || "#666"}`,
             backgroundColor: "#fff",
             borderRadius: "50%",
-            boxShadow: `0 2px 8px ${config?.color}40`,
-            transition: "all 0.2s ease",
+            // CRITICAL optimizations:
+            willChange: "transform",
+            backfaceVisibility: "hidden",
+            transform: "translateZ(0)",
+            transition: "all 0.15s ease",
+            zIndex: 10,
           }}
         />
       )}
@@ -340,7 +339,7 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean; id: string }> = ({
           left: 0,
           right: 0,
           height: "4px",
-          borderRadius: "16px 16px 0 0",
+          borderRadius: "12px 12px 0 0",
           background: `linear-gradient(90deg, ${config?.color}, ${config?.color}80)`,
         }}
       />
@@ -349,37 +348,28 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean; id: string }> = ({
       <div
         style={{
           position: "absolute",
-          top: "-10px",
-          right: "-10px",
-          background: `linear-gradient(135deg, ${config?.color}, ${config?.color}cc)`,
+          top: "-8px",
+          right: "-8px",
+          background: config?.color || "#666",
           color: "white",
-          borderRadius: "16px",
-          padding: "6px 10px",
+          borderRadius: "12px",
+          padding: "4px 8px",
           fontSize: "10px",
           fontWeight: "bold",
-          boxShadow: `0 4px 12px ${config?.color}40`,
-          border: "2px solid #fff",
         }}
       >
-        {config?.emoji} {nodeType.toUpperCase()}
+        {nodeType.toUpperCase()}
       </div>
 
       {/* Node Header */}
       <div
-        style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}
+        style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}
       >
         <div
           style={{
             color: config?.color || "#666",
-            marginRight: "12px",
-            fontSize: "20px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "40px",
-            height: "40px",
-            borderRadius: "12px",
-            background: `${config?.color}15`,
+            marginRight: "8px",
+            fontSize: "18px",
           }}
         >
           {config?.icon}
@@ -388,15 +378,14 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean; id: string }> = ({
           <Text
             strong
             style={{
-              fontSize: "15px",
+              fontSize: "14px",
               color: config?.color || "#666",
               display: "block",
-              lineHeight: "1.3",
             }}
           >
             {data.label}
           </Text>
-          <Text type="secondary" style={{ fontSize: "12px" }}>
+          <Text type="secondary" style={{ fontSize: "11px" }}>
             {data.templateCode}
           </Text>
         </div>
@@ -406,19 +395,15 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean; id: string }> = ({
       {data.description && (
         <Text
           style={{
-            fontSize: "12px",
+            fontSize: "11px",
             color: "#666",
             display: "block",
-            lineHeight: "1.4",
-            marginBottom: "12px",
-            padding: "8px",
-            background: "#f8f9fa",
-            borderRadius: "8px",
-            border: "1px solid #e9ecef",
+            lineHeight: "1.3",
+            marginBottom: "8px",
           }}
         >
-          {data.description.length > 100
-            ? `${data.description.substring(0, 100)}...`
+          {data.description.length > 80
+            ? `${data.description.substring(0, 80)}...`
             : data.description}
         </Text>
       )}
@@ -429,38 +414,26 @@ const WorkflowNode: React.FC<{ data: any; selected: boolean; id: string }> = ({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          fontSize: "11px",
+          fontSize: "10px",
           color: "#999",
-          paddingTop: "8px",
-          borderTop: "1px solid #f0f0f0",
         }}
       >
         <span>Agent: {data.agentCode}</span>
         <div
           style={{
-            width: "10px",
-            height: "10px",
+            width: "8px",
+            height: "8px",
             borderRadius: "50%",
-            backgroundColor: selected ? config?.color : "#ddd",
-            boxShadow: selected ? `0 0 8px ${config?.color}60` : "none",
-            transition: "all 0.2s ease",
+            backgroundColor: selected ? config?.color : "#ccc",
           }}
         />
       </div>
 
       {/* Connection Info */}
-      <div
-        style={{
-          fontSize: "10px",
-          color: config?.color,
-          marginTop: "6px",
-          textAlign: "center",
-          fontWeight: "500",
-        }}
-      >
-        {!canHaveInput && "🎯 START NODE"}
-        {!canHaveOutput && "🎯 END NODE"}
-        {canHaveInput && canHaveOutput && "🔄 PROCESS NODE"}
+      <div style={{ fontSize: "9px", color: "#999", marginTop: "4px" }}>
+        {!canHaveInput && "⭐ START"}
+        {!canHaveOutput && "🏁 END"}
+        {canHaveInput && canHaveOutput && "🔄 PROCESS"}
       </div>
     </div>
   );
@@ -470,7 +443,7 @@ const nodeTypes = {
   workflowNode: WorkflowNode,
 };
 
-// WorkflowCanvas component với useReactFlow optimization
+// WorkflowCanvas component với PERFORMANCE optimizations
 const WorkflowCanvas: React.FC<{
   nodes: Node[];
   edges: Edge[];
@@ -508,7 +481,7 @@ const WorkflowCanvas: React.FC<{
   const handleDrop = useCallback(
     (event: DragEvent<HTMLDivElement>) => {
       event.preventDefault();
-      console.log("Drop event with useReactFlow optimization");
+      console.log("Drop event with optimized performance");
 
       const data = event.dataTransfer.getData("application/reactflow");
       if (!data) return;
@@ -549,12 +522,17 @@ const WorkflowCanvas: React.FC<{
       attributionPosition="bottom-left"
       panOnDrag
       selectNodesOnDrag={false}
+      // CRITICAL performance optimizations
+      minZoom={0.1}
+      maxZoom={2}
+      defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+      proOptions={{ hideAttribution: true }}
       style={{
         background: isDragging
           ? "linear-gradient(135deg, #e6f7ff, #f0f9ff)"
           : "linear-gradient(135deg, #fafafa, #f5f5f5)",
         borderRadius: "12px",
-        transition: "all 0.3s ease",
+        transition: "background 0.3s ease",
       }}
     >
       <Controls
@@ -687,7 +665,7 @@ const WorkflowBuilderPage: React.FC = () => {
     [nodes]
   );
 
-  // Enhanced node connections with validation và animation
+  // Enhanced node connections với OPTIMIZED edge styling
   const onConnect = useCallback(
     (params: Connection) => {
       console.log("Attempting to connect:", params);
@@ -707,8 +685,10 @@ const WorkflowBuilderPage: React.FC = () => {
         animated: isPlaying,
         style: {
           stroke: "#1890ff",
-          strokeWidth: 3,
-          strokeDasharray: isPlaying ? "8,8" : undefined,
+          strokeWidth: 2,
+          strokeDasharray: isPlaying ? "5,5" : undefined,
+          // CRITICAL: Smooth edge rendering
+          transition: "all 0.2s ease",
         },
         markerEnd: {
           type: "arrowclosed" as const,
@@ -766,8 +746,8 @@ const WorkflowBuilderPage: React.FC = () => {
           id: newNodeId,
           type: "workflowNode",
           position: {
-            x: position.x - 110,
-            y: position.y - 50,
+            x: position.x - 100,
+            y: position.y - 40,
           },
           data: {
             label: template.templateName,
@@ -860,8 +840,9 @@ const WorkflowBuilderPage: React.FC = () => {
         animated: isPlaying,
         style: {
           stroke: "#1890ff",
-          strokeWidth: 3,
-          strokeDasharray: isPlaying ? "8,8" : undefined,
+          strokeWidth: 2,
+          strokeDasharray: isPlaying ? "5,5" : undefined,
+          transition: "all 0.2s ease",
         },
         markerEnd: {
           type: "arrowclosed" as const,
@@ -969,7 +950,7 @@ const WorkflowBuilderPage: React.FC = () => {
         animated: newIsPlaying,
         style: {
           ...edge.style,
-          strokeDasharray: newIsPlaying ? "8,8" : undefined,
+          strokeDasharray: newIsPlaying ? "5,5" : undefined,
         },
       }))
     );
@@ -977,7 +958,7 @@ const WorkflowBuilderPage: React.FC = () => {
     message.info(
       newIsPlaying
         ? "▶️ Bắt đầu mô phỏng workflow"
-        : "⏸��� Dừng mô phỏng workflow"
+        : "⏸️ Dừng mô phỏng workflow"
     );
   }, [isPlaying, setEdges]);
 
@@ -1102,10 +1083,7 @@ const WorkflowBuilderPage: React.FC = () => {
                   header={
                     <Space>
                       <span style={{ fontSize: "18px" }}>
-                        <DynamicIcon
-                          iconName={getNodeTypeIconName(type as NodeType)}
-                          style={{ color: getNodeTypeColor(type as NodeType) }}
-                        />
+                        {TEMPLATE_CONFIGS[type as NodeType]?.icon}
                       </span>
                       <Text
                         strong
@@ -1163,7 +1141,7 @@ const WorkflowBuilderPage: React.FC = () => {
             selectedNodeId={selectedNode?.id}
           />
 
-          {/* Enhanced Flow Canvas */}
+          {/* Enhanced Flow Canvas với optimized performance */}
           <div
             ref={reactFlowWrapper}
             style={{
