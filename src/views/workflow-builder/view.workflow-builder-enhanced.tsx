@@ -79,13 +79,6 @@ import {
 const { Text, Title } = Typography;
 const { Panel: CollapsePanel } = Collapse;
 
-// Node Types để validation
-enum NodeType {
-  TRIGGER = "trigger",
-  BEHAVIOR = "behavior",
-  OUTPUT = "output",
-}
-
 // Template configurations với enhanced styling
 const TEMPLATE_CONFIGS = {
   [NodeType.TRIGGER]: {
@@ -109,36 +102,6 @@ const TEMPLATE_CONFIGS = {
     borderColor: "#ffd591",
     emoji: "📤",
   },
-};
-
-// Helper functions
-const getNodeTypeFromTemplate = (templateType: string): NodeType => {
-  if (!templateType) return NodeType.BEHAVIOR;
-
-  const type = templateType.toLowerCase();
-  if (type.includes("webhook") || type.includes("trigger"))
-    return NodeType.TRIGGER;
-  if (type.includes("output") || type.includes("result"))
-    return NodeType.OUTPUT;
-  return NodeType.BEHAVIOR;
-};
-
-const canNodesConnect = (
-  sourceType: NodeType,
-  targetType: NodeType
-): boolean => {
-  // TRIGGER chỉ có thể kết nối tới BEHAVIOR
-  if (sourceType === NodeType.TRIGGER && targetType !== NodeType.BEHAVIOR)
-    return false;
-  // OUTPUT không thể là source
-  if (sourceType === NodeType.OUTPUT) return false;
-  // TRIGGER không thể là target
-  if (targetType === NodeType.TRIGGER) return false;
-  return true;
-};
-
-const getNodeTypeColor = (nodeType: NodeType): string => {
-  return TEMPLATE_CONFIGS[nodeType]?.color || "#1890ff";
 };
 
 const getNodeTypeIconComponent = (nodeType: NodeType): React.ReactNode => {
