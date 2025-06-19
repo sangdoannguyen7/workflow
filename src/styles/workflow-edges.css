@@ -1,0 +1,226 @@
+/* Optimized React Flow Edge Styles for Smooth Dragging */
+
+/* Global optimizations for all edges */
+.react-flow__edge {
+  /* Ensure proper stacking order */
+  z-index: 1;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+
+  /* Smooth transitions that sync with node movements */
+  transition: stroke 0.2s ease, stroke-width 0.2s ease !important;
+  /* Hardware acceleration for smooth dragging */
+  will-change: transform;
+}
+
+/* Path optimizations */
+.react-flow__edge-path {
+  transform: translateZ(0);
+
+  /* Smooth stroke transitions */
+  transition: d 0.15s ease-out, stroke 0.2s ease, stroke-width 0.2s ease !important;
+  /* Hardware acceleration */
+  will-change: d, stroke, stroke-width;
+
+  /* Better anti-aliasing */
+  shape-rendering: geometricPrecision;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Optimized edge labels */
+.react-flow__edge-text {
+  font-smooth: always;
+  transform: translateZ(0);
+  /* Prevent layout shifts during drag */
+  will-change: transform;
+
+  /* Better text rendering */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Animated edges - optimized for performance */
+.react-flow__edge.animated .react-flow__edge-path {
+  animation: dashdraw 0.5s linear infinite;
+
+  /* Ensure animation doesn't block drag updates */
+  animation-fill-mode: forwards;
+  /* Optimized animation that doesn't interfere with dragging */
+  stroke-dasharray: 5px 5px;
+}
+
+@keyframes dashdraw {
+  to {
+    stroke-dashoffset: -10px;
+  }
+}
+
+/* Selected edge styles */
+.react-flow__edge.selected .react-flow__edge-path {
+  filter: drop-shadow(0 0 6px rgba(24, 144, 255, 0.4));
+  stroke: #1890ff !important;
+  stroke-width: 3px !important;
+}
+
+/* Edge markers (arrows) optimization */
+.react-flow__arrowhead {
+  transition: fill 0.2s ease !important;
+  fill: #1890ff;
+}
+
+.react-flow__edge.selected .react-flow__arrowhead {
+  filter: drop-shadow(0 0 3px rgba(24, 144, 255, 0.6));
+  fill: #1890ff !important;
+}
+
+/* Connection line while dragging - ultra smooth */
+.react-flow__connection-line {
+  transform: translateZ(0);
+
+  /* No transition on connection line for immediate response */
+  transition: none !important;
+
+  /* Hardware acceleration for real-time following */
+  will-change: d, transform;
+  stroke: #1890ff;
+  stroke-width: 2px;
+  stroke-dasharray: 8px 4px;
+
+  /* Better rendering */
+  shape-rendering: geometricPrecision;
+}
+
+/* Handle optimizations for better drag interaction */
+.react-flow__handle {
+  z-index: 10;
+  transform: translateZ(0);
+
+  /* Better click area */
+  cursor: crosshair;
+
+  /* Smooth hover effects */
+  transition: all 0.15s ease !important;
+  /* Ensure handles are always on top and responsive */
+  will-change: transform, opacity;
+}
+
+.react-flow__handle:hover {
+  box-shadow: 0 0 8px rgba(24, 144, 255, 0.5);
+  transform: scale(1.2) translateZ(0);
+}
+
+.react-flow__handle.connecting {
+  background: #1890ff !important;
+  box-shadow: 0 0 12px rgba(24, 144, 255, 0.6);
+  transform: scale(1.3) translateZ(0);
+}
+
+/* Node optimizations to sync with edges */
+.react-flow__node {
+  /* Ensure proper layering */
+  z-index: 2;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* Hardware acceleration for smooth dragging */
+  will-change: transform;
+}
+
+.react-flow__node.dragging {
+  /* Enhanced styles while dragging */
+  z-index: 1000;
+  cursor: grabbing !important;
+
+  /* Subtle visual feedback */
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+}
+
+/* Selection box optimization */
+.react-flow__selection {
+  background: rgba(24, 144, 255, 0.1);
+  border: 1px dashed #1890ff;
+}
+
+/* Controls optimization */
+.react-flow__controls {
+  /* Better visual integration */
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.react-flow__controls-button {
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.react-flow__controls-button:hover {
+  background: #f0f0f0;
+  transform: translateY(-1px);
+}
+
+/* Minimap optimization */
+.react-flow__minimap {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+/* Performance improvements for large workflows */
+.react-flow__renderer {
+  transform: translateZ(0);
+  /* Enable hardware acceleration for the entire renderer */
+  will-change: transform;
+}
+
+/* Smooth panning and zooming */
+.react-flow__pane {
+  cursor: grab;
+  transition: cursor 0.1s ease;
+}
+
+.react-flow__pane.dragging {
+  cursor: grabbing;
+}
+
+/* Background pattern optimization */
+.react-flow__background {
+  transform: translateZ(0);
+  /* Ensure background doesn't interfere with performance */
+  will-change: transform;
+}
+
+/* Error edge styles */
+.react-flow__edge.error .react-flow__edge-path {
+  animation: error-pulse 1s ease-in-out infinite alternate;
+  stroke: #ff4d4f;
+  stroke-width: 2px;
+  stroke-dasharray: 4px 4px;
+}
+
+@keyframes error-pulse {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.6;
+  }
+}
+
+/* Success edge styles */
+.react-flow__edge.success .react-flow__edge-path {
+  filter: drop-shadow(0 0 4px rgba(82, 196, 26, 0.3));
+  stroke: #52c41a;
+  stroke-width: 2px;
+}
+
+/* Warning edge styles */
+.react-flow__edge.warning .react-flow__edge-path {
+  stroke: #fa8c16;
+  stroke-width: 2px;
+  stroke-dasharray: 6px 2px;
+}
