@@ -523,6 +523,7 @@ const WorkflowCanvas: React.FC<{
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       nodeTypes={nodeTypes}
+      edgeTypes={edgeTypes}
       connectionMode={ConnectionMode.Loose}
       fitView
       attributionPosition="bottom-left"
